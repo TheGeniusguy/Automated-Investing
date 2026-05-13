@@ -1,0 +1,60 @@
+/* React Grid Layout — base styles required for drag/resize. Must precede @tailwind. */
+@import "react-grid-layout/css/styles.css";
+@import "react-resizable/css/styles.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    @apply bg-terminal-bg text-terminal-text font-mono antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  /* Subtle scrollbars to match the terminal look. */
+  ::-webkit-scrollbar           { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track     { background: #0a0a0a; }
+  ::-webkit-scrollbar-thumb     { background: #262626; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+}
+
+@layer components {
+  .panel {
+    @apply bg-terminal-panel border border-terminal-border overflow-hidden flex flex-col;
+  }
+
+  .panel-header {
+    @apply flex items-center justify-between px-3 py-2
+           border-b border-terminal-border bg-black/40
+           text-2xs uppercase tracking-wider text-terminal-muted;
+  }
+
+  .panel-body {
+    @apply flex-1 overflow-auto p-3 text-sm;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-sm
+           text-2xs uppercase tracking-wider font-semibold;
+  }
+}
+
+/* React Grid Layout — themed placeholder/handle look. */
+.react-grid-item.react-grid-placeholder {
+  background: #1f1f1f !important;
+  opacity: 0.4;
+  border-radius: 2px;
+}
+
+.react-grid-item > .react-resizable-handle {
+  opacity: 0.4;
+}
+.react-grid-item > .react-resizable-handle::after {
+  border-color: #525252 !important;
+}

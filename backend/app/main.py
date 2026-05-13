@@ -84,20 +84,14 @@ def _regime_inputs(days: int = 90):
 
 @app.get("/api/regime/current")
 def get_current_regime() -> dict:
-    try:
-        vix, y2, y10 = _regime_inputs(days=30)
-    except Exception as e:
-        raise HTTPException(503, f"Failed to fetch regime inputs: {e}") from e
+    vix, y2, y10 = _regime_inputs(days=30)
     state = regime_model.detect_current(vix, y2, y10)
     return state.to_dict()
 
 
 @app.get("/api/regime/history")
 def get_regime_history(days: int = 365) -> dict:
-    try:
-        vix, y2, y10 = _regime_inputs(days=days)
-    except Exception as e:
-        raise HTTPException(503, f"Failed to fetch regime inputs: {e}") from e
+    vix, y2, y10 = _regime_inputs(days=days)
     history = regime_model.regime_history(vix, y2, y10)
     transitions = regime_model.find_transitions(history, limit=5)
     return {

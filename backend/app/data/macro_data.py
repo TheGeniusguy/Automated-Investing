@@ -99,6 +99,11 @@ def fetch_series(series: str, days: int = 90) -> list[SeriesPoint]:
     fred_series = {"DGS2", "DGS10", "BAMLH0A0HYM2"}
     yf_tickers = {"^VIX", "DX-Y.NYB"}
 
+    # Missing FRED key is a config issue, not a runtime error — surface as
+    # empty data so the UI can render a "configure key" state.
+    if series in fred_series and not settings.has_fred:
+        return []
+
     try:
         if series in fred_series:
             data = _fred_fetch(series, days=days)
@@ -114,7 +119,8 @@ def fetch_series(series: str, days: int = 90) -> list[SeriesPoint]:
         stale = cache.get_stale(cache_key)
         if stale is not None:
             return stale
-        raise
+        # Last resort: empty list so callers can render a degraded state.
+        return []
 
 
 SERIES_META = {
