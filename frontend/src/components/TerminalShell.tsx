@@ -4,10 +4,12 @@ import GridLayout, { type Layout } from "react-grid-layout";
 import { api } from "../api/client";
 import type { HealthResponse } from "../api/types";
 import { MacroRegimeTracker } from "./MacroRegimeTracker";
+import { RegimeJournal } from "./RegimeJournal";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
-  { i: "macro", x: 0, y: 0, w: 12, h: 18, minW: 6, minH: 10 },
+  { i: "macro",   x: 0, y: 0,  w: 12, h: 18, minW: 6, minH: 10 },
+  { i: "journal", x: 0, y: 18, w: 12, h: 20, minW: 6, minH: 12 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -50,6 +52,9 @@ export function TerminalShell() {
         >
           <div key="macro">
             <MacroRegimeTracker />
+          </div>
+          <div key="journal">
+            <RegimeJournal />
           </div>
         </GridLayout>
       </div>

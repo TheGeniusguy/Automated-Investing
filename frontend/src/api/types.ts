@@ -55,3 +55,45 @@ export interface HealthResponse {
   anthropic_configured: boolean;
   claude_model: string;
 }
+
+// ---------- Panel 2: Regime Journal ----------
+
+export interface RegimeSegment {
+  label: RegimeLabel;
+  start: string;            // YYYY-MM-DD
+  end: string;              // YYYY-MM-DD inclusive
+}
+
+export interface JournalSpxResponse {
+  days: number;
+  spx: SeriesPoint[];
+  regime_history: RegimeHistoryEntry[];
+  segments: RegimeSegment[];
+}
+
+export interface StressTestPosition {
+  ticker: string;
+  weight: number;
+}
+
+export interface StressTestSegmentReturn {
+  label: RegimeLabel;
+  start: string;
+  end: string;
+  return: number | null;
+}
+
+export interface StressTestPositionResult {
+  ticker: string;
+  weight: number;
+  regime_returns: Record<RegimeLabel, number | null>;
+  per_segment: StressTestSegmentReturn[];
+  total_return: number | null;
+  data_points: number;
+}
+
+export interface StressTestResponse {
+  segments: { label: RegimeLabel; start: string; end: string; days: number }[];
+  positions: StressTestPositionResult[];
+  aggregate_by_regime: Record<RegimeLabel, number | null>;
+}

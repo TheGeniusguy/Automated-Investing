@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from .briefing import claude_briefing
 from .config import settings
 from .data import macro_data
-from .regime import regime_model
+from .regime import regime_model, stress_test as stress_test_mod
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
 
@@ -48,11 +48,11 @@ def health() -> dict:
 
 @app.get("/api/macro/series")
 def get_all_series(days: int = 90) -> dict:
-    """Return all 5 v1 macro series."""
-    data = macro_data.fetch_all(days=days)
+    """Return the 5 Panel-1 macro series (SPX served via the per-id route)."""
+    data = macro_data.fetch_all(days=days, series=macro_data.PANEL1_SERIES)
     return {
         "days": days,
-        "meta": macro_data.SERIES_META,
+        "meta": {k: macro_data.SERIES_META[k] for k in macro_data.PANEL1_SERIES},
         "series": data,
     }
 
@@ -93,12 +93,43 @@ def get_current_regime() -> dict:
 def get_regime_history(days: int = 365) -> dict:
     vix, y2, y10 = _regime_inputs(days=days)
     history = regime_model.regime_history(vix, y2, y10)
-    transitions = regime_model.find_transitions(history, limit=5)
+    transitions = regime_model.find_transitions(history, limit=10)
     return {
         "days": days,
         "history": history,
         "recent_transitions": transitions,
     }
+
+
+# ---------- Regime Journal (Panel 2) ----------
+
+@app.get("/api/journal/spx")
+def get_spx_for_journal(days: int = 3650) -> dict:
+    """SPX price history, paired with the per-day regime label over the same window."""
+    spx = macro_data.fetch_series("^GSPC", days=days)
+    vix, y2, y10 = _regime_inputs(days=days)
+    history = regime_model.regime_history(vix, y2, y10)
+    return {
+        "days": days,
+        "spx": spx,
+        "regime_history": history,
+        "segments": [
+            {"label": s.label, "start": s.start, "end": s.end}
+            for s in stress_test_mod.collapse_regime_history(history)
+        ],
+    }
+
+
+class StressTestRequest(BaseModel):
+    positions: list[dict]                # [{ticker, weight}]
+    days: int = 3650                     # default ~10 years
+
+
+@app.post("/api/portfolio/stress-test")
+def post_stress_test(req: StressTestRequest) -> dict:
+    vix, y2, y10 = _regime_inputs(days=req.days)
+    history = regime_model.regime_history(vix, y2, y10)
+    return stress_test_mod.stress_test(req.positions, history, days=req.days)
 
 
 # ---------- Briefing (SSE) ----------

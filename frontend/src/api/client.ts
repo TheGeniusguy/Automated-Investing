@@ -1,8 +1,11 @@
 import type {
   HealthResponse,
+  JournalSpxResponse,
   RegimeHistoryResponse,
   RegimeState,
   SeriesBundle,
+  StressTestPosition,
+  StressTestResponse,
 } from "./types";
 
 // In dev, Vite proxies /api → backend. In prod, same-origin or VITE_API_BASE.
@@ -21,6 +24,16 @@ export const api = {
   allSeries:     (days = 90)           => getJSON<SeriesBundle>(`/api/macro/series?days=${days}`),
   currentRegime: ()                    => getJSON<RegimeState>("/api/regime/current"),
   regimeHistory: (days = 365)          => getJSON<RegimeHistoryResponse>(`/api/regime/history?days=${days}`),
+  journalSpx:    (days = 3650)         => getJSON<JournalSpxResponse>(`/api/journal/spx?days=${days}`),
+  stressTest:    (positions: StressTestPosition[], days = 3650) =>
+    fetch(`${API_BASE}/api/portfolio/stress-test`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ positions, days }),
+    }).then(async (r) => {
+      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+      return r.json() as Promise<StressTestResponse>;
+    }),
 };
 
 // SSE briefing — uses fetch streaming because EventSource doesn't support POST.

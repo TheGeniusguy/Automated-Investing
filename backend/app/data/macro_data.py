@@ -73,12 +73,21 @@ def _fred_fetch(series_id: str, days: int = 90) -> list[SeriesPoint]:
 
 
 def _yf_fetch(ticker: str, days: int = 90) -> list[SeriesPoint]:
-    """Fetch a yfinance ticker close-price series."""
+    """Fetch a yfinance ticker close-price series.
+
+    For long windows (>2y) we use start/end dates because yfinance's `period`
+    parameter behaves inconsistently above ~5y across Yahoo endpoints.
+    """
     # Import locally — yfinance is slow to import, defer until needed
     import yfinance as yf
 
-    period_days = max(days + 7, 100)  # buffer for weekends/holidays
-    df = yf.Ticker(ticker).history(period=f"{period_days}d", auto_adjust=False)
+    if days <= 365 * 2:
+        period_days = max(days + 7, 100)
+        df = yf.Ticker(ticker).history(period=f"{period_days}d", auto_adjust=False)
+    else:
+        start_date = (datetime.utcnow().date() - timedelta(days=days + 14)).isoformat()
+        df = yf.Ticker(ticker).history(start=start_date, auto_adjust=False)
+
     if df.empty:
         return []
     df = df.tail(days)
@@ -89,6 +98,26 @@ def _yf_fetch(ticker: str, days: int = 90) -> list[SeriesPoint]:
     ]
 
 
+def fetch_arbitrary_ticker(ticker: str, days: int) -> list[SeriesPoint]:
+    """Fetch any yfinance ticker (used by portfolio stress-test).
+
+    Bypasses SERIES_META — supports arbitrary tickers a user types in.
+    Uses cache, with 1h TTL like the standard yfinance path.
+    """
+    cache_key = f"yf:{ticker}:{days}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+    try:
+        data = _yf_fetch(ticker, days=days)
+        cache.set(cache_key, data, YF_TTL)
+        return data
+    except Exception as e:
+        log.warning("fetch_arbitrary_ticker(%s) failed: %s", ticker, e)
+        stale = cache.get_stale(cache_key)
+        return stale if stale is not None else []
+
+
 def fetch_series(series: str, days: int = 90) -> list[SeriesPoint]:
     """Cached fetch with graceful degradation: serve stale on failure."""
     cache_key = f"series:{series}:{days}"
@@ -97,7 +126,7 @@ def fetch_series(series: str, days: int = 90) -> list[SeriesPoint]:
         return cached
 
     fred_series = {"DGS2", "DGS10", "BAMLH0A0HYM2"}
-    yf_tickers = {"^VIX", "DX-Y.NYB"}
+    yf_tickers = {"^VIX", "DX-Y.NYB", "^GSPC"}
 
     # Missing FRED key is a config issue, not a runtime error — surface as
     # empty data so the UI can render a "configure key" state.
@@ -129,17 +158,20 @@ SERIES_META = {
     "BAMLH0A0HYM2": {"label": "HY Spread (OAS)",      "unit": "%",   "source": "FRED"},
     "^VIX":         {"label": "VIX",                  "unit": "idx", "source": "yfinance"},
     "DX-Y.NYB":     {"label": "Dollar Index (DXY)",   "unit": "idx", "source": "yfinance"},
+    "^GSPC":        {"label": "S&P 500",              "unit": "idx", "source": "yfinance"},
 }
 
+# Panel 1 (Macro Regime Tracker) uses the first 5; SPX is added for Panel 2.
 ALL_SERIES: list[str] = list(SERIES_META.keys())
+PANEL1_SERIES: list[str] = [s for s in ALL_SERIES if s != "^GSPC"]
 
 
-def fetch_all(days: int = 90) -> dict[str, list[SeriesPoint]]:
-    """Fetch all 5 v1 series. Individual failures are logged, not fatal —
-    callers can decide whether to proceed with partial data.
+def fetch_all(days: int = 90, series: list[str] | None = None) -> dict[str, list[SeriesPoint]]:
+    """Fetch all (or a subset of) v1 series. Individual failures are logged,
+    not fatal — callers can decide whether to proceed with partial data.
     """
     out: dict[str, list[SeriesPoint]] = {}
-    for s in ALL_SERIES:
+    for s in (series or ALL_SERIES):
         try:
             out[s] = fetch_series(s, days=days)
         except Exception as e:
