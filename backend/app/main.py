@@ -12,7 +12,8 @@ from pydantic import BaseModel
 
 from .briefing import claude_briefing
 from .config import settings
-from .data import macro_data
+from .correlations import correlation_model
+from .data import macro_data, watchlist
 from .regime import regime_model, stress_test as stress_test_mod
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
@@ -130,6 +131,21 @@ def post_stress_test(req: StressTestRequest) -> dict:
     vix, y2, y10 = _regime_inputs(days=req.days)
     history = regime_model.regime_history(vix, y2, y10)
     return stress_test_mod.stress_test(req.positions, history, days=req.days)
+
+
+# ---------- Correlations (Panel 3) ----------
+
+@app.get("/api/watchlist")
+def get_watchlist() -> dict:
+    return watchlist.watchlist_meta()
+
+
+@app.get("/api/correlations")
+def get_correlations(recent_days: int = 30, baseline_days: int = 365) -> dict:
+    return correlation_model.compute_correlations(
+        recent_days=recent_days,
+        baseline_days=baseline_days,
+    )
 
 
 # ---------- Briefing (SSE) ----------

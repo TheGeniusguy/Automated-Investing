@@ -97,3 +97,36 @@ export interface StressTestResponse {
   positions: StressTestPositionResult[];
   aggregate_by_regime: Record<RegimeLabel, number | null>;
 }
+
+// ---------- Panel 3: Cross-Asset Correlations ----------
+
+export interface CorrelationMatrix {
+  recent:   (number | null)[][];
+  baseline: (number | null)[][];
+  delta:    (number | null)[][];
+}
+
+export interface CorrelationGroup {
+  name:   string;
+  ticker: string;
+  label:  string;
+}
+
+export interface CorrelationBreakdown {
+  a:        string;
+  b:        string;
+  recent:   number | null;
+  baseline: number | null;
+  delta:    number | null;
+  flipped:  boolean;
+}
+
+export interface CorrelationsResponse {
+  tickers:      string[];
+  groups:       CorrelationGroup[];
+  recent_days:  number;
+  baseline_days: number;
+  matrix:       CorrelationMatrix;
+  breakdowns:   CorrelationBreakdown[];
+  dates: { first: string | null; last: string | null; count: number };
+}
