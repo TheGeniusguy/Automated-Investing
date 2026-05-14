@@ -118,6 +118,43 @@ def fetch_arbitrary_ticker(ticker: str, days: int) -> list[SeriesPoint]:
         return stale if stale is not None else []
 
 
+def fetch_explicit(series_id: str, *, source: str, days: int) -> list[SeriesPoint]:
+    """Source-typed fetch used by the catalog/energy/shipping modules.
+
+    `source` is one of 'fred' | 'yfinance'. We bypass the heuristic in
+    `fetch_series` because plain ETF tickers (XLE, USO) can't be cleanly
+    distinguished from short FRED IDs by shape alone.
+    """
+    cache_key = f"explicit:{source}:{series_id}:{days}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    if source == "fred":
+        if not settings.has_fred:
+            return []
+        try:
+            data = _fred_fetch(series_id, days=days)
+            cache.set(cache_key, data, FRED_TTL)
+            _persist_macro_series(series_id, data, source="fred")
+            return data
+        except Exception as e:
+            log.warning("fetch_explicit FRED %s failed: %s", series_id, e)
+            stale = cache.get_stale(cache_key)
+            return stale if stale is not None else []
+    if source == "yfinance":
+        try:
+            data = _yf_fetch(series_id, days=days)
+            cache.set(cache_key, data, YF_TTL)
+            _persist_macro_series(series_id, data, source="yfinance")
+            return data
+        except Exception as e:
+            log.warning("fetch_explicit yfinance %s failed: %s", series_id, e)
+            stale = cache.get_stale(cache_key)
+            return stale if stale is not None else []
+    raise ValueError(f"unknown source: {source}")
+
+
 def fetch_series(series: str, days: int = 90) -> list[SeriesPoint]:
     """Cached fetch with graceful degradation: serve stale on failure."""
     cache_key = f"series:{series}:{days}"
@@ -130,17 +167,22 @@ def fetch_series(series: str, days: int = 90) -> list[SeriesPoint]:
 
     # Missing FRED key is a config issue, not a runtime error — surface as
     # empty data so the UI can render a "configure key" state.
-    if series in fred_series and not settings.has_fred:
+    is_fred = series in fred_series or _looks_like_fred(series)
+    is_yf   = series in yf_tickers or _looks_like_yf(series)
+
+    if is_fred and not settings.has_fred:
         return []
 
     try:
-        if series in fred_series:
+        if is_fred:
             data = _fred_fetch(series, days=days)
             cache.set(cache_key, data, FRED_TTL)
+            _persist_macro_series(series, data, source="fred")
             return data
-        if series in yf_tickers:
+        if is_yf:
             data = _yf_fetch(series, days=days)
             cache.set(cache_key, data, YF_TTL)
+            _persist_macro_series(series, data, source="yfinance")
             return data
         raise ValueError(f"Unknown series: {series}")
     except Exception as e:
@@ -150,6 +192,53 @@ def fetch_series(series: str, days: int = 90) -> list[SeriesPoint]:
             return stale
         # Last resort: empty list so callers can render a degraded state.
         return []
+
+
+def _looks_like_fred(series_id: str) -> bool:
+    """FRED IDs are uppercase alphanumerics, no special chars except digits."""
+    if not series_id:
+        return False
+    if series_id.startswith("^") or "-USD" in series_id or "=F" in series_id or "." in series_id:
+        return False
+    return series_id.replace("_", "").isalnum()
+
+
+def _looks_like_yf(series_id: str) -> bool:
+    return (
+        series_id.startswith("^")
+        or series_id.endswith("-USD")
+        or series_id.endswith("=F")
+        or "." in series_id
+    )
+
+
+def _persist_macro_series(series_id: str, points: list[SeriesPoint], source: str) -> None:
+    """Upsert into macro_series_history. Best-effort — failures are logged
+    but don't block the caller."""
+    if not points:
+        return
+    try:
+        from ..db import engine
+        with engine.conn() as c:
+            for p in points:
+                if p["value"] is None:
+                    continue
+                try:
+                    c.execute(
+                        """
+                        INSERT INTO macro_series_history (series_id, date, value, source, ingested_at)
+                        VALUES (?, ?, ?, ?, now())
+                        ON CONFLICT (series_id, date) DO UPDATE SET
+                            value       = EXCLUDED.value,
+                            source      = EXCLUDED.source,
+                            ingested_at = now()
+                        """,
+                        [series_id, p["date"], p["value"], source],
+                    )
+                except Exception as e:
+                    log.debug("macro persist row failed (%s %s): %s", series_id, p["date"], e)
+    except Exception as e:
+        log.debug("macro persist outer failure for %s: %s", series_id, e)
 
 
 SERIES_META = {

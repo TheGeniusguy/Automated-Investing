@@ -8,26 +8,32 @@ import { CorrelationsPanel } from "./CorrelationsPanel";
 import { DailyBriefingPanel } from "./DailyBriefingPanel";
 import { DataInfraPanel } from "./DataInfraPanel";
 import { EarningsPanel } from "./EarningsPanel";
+import { EnergyPanel } from "./EnergyPanel";
 import { FilingsPanel } from "./FilingsPanel";
 import { FundamentalsBrowser } from "./FundamentalsBrowser";
+import { MacroExplorer } from "./MacroExplorer";
 import { MacroRegimeTracker } from "./MacroRegimeTracker";
 import { NewsPanel } from "./NewsPanel";
 import { OptionsPanel } from "./OptionsPanel";
 import { RegimeJournal } from "./RegimeJournal";
+import { ShippingPanel } from "./ShippingPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
   { i: "briefing",      x: 0, y: 0,   w: 12, h: 16, minW: 6, minH: 10 },
   { i: "chat",          x: 0, y: 16,  w: 12, h: 18, minW: 6, minH: 12 },
   { i: "macro",         x: 0, y: 34,  w: 12, h: 18, minW: 6, minH: 10 },
-  { i: "journal",       x: 0, y: 52,  w: 12, h: 20, minW: 6, minH: 12 },
-  { i: "correlations",  x: 0, y: 72,  w: 12, h: 22, minW: 6, minH: 12 },
-  { i: "options",       x: 0, y: 94,  w: 12, h: 16, minW: 6, minH: 10 },
-  { i: "earnings",      x: 0, y: 110, w: 12, h: 18, minW: 6, minH: 10 },
-  { i: "news",          x: 0, y: 128, w: 12, h: 18, minW: 6, minH: 10 },
-  { i: "filings",       x: 0, y: 146, w: 12, h: 18, minW: 6, minH: 10 },
-  { i: "data-infra",    x: 0, y: 164, w: 12, h: 22, minW: 6, minH: 14 },
-  { i: "fundamentals",  x: 0, y: 186, w: 12, h: 22, minW: 6, minH: 14 },
+  { i: "macro-explorer",x: 0, y: 52,  w: 12, h: 22, minW: 6, minH: 14 },
+  { i: "energy",        x: 0, y: 74,  w: 12, h: 22, minW: 6, minH: 14 },
+  { i: "shipping",      x: 0, y: 96,  w: 12, h: 16, minW: 6, minH: 10 },
+  { i: "journal",       x: 0, y: 112, w: 12, h: 20, minW: 6, minH: 12 },
+  { i: "correlations",  x: 0, y: 132, w: 12, h: 22, minW: 6, minH: 12 },
+  { i: "options",       x: 0, y: 154, w: 12, h: 16, minW: 6, minH: 10 },
+  { i: "earnings",      x: 0, y: 170, w: 12, h: 18, minW: 6, minH: 10 },
+  { i: "news",          x: 0, y: 188, w: 12, h: 18, minW: 6, minH: 10 },
+  { i: "filings",       x: 0, y: 206, w: 12, h: 18, minW: 6, minH: 10 },
+  { i: "data-infra",    x: 0, y: 224, w: 12, h: 22, minW: 6, minH: 14 },
+  { i: "fundamentals",  x: 0, y: 246, w: 12, h: 22, minW: 6, minH: 14 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -76,6 +82,15 @@ export function TerminalShell() {
           </div>
           <div key="macro">
             <MacroRegimeTracker />
+          </div>
+          <div key="macro-explorer">
+            <MacroExplorer />
+          </div>
+          <div key="energy">
+            <EnergyPanel />
+          </div>
+          <div key="shipping">
+            <ShippingPanel />
           </div>
           <div key="journal">
             <RegimeJournal />

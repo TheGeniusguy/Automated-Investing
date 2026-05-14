@@ -14,7 +14,18 @@ from .briefing import claude_briefing, daily_briefing as daily_briefing_mod
 from .chat import terminal_chat
 from .config import settings
 from .correlations import correlation_model
-from .data import earnings as earnings_mod, macro_data, news as news_mod, options as options_mod, sec_edgar, watchlist
+from .data import (
+    earnings as earnings_mod,
+    eia_energy,
+    fred_catalog,
+    macro_data,
+    macro_snapshot,
+    news as news_mod,
+    options as options_mod,
+    sec_edgar,
+    shipping as shipping_mod,
+    watchlist,
+)
 from .db import engine as db_engine
 from .ingest import fundamentals as ingest_fundamentals
 from .ingest import instruments as ingest_instruments
@@ -69,18 +80,66 @@ def get_all_series(days: int = 90) -> dict:
 
 
 @app.get("/api/macro/series/{series_id}")
-def get_one_series(series_id: str, days: int = 90) -> dict:
-    if series_id not in macro_data.ALL_SERIES:
-        raise HTTPException(404, f"Unknown series: {series_id}")
+def get_one_series(series_id: str, days: int = 365) -> dict:
+    """Returns a series — either from the Panel-1 hardcoded set or any FRED/yfinance
+    ID via the expanded catalog."""
+    meta = macro_data.SERIES_META.get(series_id)
+    if meta is None:
+        cat_entry = fred_catalog.series_by_id(series_id)
+        if cat_entry is not None:
+            meta = {"label": cat_entry.label, "unit": cat_entry.unit, "source": "FRED"}
+        else:
+            meta = {"label": series_id, "unit": "", "source": "yfinance" if macro_data._looks_like_yf(series_id) else "FRED"}
     try:
         points = macro_data.fetch_series(series_id, days=days)
     except Exception as e:
         raise HTTPException(503, f"Failed to fetch {series_id}: {e}") from e
     return {
         "series_id": series_id,
-        "meta": macro_data.SERIES_META[series_id],
+        "meta": meta,
         "points": points,
     }
+
+
+# ---------- Macro catalog (Panel 12) ----------
+
+@app.get("/api/macro/catalog")
+def get_macro_catalog() -> dict:
+    return {
+        "categories": fred_catalog.categories(),
+        "order":      fred_catalog.CATEGORY_ORDER,
+    }
+
+
+@app.get("/api/macro/snapshot/{category}")
+def get_macro_snapshot(category: str, days: int = 365) -> dict:
+    if category not in fred_catalog.CATALOG:
+        raise HTTPException(404, f"Unknown category: {category}")
+    return macro_snapshot.snapshot_category(category, days=days)
+
+
+@app.get("/api/macro/highlights")
+def get_macro_highlights(days: int = 365, per_cat: int = 2) -> dict:
+    return {"tiles": macro_snapshot.snapshot_all_highlights(days=days, per_cat=per_cat)}
+
+
+# ---------- Energy Detail (Panel 13) ----------
+
+@app.get("/api/energy/dashboard")
+def get_energy_dashboard() -> dict:
+    return eia_energy.fetch_full()
+
+
+@app.get("/api/energy/section/{section}")
+def get_energy_section(section: str) -> dict:
+    return eia_energy.fetch_section(section)
+
+
+# ---------- Shipping & Freight (Panel 14) ----------
+
+@app.get("/api/shipping/dashboard")
+def get_shipping_dashboard() -> dict:
+    return shipping_mod.fetch_shipping()
 
 
 # ---------- Regime ----------

@@ -18,10 +18,13 @@ from typing import AsyncIterator
 from ..config import settings
 from ..correlations import correlation_model
 from ..data import earnings as earnings_mod
+from ..data import eia_energy
 from ..data import macro_data
+from ..data import macro_snapshot
 from ..data import news as news_mod
 from ..data import options as options_mod
 from ..data import sec_edgar
+from ..data import shipping as shipping_mod
 from ..data import watchlist
 from ..db import engine as db_engine
 from ..regime import regime_model
@@ -30,25 +33,57 @@ log = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = (
     "You are writing a daily market briefing for a sharp retail investor. "
-    "You have access to: current macro regime, the most-decoupled "
-    "asset-class correlation pairs, VIX term structure, upcoming earnings, "
-    "and recent material 8-K filings. Write 3 short paragraphs:\n"
+    "You have full-context access to:\n"
+    "  - macro regime (rule-based VIX + yield-curve classification)\n"
+    "  - yield curves (treasuries 1M–30Y) and credit spreads (HY/IG/CCC OAS)\n"
+    "  - inflation reads (CPI, PCE, breakevens, sticky CPI, U-Mich expectations)\n"
+    "  - employment (NFP, unemployment, JOLTS, claims, AHE)\n"
+    "  - housing (starts, permits, mortgage rates, Case-Shiller)\n"
+    "  - manufacturing & consumer (ISM proxies, retail sales, sentiment)\n"
+    "  - energy (WTI/Brent/HH gas/gasoline + weekly EIA inventories)\n"
+    "  - shipping/freight (rail carloads, truck tonnage, BDRY, CFNAI)\n"
+    "  - Fed (DXY, fed funds, balance sheet, RRP)\n"
+    "  - correlation-breakdowns, VIX term structure, upcoming earnings, "
+    "    recent 8-K filings, top news\n"
     "\n"
-    "**1. The setup.** What regime are we in, what's the VIX term structure "
-    "saying, where are the biggest correlation breaks. One sentence on the "
-    "macro climate.\n"
+    "Write 3 short paragraphs:\n"
     "\n"
-    "**2. What changed.** The most important new piece of information in the "
-    "last 24 hours — a regime change, a correlation flip, an upcoming "
-    "earnings event with unusual implied move, or a material 8-K. Be "
-    "specific, cite numbers.\n"
+    "**1. The setup.** What regime are we in. Cite VIX term structure, "
+    "the relevant credit spreads, and the dominant correlation breakdowns. "
+    "One concrete sentence on the macro climate.\n"
     "\n"
-    "**3. What to watch.** One concrete thing to monitor today. Not "
-    "advice — observations. Cite the relevant levels or events.\n"
+    "**2. What changed.** The most important piece of new information — "
+    "a regime change, a correlation flip, an earnings event with unusual "
+    "implied move, a notable 8-K, a fresh inflation/employment print, or "
+    "a meaningful energy/freight move. Specific numbers.\n"
+    "\n"
+    "**3. What to watch.** One concrete thing to monitor today. "
+    "Levels, releases, or events. Not advice — observations.\n"
     "\n"
     "No filler. No 'consult a professional.' No 'past performance.' "
     "Plain prose, short sentences, specific numbers."
 )
+
+
+# Highlight series we always include in the briefing context for breadth.
+BRIEFING_HIGHLIGHTS: list[str] = [
+    # Yields & spreads
+    "DGS2", "DGS10", "T10Y2Y", "T10Y3M", "BAMLH0A0HYM2", "BAMLC0A0CM",
+    # Inflation
+    "CPIAUCSL", "CPILFESL", "PCEPILFE", "T10YIE",
+    # Employment
+    "PAYEMS", "UNRATE", "ICSA",
+    # Activity
+    "INDPRO", "RSXFS", "UMCSENT",
+    # Housing
+    "HOUST", "MORTGAGE30US",
+    # Monetary
+    "WALCL", "DTWEXBGS",
+    # Energy
+    "DCOILWTICO", "DCOILBRENTEU", "DHHNGSP", "GASREGW",
+    # Freight
+    "RAILFRTCARLOADSD11", "TRUCKD11", "CFNAI",
+]
 
 
 def assemble_context() -> dict:
@@ -122,11 +157,45 @@ def assemble_context() -> dict:
         log.warning("news failed: %s", e)
         top_news = []
 
+    # Macro highlights — current value + change for ~25 highest-signal indicators
+    macro_highlights: list[dict] = []
+    for sid in BRIEFING_HIGHLIGHTS:
+        try:
+            tile = macro_snapshot.snapshot_series(sid, days=180)
+            if tile["latest"] is None:
+                continue
+            macro_highlights.append({
+                "id":         tile["id"],
+                "label":      tile["label"],
+                "unit":       tile["unit"],
+                "latest":     tile["latest"],
+                "latest_date": tile["latest_date"],
+                "delta_pct":  tile["delta_pct"],
+                "category":   tile.get("category"),
+            })
+        except Exception as e:
+            log.debug("highlight %s failed: %s", sid, e)
+
+    # Energy + shipping high-level
+    try:
+        energy_prices    = eia_energy.fetch_section("prices")
+        energy_inv       = eia_energy.fetch_section("inventories")
+    except Exception:
+        energy_prices = energy_inv = {"tiles": []}
+    try:
+        shipping_dash = shipping_mod.fetch_shipping(days=180)
+    except Exception:
+        shipping_dash = {"tiles": []}
+
     return {
         "as_of":             datetime.utcnow().isoformat(timespec="seconds") + "Z",
         "regime":            regime,
         "vix_term":          vix_term,
         "top_breakdowns":    top_breakdowns,
+        "macro_highlights":  macro_highlights,
+        "energy_prices":     [_compact_tile(t) for t in energy_prices.get("tiles", [])],
+        "energy_inventories": [_compact_tile(t) for t in energy_inv.get("tiles", [])],
+        "shipping":          [_compact_tile(t) for t in shipping_dash.get("tiles", [])],
         "upcoming_earnings": upcoming,
         "recent_8k":         [
             {"ticker": f["ticker"], "filing_date": f["filing_date"], "items": f["items"], "url": f["url"]}
@@ -136,6 +205,18 @@ def assemble_context() -> dict:
             {"title": n["title"], "publisher": n["publisher"], "tickers": n["tickers"], "published": n["published"]}
             for n in top_news
         ],
+    }
+
+
+def _compact_tile(t: dict) -> dict:
+    """Trim a snapshot tile down to the fields the LLM actually needs."""
+    return {
+        "id":         t.get("id"),
+        "label":      t.get("label"),
+        "unit":       t.get("unit"),
+        "latest":     t.get("latest"),
+        "latest_date": t.get("latest_date"),
+        "delta_pct":  t.get("delta_pct"),
     }
 
 

@@ -344,3 +344,68 @@ export interface DailyBriefingCached {
   context: DailyBriefingContext | null;
   generated_at: string | null;
 }
+
+// ---------- Panel 12/13/14: Macro Explorer + Energy + Shipping ----------
+
+export interface MacroCatalogSeries {
+  id: string;
+  label: string;
+  unit: string;
+  frequency: string;
+  note: string;
+}
+
+export interface MacroCategory {
+  id: string;
+  label: string;
+  count: number;
+  series: MacroCatalogSeries[];
+}
+
+export interface MacroCatalog {
+  categories: MacroCategory[];
+  order: string[];
+}
+
+export interface MacroTile {
+  id: string;
+  label: string;
+  unit?: string;
+  frequency?: string;
+  note?: string;
+  category?: string;
+  source?: string;
+  latest: number | null;
+  latest_date: string | null;
+  prior?: number | null;
+  prior_date?: string | null;
+  delta_abs?: number | null;
+  delta_pct: number | null;
+  min_1y?: number | null;
+  max_1y?: number | null;
+  trail: SeriesPoint[];
+  error?: string | null;
+}
+
+export interface MacroSnapshot {
+  category: string;
+  category_label: string;
+  tiles: MacroTile[];
+}
+
+export interface EnergySection {
+  section: string;
+  label: string;
+  tiles: MacroTile[];
+  fetched_at?: string;
+}
+
+export interface EnergyDashboard {
+  sections: EnergySection[];
+  fetched_at: string;
+}
+
+export interface ShippingDashboard {
+  tiles: MacroTile[];
+  fetched_at: string;
+}

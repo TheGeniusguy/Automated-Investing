@@ -21,10 +21,13 @@ from pydantic import BaseModel
 from ..config import settings
 from ..correlations import correlation_model
 from ..data import earnings as earnings_mod
+from ..data import eia_energy
 from ..data import macro_data
+from ..data import macro_snapshot
 from ..data import news as news_mod
 from ..data import options as options_mod
 from ..data import sec_edgar
+from ..data import shipping as shipping_mod
 from ..data import watchlist
 from ..regime import regime_model
 
@@ -33,15 +36,36 @@ log = logging.getLogger(__name__)
 SYSTEM_PROMPT = (
     "You are the conversational surface of a personal Bloomberg-style "
     "market intelligence terminal. The user can ask you anything about "
-    "markets, their portfolio, or what's happening today. You have access "
-    "to a structured snapshot of the terminal's live state — regime, "
-    "correlations, VIX, earnings, filings, news — provided in the FIRST "
-    "user message of every turn. Reason across all of it; cite specific "
-    "numbers. Speak like a sharp colleague: direct, plain, concrete. "
-    "If asked something you can't answer from the snapshot, say so. "
-    "Don't hedge; don't recite generic financial advice; don't add "
-    "compliance boilerplate."
+    "markets, their portfolio, the macroeconomy, or what's happening "
+    "today. You have access to a structured terminal snapshot provided "
+    "in the FIRST user message of every turn, covering:\n"
+    "  - macro regime (rule-based VIX + yield-curve classification)\n"
+    "  - 25+ macro indicators (yields, credit spreads, inflation, "
+    "employment, housing, manufacturing, consumer, monetary, Fed balance "
+    "sheet, dollar)\n"
+    "  - VIX term structure (9d/30d/3m/6m)\n"
+    "  - cross-asset correlations + breakdowns\n"
+    "  - upcoming earnings + 8-K filings + top news\n"
+    "  - energy prices and weekly EIA inventories\n"
+    "  - shipping/freight (BDRY, rail carloads, truck tonnage, CFNAI)\n"
+    "\n"
+    "Reason across all of it; cite specific numbers. Speak like a sharp "
+    "colleague: direct, plain, concrete. If asked something you can't "
+    "answer from the snapshot, say so. Don't hedge; don't recite generic "
+    "financial advice; don't add compliance boilerplate."
 )
+
+
+CHAT_HIGHLIGHTS: list[str] = [
+    "DGS2", "DGS10", "T10Y2Y", "BAMLH0A0HYM2", "BAMLC0A0CM",
+    "CPILFESL", "PCEPILFE", "T10YIE",
+    "PAYEMS", "UNRATE", "ICSA", "JTSJOL",
+    "INDPRO", "RSXFS", "UMCSENT",
+    "HOUST", "MORTGAGE30US",
+    "WALCL", "DTWEXBGS", "DFF",
+    "DCOILWTICO", "DCOILBRENTEU", "DHHNGSP", "GASREGW",
+    "CFNAI", "RAILFRTCARLOADSD11", "TRUCKD11",
+]
 
 
 class ChatMessage(BaseModel):
@@ -111,14 +135,50 @@ def assemble_terminal_snapshot() -> dict:
     except Exception:
         top_news = []
 
+    # Macro highlights — broad indicator slate
+    macro_highlights: list[dict] = []
+    for sid in CHAT_HIGHLIGHTS:
+        try:
+            tile = macro_snapshot.snapshot_series(sid, days=180)
+            if tile["latest"] is None:
+                continue
+            macro_highlights.append({
+                "id":         tile["id"],
+                "label":      tile["label"],
+                "unit":       tile["unit"],
+                "latest":     tile["latest"],
+                "latest_date": tile["latest_date"],
+                "delta_pct":  tile["delta_pct"],
+                "category":   tile.get("category"),
+            })
+        except Exception:
+            pass
+
+    try:
+        energy_prices = eia_energy.fetch_section("prices").get("tiles", [])
+        shipping_tiles = shipping_mod.fetch_shipping(days=180).get("tiles", [])
+    except Exception:
+        energy_prices = []
+        shipping_tiles = []
+
+    def _compact(t):
+        return {
+            "id": t.get("id"), "label": t.get("label"), "unit": t.get("unit"),
+            "latest": t.get("latest"), "latest_date": t.get("latest_date"),
+            "delta_pct": t.get("delta_pct"),
+        }
+
     return {
-        "as_of":          datetime.utcnow().isoformat(timespec="seconds") + "Z",
-        "regime":         regime,
-        "vix_term":       vix_term,
-        "breakdowns":     breakdowns,
+        "as_of":             datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "regime":            regime,
+        "vix_term":          vix_term,
+        "breakdowns":        breakdowns,
+        "macro_highlights":  macro_highlights,
+        "energy_prices":     [_compact(t) for t in energy_prices],
+        "shipping":          [_compact(t) for t in shipping_tiles],
         "upcoming_earnings": upcoming,
-        "recent_8k":      recent_filings,
-        "top_news":       top_news,
+        "recent_8k":         recent_filings,
+        "top_news":          top_news,
     }
 
 

@@ -8,8 +8,13 @@ import type {
   ChainSummaries,
   DailyBriefingCached,
   EarningsOverview,
+  EnergyDashboard,
+  EnergySection,
   InstrumentSearchResult,
+  MacroCatalog,
+  MacroSnapshot,
   NewsFeed,
+  ShippingDashboard,
   VixTerm,
   JournalSpxResponse,
   RegimeHistoryResponse,
@@ -85,6 +90,15 @@ export const api = {
 
   // Daily briefing
   dailyBriefingCached: () => getJSON<DailyBriefingCached>("/api/briefing/daily/cached"),
+
+  // Macro catalog / snapshots
+  macroCatalog:     () => getJSON<MacroCatalog>("/api/macro/catalog"),
+  macroSnapshot:    (category: string) => getJSON<MacroSnapshot>(`/api/macro/snapshot/${encodeURIComponent(category)}`),
+
+  // Energy / Shipping
+  energyDashboard:  () => getJSON<EnergyDashboard>("/api/energy/dashboard"),
+  energySection:    (section: string) => getJSON<EnergySection>(`/api/energy/section/${encodeURIComponent(section)}`),
+  shippingDashboard: () => getJSON<ShippingDashboard>("/api/shipping/dashboard"),
 
   // ETL triggers
   ingestUniverse: () =>
