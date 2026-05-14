@@ -14,6 +14,10 @@ from .briefing import claude_briefing
 from .config import settings
 from .correlations import correlation_model
 from .data import macro_data, sec_edgar, watchlist
+from .db import engine as db_engine
+from .ingest import fundamentals as ingest_fundamentals
+from .ingest import instruments as ingest_instruments
+from .ingest import prices as ingest_prices
 from .regime import regime_model, stress_test as stress_test_mod
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
@@ -23,6 +27,11 @@ app = FastAPI(
     description="Personal Bloomberg + AI macro intelligence layer.",
     version="0.1.0",
 )
+
+
+@app.on_event("startup")
+def _on_startup() -> None:
+    db_engine.init()
 
 app.add_middleware(
     CORSMiddleware,
@@ -185,6 +194,186 @@ def get_filings_defaults() -> dict:
         "default_tickers": watchlist.DEFAULT_EQUITIES_WATCHLIST,
         "form_meta": sec_edgar.FORM_TYPES,
     }
+
+
+# ---------- Data Infrastructure (Panel 5) ----------
+
+@app.get("/api/db/status")
+def get_db_status() -> dict:
+    """Counts + date ranges + recent ETL runs."""
+    def _count(table: str) -> int:
+        row = db_engine.fetchone(f"SELECT count(*) FROM {table}")
+        return int(row[0]) if row else 0
+
+    def _date_range(table: str, col: str = "date") -> dict:
+        row = db_engine.fetchone(f"SELECT min({col}), max({col}) FROM {table}")
+        return {"first": str(row[0]) if row and row[0] else None,
+                "last":  str(row[1]) if row and row[1] else None}
+
+    tables = {
+        "instruments":            _count("instruments"),
+        "prices_daily":           _count("prices_daily"),
+        "fundamentals_quarterly": _count("fundamentals_quarterly"),
+        "corporate_actions":      _count("corporate_actions"),
+        "macro_series_history":   _count("macro_series_history"),
+        "filings_archive":        _count("filings_archive"),
+    }
+
+    instrument_types = {
+        t: int(n) for t, n in db_engine.fetchall(
+            "SELECT COALESCE(type,'unknown') t, count(*) FROM instruments GROUP BY t ORDER BY count(*) DESC"
+        )
+    }
+
+    price_range = _date_range("prices_daily")
+    fundamentals_range = _date_range("fundamentals_quarterly", col="period_end")
+
+    runs = db_engine.fetchall(
+        """
+        SELECT id, source, target, status, started_at, completed_at, rows_out, note
+        FROM etl_runs
+        ORDER BY started_at DESC
+        LIMIT 25
+        """
+    )
+    recent_runs = [
+        {
+            "id":           int(r[0]),
+            "source":       r[1],
+            "target":       r[2],
+            "status":       r[3],
+            "started_at":   str(r[4]) if r[4] else None,
+            "completed_at": str(r[5]) if r[5] else None,
+            "rows_out":     int(r[6]) if r[6] is not None else 0,
+            "note":         r[7],
+        }
+        for r in runs
+    ]
+
+    return {
+        "tables":            tables,
+        "instrument_types":  instrument_types,
+        "price_range":       price_range,
+        "fundamentals_range": fundamentals_range,
+        "recent_runs":       recent_runs,
+        "db_path":           str(db_engine.db_path()),
+    }
+
+
+@app.get("/api/db/instruments/search")
+def search_instruments(q: str = "", limit: int = 25) -> dict:
+    q = q.strip()
+    if not q:
+        return {"results": []}
+    like = f"%{q.lower()}%"
+    rows = db_engine.fetchall(
+        """
+        SELECT symbol, cik, name, type, source
+        FROM instruments
+        WHERE lower(symbol) LIKE ? OR lower(name) LIKE ?
+        ORDER BY
+            CASE WHEN lower(symbol) = ? THEN 0
+                 WHEN lower(symbol) LIKE ? THEN 1
+                 ELSE 2 END,
+            symbol
+        LIMIT ?
+        """,
+        [like, like, q.lower(), q.lower() + "%", limit],
+    )
+    return {
+        "results": [
+            {"symbol": r[0], "cik": r[1], "name": r[2], "type": r[3], "source": r[4]}
+            for r in rows
+        ]
+    }
+
+
+@app.get("/api/db/prices")
+def get_db_prices(symbol: str, days: int = 365) -> dict:
+    symbol = symbol.upper().strip()
+    rows = db_engine.fetchall(
+        """
+        SELECT date, open, high, low, close, adj_close, volume
+        FROM prices_daily
+        WHERE symbol = ?
+        ORDER BY date DESC
+        LIMIT ?
+        """,
+        [symbol, days],
+    )
+    points = [
+        {
+            "date":      str(r[0]),
+            "open":      r[1],
+            "high":      r[2],
+            "low":       r[3],
+            "close":     r[4],
+            "adj_close": r[5],
+            "volume":    r[6],
+        }
+        for r in reversed(rows)
+    ]
+    return {"symbol": symbol, "points": points, "count": len(points)}
+
+
+@app.get("/api/db/fundamentals")
+def get_db_fundamentals(symbol: str) -> dict:
+    symbol = symbol.upper().strip()
+    rows = db_engine.fetchall(
+        """
+        SELECT period_end, period_label,
+               revenue, gross_profit, operating_income, net_income,
+               eps_basic, eps_diluted,
+               gross_margin, operating_margin, net_margin,
+               operating_cash_flow, free_cash_flow,
+               total_assets, total_equity, long_term_debt
+        FROM fundamentals_quarterly
+        WHERE symbol = ?
+        ORDER BY period_end ASC
+        """,
+        [symbol],
+    )
+    quarters = [
+        {
+            "period_end":         str(r[0]),
+            "period_label":       r[1],
+            "revenue":            r[2],
+            "gross_profit":       r[3],
+            "operating_income":   r[4],
+            "net_income":         r[5],
+            "eps_basic":          r[6],
+            "eps_diluted":        r[7],
+            "gross_margin":       r[8],
+            "operating_margin":   r[9],
+            "net_margin":         r[10],
+            "operating_cash_flow": r[11],
+            "free_cash_flow":     r[12],
+            "total_assets":       r[13],
+            "total_equity":       r[14],
+            "long_term_debt":     r[15],
+        }
+        for r in rows
+    ]
+    return {"symbol": symbol, "quarters": quarters, "count": len(quarters)}
+
+
+# ---------- Ingest triggers ----------
+
+@app.post("/api/ingest/universe")
+def ingest_universe() -> dict:
+    return ingest_instruments.bootstrap_universe()
+
+
+@app.post("/api/ingest/prices")
+def ingest_prices_endpoint(symbols: str, days: int = 3650) -> dict:
+    sym_list = [s.strip().upper() for s in symbols.split(",") if s.strip()]
+    return ingest_prices.backfill_symbols(sym_list, days=days)
+
+
+@app.post("/api/ingest/fundamentals")
+def ingest_fundamentals_endpoint(symbols: str) -> dict:
+    sym_list = [s.strip().upper() for s in symbols.split(",") if s.strip()]
+    return ingest_fundamentals.ingest_fundamentals_batch(sym_list)
 
 
 # ---------- Briefing (SSE) ----------

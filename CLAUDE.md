@@ -63,17 +63,23 @@ bun run build # tsc -b && vite build — type-checks too
 bun lint
 ```
 
-### Cache
+### Caches and stores
 
-The backend writes `backend/cache.db` (sqlite). Delete it to force-refresh data:
+Two persistence layers, with different jobs:
 
-```bash
-rm backend/cache.db backend/cache.db-journal 2>/dev/null
-```
-
-This is the right move whenever a fetcher behaviour changes — e.g. after a
-`yfinance` upgrade — because empty payloads cached during a failure mode will be
-served as "fresh" until their TTL expires.
+- **`backend/cache.db`** (sqlite TTL cache) — short-lived "did we already
+  fetch this in the last hour?" memory for the live API fetchers. Empty
+  payloads can be cached during transient failures, so delete it after
+  upgrading data libraries (e.g. `yfinance`):
+  ```bash
+  rm backend/cache.db backend/cache.db-journal 2>/dev/null
+  ```
+- **`backend/data/market.duckdb`** (DuckDB, gitignored) — the persistent
+  analytical store. Schema in `backend/app/db/schema.sql`, applied
+  automatically on startup. Holds the instruments universe (~10k+ rows from
+  EDGAR), accumulated daily prices, quarterly fundamentals, corporate
+  actions, and ETL run history. Safe to delete; the next startup re-applies
+  the schema, and the universe rebuilds in ~15s.
 
 ## Configuration
 
@@ -113,6 +119,16 @@ claude_briefing.assemble_context ── Anthropic SDK streaming ── SSE ─�
 
 - `config.py` — pydantic-settings; the `has_fred` / `has_anthropic` properties
   drive the degraded-state branches throughout the codebase.
+- `db/` — DuckDB persistence layer. `engine.py` opens per-call connections
+  (DuckDB is single-threaded per connection); `schema.sql` defines the
+  analytical tables; `etl_runs` tracks every ingest. **Gotcha:** DuckDB
+  parses bare `current_timestamp` as a column ref inside
+  `ON CONFLICT DO UPDATE SET` — always use `now()` instead.
+- `ingest/` — ETL modules. `instruments.py` bootstraps the universe from
+  EDGAR's `company_tickers.json`; `prices.py` backfills OHLCV +
+  corporate-actions via yfinance with per-symbol upserts; `fundamentals.py`
+  pulls quarterly income/balance/cashflow and computes margins. All three
+  log start/finish to the `etl_runs` table.
 - `data/cache.py` — sqlite TTL cache. `get()` honors TTL; `get_stale()` returns
   anything (used as a fallback when an upstream fetch fails).
 - `data/macro_data.py` — fetchers for FRED + yfinance.

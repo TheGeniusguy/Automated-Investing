@@ -4,16 +4,20 @@ import GridLayout, { type Layout } from "react-grid-layout";
 import { api } from "../api/client";
 import type { HealthResponse } from "../api/types";
 import { CorrelationsPanel } from "./CorrelationsPanel";
+import { DataInfraPanel } from "./DataInfraPanel";
 import { FilingsPanel } from "./FilingsPanel";
+import { FundamentalsBrowser } from "./FundamentalsBrowser";
 import { MacroRegimeTracker } from "./MacroRegimeTracker";
 import { RegimeJournal } from "./RegimeJournal";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
-  { i: "macro",        x: 0, y: 0,  w: 12, h: 18, minW: 6, minH: 10 },
-  { i: "journal",      x: 0, y: 18, w: 12, h: 20, minW: 6, minH: 12 },
-  { i: "correlations", x: 0, y: 38, w: 12, h: 22, minW: 6, minH: 12 },
-  { i: "filings",      x: 0, y: 60, w: 12, h: 18, minW: 6, minH: 10 },
+  { i: "macro",         x: 0, y: 0,   w: 12, h: 18, minW: 6, minH: 10 },
+  { i: "journal",       x: 0, y: 18,  w: 12, h: 20, minW: 6, minH: 12 },
+  { i: "correlations",  x: 0, y: 38,  w: 12, h: 22, minW: 6, minH: 12 },
+  { i: "filings",       x: 0, y: 60,  w: 12, h: 18, minW: 6, minH: 10 },
+  { i: "data-infra",    x: 0, y: 78,  w: 12, h: 22, minW: 6, minH: 14 },
+  { i: "fundamentals",  x: 0, y: 100, w: 12, h: 22, minW: 6, minH: 14 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -65,6 +69,12 @@ export function TerminalShell() {
           </div>
           <div key="filings">
             <FilingsPanel />
+          </div>
+          <div key="data-infra">
+            <DataInfraPanel />
+          </div>
+          <div key="fundamentals">
+            <FundamentalsBrowser />
           </div>
         </GridLayout>
       </div>

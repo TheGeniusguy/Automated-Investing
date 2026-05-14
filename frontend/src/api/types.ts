@@ -166,3 +166,58 @@ export interface FilingsDefaults {
   default_tickers: string[];
   form_meta:       Record<string, FormMeta>;
 }
+
+// ---------- Panel 5 / 6: DuckDB ----------
+
+export interface DbStatus {
+  tables: Record<string, number>;
+  instrument_types: Record<string, number>;
+  price_range: { first: string | null; last: string | null };
+  fundamentals_range: { first: string | null; last: string | null };
+  recent_runs: EtlRun[];
+  db_path: string;
+}
+
+export interface EtlRun {
+  id: number;
+  source: string;
+  target: string | null;
+  status: string;
+  started_at: string | null;
+  completed_at: string | null;
+  rows_out: number;
+  note: string | null;
+}
+
+export interface InstrumentSearchResult {
+  symbol: string;
+  cik: string | null;
+  name: string;
+  type: string;
+  source: string;
+}
+
+export interface FundamentalsQuarter {
+  period_end: string;
+  period_label: string;
+  revenue: number | null;
+  gross_profit: number | null;
+  operating_income: number | null;
+  net_income: number | null;
+  eps_basic: number | null;
+  eps_diluted: number | null;
+  gross_margin: number | null;
+  operating_margin: number | null;
+  net_margin: number | null;
+  operating_cash_flow: number | null;
+  free_cash_flow: number | null;
+  total_assets: number | null;
+  total_equity: number | null;
+  long_term_debt: number | null;
+}
+
+export interface FundamentalsResponse {
+  symbol: string;
+  quarters: FundamentalsQuarter[];
+  count: number;
+}

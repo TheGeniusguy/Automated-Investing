@@ -1,8 +1,11 @@
 import type {
   CorrelationsResponse,
+  DbStatus,
   FilingsDefaults,
   FilingsResponse,
+  FundamentalsResponse,
   HealthResponse,
+  InstrumentSearchResult,
   JournalSpxResponse,
   RegimeHistoryResponse,
   RegimeState,
@@ -48,7 +51,35 @@ export const api = {
       if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
       return r.json() as Promise<StressTestResponse>;
     }),
+
+  // DuckDB
+  dbStatus: () => getJSON<DbStatus>("/api/db/status"),
+  searchInstruments: (q: string, limit = 15) =>
+    getJSON<{ results: InstrumentSearchResult[] }>(
+      `/api/db/instruments/search?q=${encodeURIComponent(q)}&limit=${limit}`,
+    ),
+  dbFundamentals: (symbol: string) =>
+    getJSON<FundamentalsResponse>(`/api/db/fundamentals?symbol=${encodeURIComponent(symbol)}`),
+
+  // ETL triggers
+  ingestUniverse: () =>
+    fetch(`${API_BASE}/api/ingest/universe`, { method: "POST" }).then(_jsonOrThrow),
+  ingestPrices: (symbols: string[], days = 3650) =>
+    fetch(
+      `${API_BASE}/api/ingest/prices?symbols=${encodeURIComponent(symbols.join(","))}&days=${days}`,
+      { method: "POST" },
+    ).then(_jsonOrThrow),
+  ingestFundamentals: (symbols: string[]) =>
+    fetch(
+      `${API_BASE}/api/ingest/fundamentals?symbols=${encodeURIComponent(symbols.join(","))}`,
+      { method: "POST" },
+    ).then(_jsonOrThrow),
 };
+
+async function _jsonOrThrow(r: Response): Promise<unknown> {
+  if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+  return r.json();
+}
 
 // SSE briefing — uses fetch streaming because EventSource doesn't support POST.
 export interface BriefingEvents {

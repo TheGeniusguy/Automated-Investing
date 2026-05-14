@@ -25,6 +25,9 @@ dist/
 # Data / cache
 backend/cache.db
 backend/cache.db-journal
+backend/data/*.duckdb
+backend/data/*.duckdb.wal
+backend/data/*.duckdb.tmp
 *.pkl
 
 # OS
