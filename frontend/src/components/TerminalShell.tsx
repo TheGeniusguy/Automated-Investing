@@ -5,9 +5,12 @@ import { api } from "../api/client";
 import type { HealthResponse } from "../api/types";
 import { CorrelationsPanel } from "./CorrelationsPanel";
 import { DataInfraPanel } from "./DataInfraPanel";
+import { EarningsPanel } from "./EarningsPanel";
 import { FilingsPanel } from "./FilingsPanel";
 import { FundamentalsBrowser } from "./FundamentalsBrowser";
 import { MacroRegimeTracker } from "./MacroRegimeTracker";
+import { NewsPanel } from "./NewsPanel";
+import { OptionsPanel } from "./OptionsPanel";
 import { RegimeJournal } from "./RegimeJournal";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
@@ -15,9 +18,12 @@ const LAYOUT: Layout[] = [
   { i: "macro",         x: 0, y: 0,   w: 12, h: 18, minW: 6, minH: 10 },
   { i: "journal",       x: 0, y: 18,  w: 12, h: 20, minW: 6, minH: 12 },
   { i: "correlations",  x: 0, y: 38,  w: 12, h: 22, minW: 6, minH: 12 },
-  { i: "filings",       x: 0, y: 60,  w: 12, h: 18, minW: 6, minH: 10 },
-  { i: "data-infra",    x: 0, y: 78,  w: 12, h: 22, minW: 6, minH: 14 },
-  { i: "fundamentals",  x: 0, y: 100, w: 12, h: 22, minW: 6, minH: 14 },
+  { i: "options",       x: 0, y: 60,  w: 12, h: 16, minW: 6, minH: 10 },
+  { i: "earnings",      x: 0, y: 76,  w: 12, h: 18, minW: 6, minH: 10 },
+  { i: "news",          x: 0, y: 94,  w: 12, h: 18, minW: 6, minH: 10 },
+  { i: "filings",       x: 0, y: 112, w: 12, h: 18, minW: 6, minH: 10 },
+  { i: "data-infra",    x: 0, y: 130, w: 12, h: 22, minW: 6, minH: 14 },
+  { i: "fundamentals",  x: 0, y: 152, w: 12, h: 22, minW: 6, minH: 14 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -66,6 +72,15 @@ export function TerminalShell() {
           </div>
           <div key="correlations">
             <CorrelationsPanel />
+          </div>
+          <div key="options">
+            <OptionsPanel />
+          </div>
+          <div key="earnings">
+            <EarningsPanel />
+          </div>
+          <div key="news">
+            <NewsPanel />
           </div>
           <div key="filings">
             <FilingsPanel />

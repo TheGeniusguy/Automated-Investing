@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from .briefing import claude_briefing
 from .config import settings
 from .correlations import correlation_model
-from .data import macro_data, sec_edgar, watchlist
+from .data import earnings as earnings_mod, macro_data, news as news_mod, options as options_mod, sec_edgar, watchlist
 from .db import engine as db_engine
 from .ingest import fundamentals as ingest_fundamentals
 from .ingest import instruments as ingest_instruments
@@ -374,6 +374,56 @@ def ingest_prices_endpoint(symbols: str, days: int = 3650) -> dict:
 def ingest_fundamentals_endpoint(symbols: str) -> dict:
     sym_list = [s.strip().upper() for s in symbols.split(",") if s.strip()]
     return ingest_fundamentals.ingest_fundamentals_batch(sym_list)
+
+
+# ---------- News (Panel 7) ----------
+
+@app.get("/api/news/feed")
+def get_news_feed(tickers: str = "", per_ticker: int = 8, overall: int = 60) -> dict:
+    ticker_list = (
+        [t.strip().upper() for t in tickers.split(",") if t.strip()]
+        if tickers
+        else watchlist.DEFAULT_EQUITIES_WATCHLIST
+    )
+    return news_mod.fetch_news_feed(ticker_list, per_ticker=per_ticker, overall=overall)
+
+
+@app.get("/api/news/ticker/{symbol}")
+def get_news_ticker(symbol: str, limit: int = 25) -> dict:
+    items = news_mod.fetch_news_for_ticker(symbol.upper(), limit=limit)
+    return {"symbol": symbol.upper(), "items": items, "count": len(items)}
+
+
+# ---------- Options (Panel 8) ----------
+
+@app.get("/api/options/vix-term")
+def get_vix_term() -> dict:
+    return options_mod.vix_term_structure()
+
+
+@app.get("/api/options/chains")
+def get_option_chains(tickers: str = "SPY,QQQ,AAPL,NVDA,TSLA,MSFT,GOOGL,AMZN", target_days: int = 30) -> dict:
+    sym_list = [t.strip().upper() for t in tickers.split(",") if t.strip()]
+    return options_mod.chain_summaries(sym_list, target_days=target_days)
+
+
+# ---------- Earnings (Panel 9) ----------
+
+@app.get("/api/earnings/overview")
+def get_earnings_overview(tickers: str = "") -> dict:
+    ticker_list = (
+        [t.strip().upper() for t in tickers.split(",") if t.strip()]
+        if tickers
+        else watchlist.DEFAULT_EQUITIES_WATCHLIST
+    )
+    return earnings_mod.fetch_overview(ticker_list)
+
+
+@app.get("/api/earnings/{symbol}")
+def get_earnings_ticker(symbol: str) -> dict:
+    cal  = earnings_mod.fetch_calendar(symbol.upper())
+    hist = earnings_mod.fetch_surprise_history(symbol.upper(), limit=12)
+    return {**cal, "stats": hist["stats"], "events": hist["events"]}
 
 
 # ---------- Briefing (SSE) ----------

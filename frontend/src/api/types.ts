@@ -221,3 +221,93 @@ export interface FundamentalsResponse {
   quarters: FundamentalsQuarter[];
   count: number;
 }
+
+// ---------- Panel 7: News ----------
+
+export interface NewsItem {
+  title: string;
+  publisher: string;
+  url: string;
+  summary: string;
+  published: string | null;
+  tickers: string[];
+  source: string;
+}
+
+export interface NewsFeed {
+  items: NewsItem[];
+  tickers: string[];
+  fetched_at: string;
+  elapsed_s: number;
+}
+
+// ---------- Panel 8: Options ----------
+
+export interface VixTenor {
+  ticker: string;
+  label: string;
+  value: number | null;
+}
+
+export interface VixTerm {
+  tenors: VixTenor[];
+  spot: number | null;
+  back: number | null;
+  slope: number | null;
+  structure: "contango" | "backwardation" | "flat" | "unknown";
+  fetched_at: string;
+}
+
+export interface ChainSummary {
+  symbol: string;
+  expiry: string | null;
+  spot: number | null;
+  atm_strike: number | null;
+  iv_calls: number | null;
+  iv_puts: number | null;
+  iv_skew: number | null;
+  pc_ratio_oi: number | null;
+  pc_ratio_vol: number | null;
+  implied_move_1sigma: number | null;
+  days_to_expiry: number | null;
+  error: string | null;
+}
+
+export interface ChainSummaries {
+  summaries: ChainSummary[];
+  fetched_at: string;
+}
+
+// ---------- Panel 9: Earnings ----------
+
+export interface EarningsEvent {
+  date: string;
+  estimate: number | null;
+  actual: number | null;
+  surprise_pct: number | null;       // decimal (0.0349 = +3.49%)
+  reaction_1d: number | null;
+  reaction_5d: number | null;
+}
+
+export interface EarningsStats {
+  n: number;
+  beat_rate: number | null;
+  avg_surprise: number | null;
+  avg_reaction_1d: number | null;
+}
+
+export interface EarningsResult {
+  symbol: string;
+  next_earnings: string | null;
+  eps_estimate: number | null;
+  revenue_estimate: number | null;
+  stats: EarningsStats;
+  events: EarningsEvent[];
+  error: string | null;
+}
+
+export interface EarningsOverview {
+  tickers: string[];
+  results: EarningsResult[];
+  fetched_at: string;
+}

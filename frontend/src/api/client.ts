@@ -5,7 +5,11 @@ import type {
   FilingsResponse,
   FundamentalsResponse,
   HealthResponse,
+  ChainSummaries,
+  EarningsOverview,
   InstrumentSearchResult,
+  NewsFeed,
+  VixTerm,
   JournalSpxResponse,
   RegimeHistoryResponse,
   RegimeState,
@@ -60,6 +64,23 @@ export const api = {
     ),
   dbFundamentals: (symbol: string) =>
     getJSON<FundamentalsResponse>(`/api/db/fundamentals?symbol=${encodeURIComponent(symbol)}`),
+
+  // News
+  newsFeed: (tickers: string[], perTicker = 8, overall = 60) =>
+    getJSON<NewsFeed>(
+      `/api/news/feed?tickers=${encodeURIComponent(tickers.join(","))}&per_ticker=${perTicker}&overall=${overall}`,
+    ),
+
+  // Options
+  vixTerm:        () => getJSON<VixTerm>("/api/options/vix-term"),
+  optionChains:   (tickers: string[], targetDays = 30) =>
+    getJSON<ChainSummaries>(
+      `/api/options/chains?tickers=${encodeURIComponent(tickers.join(","))}&target_days=${targetDays}`,
+    ),
+
+  // Earnings
+  earningsOverview: (tickers: string[]) =>
+    getJSON<EarningsOverview>(`/api/earnings/overview?tickers=${encodeURIComponent(tickers.join(","))}`),
 
   // ETL triggers
   ingestUniverse: () =>
