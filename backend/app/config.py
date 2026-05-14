@@ -18,6 +18,10 @@ class Settings(BaseSettings):
 
     cache_db_path: str = "cache.db"
 
+    # SEC EDGAR identifies clients via User-Agent — they reject requests
+    # without one. Politeness only; no auth.
+    sec_user_agent: str = "Automated-Investing daniel@solutions-imagined.com"
+
     @property
     def has_fred(self) -> bool:
         return bool(self.fred_api_key)

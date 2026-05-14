@@ -1,5 +1,7 @@
 import type {
   CorrelationsResponse,
+  FilingsDefaults,
+  FilingsResponse,
   HealthResponse,
   JournalSpxResponse,
   RegimeHistoryResponse,
@@ -28,6 +30,15 @@ export const api = {
   journalSpx:    (days = 3650)         => getJSON<JournalSpxResponse>(`/api/journal/spx?days=${days}`),
   correlations:  (recent = 30, baseline = 365) =>
     getJSON<CorrelationsResponse>(`/api/correlations?recent_days=${recent}&baseline_days=${baseline}`),
+  filingsDefaults: () => getJSON<FilingsDefaults>("/api/filings/defaults"),
+  filings: (tickers: string[], days = 30, forms: string[] = []) => {
+    const qs = new URLSearchParams({
+      tickers: tickers.join(","),
+      days:    String(days),
+      forms:   forms.join(","),
+    });
+    return getJSON<FilingsResponse>(`/api/filings?${qs}`);
+  },
   stressTest:    (positions: StressTestPosition[], days = 3650) =>
     fetch(`${API_BASE}/api/portfolio/stress-test`, {
       method:  "POST",

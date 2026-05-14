@@ -37,13 +37,33 @@ DEFAULT_GROUPS: list[tuple[str, list[tuple[str, str]]]] = [
         ("SPY",  "S&P 500"),
         ("QQQ",  "Nasdaq 100"),
         ("IWM",  "Russell 2000"),
+        ("DIA",  "Dow Jones"),
+    ]),
+    ("Treasuries", [
+        ("IEF", "7-10Y Treasuries"),
+        ("TLT", "20Y+ Treasuries"),
     ]),
     ("Macro", [
         ("^VIX",     "VIX"),
         ("DX-Y.NYB", "Dollar Index"),
-        ("GLD",      "Gold"),
-        ("TLT",      "20Y+ Treasuries"),
-        ("BTC-USD",  "Bitcoin"),
+    ]),
+    ("Energy", [
+        ("CL=F", "WTI Crude"),
+        ("BZ=F", "Brent Crude"),
+        ("NG=F", "Natural Gas"),
+    ]),
+    ("Metals", [
+        ("GC=F", "Gold"),
+        ("SI=F", "Silver"),
+        ("HG=F", "Copper"),
+    ]),
+    ("Agriculture", [
+        ("ZC=F", "Corn"),
+        ("ZS=F", "Soybeans"),
+    ]),
+    ("Crypto", [
+        ("BTC-USD", "Bitcoin"),
+        ("ETH-USD", "Ethereum"),
     ]),
     ("Sectors", [
         ("XLF", "Financials"),
@@ -55,6 +75,15 @@ DEFAULT_GROUPS: list[tuple[str, list[tuple[str, str]]]] = [
         ("XLP", "Staples"),
         ("XLY", "Discretionary"),
     ]),
+]
+
+
+# Default equities watchlist used by the SEC filings panel — large, liquid
+# names that file frequently and where filings are likely to move price.
+# Overridable via `tickers` query param on the filings endpoint.
+DEFAULT_EQUITIES_WATCHLIST: list[str] = [
+    "AAPL", "MSFT", "GOOGL", "AMZN", "META", "NVDA", "TSLA",
+    "JPM", "BAC", "BRK-B", "V", "WMT", "JNJ", "XOM", "UNH",
 ]
 
 

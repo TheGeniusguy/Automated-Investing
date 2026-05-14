@@ -130,3 +130,39 @@ export interface CorrelationsResponse {
   breakdowns:   CorrelationBreakdown[];
   dates: { first: string | null; last: string | null; count: number };
 }
+
+// ---------- Panel 4: SEC Filings ----------
+
+export interface Filing {
+  ticker:      string;
+  cik:         string;
+  accession:   string;
+  form:        string;
+  filing_date: string;          // YYYY-MM-DD
+  report_date: string;
+  description: string;
+  items:       string;          // comma-separated 8-K item codes
+  url:         string;
+  form_label:  string;
+}
+
+export interface FormMeta {
+  label: string;
+  color: string;
+}
+
+export interface FilingsResponse {
+  filings:    Filing[];
+  fetched_at: string;
+  days:       number;
+  tickers:    string[];
+  resolved:   string[];
+  unresolved: string[];
+  forms:      string[];
+  form_meta:  Record<string, FormMeta>;
+}
+
+export interface FilingsDefaults {
+  default_tickers: string[];
+  form_meta:       Record<string, FormMeta>;
+}

@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from .briefing import claude_briefing
 from .config import settings
 from .correlations import correlation_model
-from .data import macro_data, watchlist
+from .data import macro_data, sec_edgar, watchlist
 from .regime import regime_model, stress_test as stress_test_mod
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
@@ -146,6 +146,45 @@ def get_correlations(recent_days: int = 30, baseline_days: int = 365) -> dict:
         recent_days=recent_days,
         baseline_days=baseline_days,
     )
+
+
+# ---------- SEC Filings (Panel 4) ----------
+
+@app.get("/api/filings")
+def get_filings(
+    tickers: str = "",
+    days: int = 30,
+    forms: str = "",
+) -> dict:
+    """Recent SEC filings across a list of equity tickers.
+
+    Query params:
+      tickers — comma-separated. Empty → DEFAULT_EQUITIES_WATCHLIST.
+      days    — lookback window in days. Default 30.
+      forms   — comma-separated form types (8-K, 10-K, 10-Q, 4, etc.).
+                Empty → all known form types.
+    """
+    ticker_list = (
+        [t.strip().upper() for t in tickers.split(",") if t.strip()]
+        if tickers
+        else watchlist.DEFAULT_EQUITIES_WATCHLIST
+    )
+    form_list = [f.strip() for f in forms.split(",") if f.strip()] or None
+    return sec_edgar.fetch_filings_batch(
+        ticker_list,
+        days=days,
+        forms=form_list,
+    )
+
+
+@app.get("/api/filings/defaults")
+def get_filings_defaults() -> dict:
+    """Defaults the frontend uses to render the filings panel: equities
+    watchlist, form-type metadata."""
+    return {
+        "default_tickers": watchlist.DEFAULT_EQUITIES_WATCHLIST,
+        "form_meta": sec_edgar.FORM_TYPES,
+    }
 
 
 # ---------- Briefing (SSE) ----------
