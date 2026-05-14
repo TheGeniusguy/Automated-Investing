@@ -138,3 +138,19 @@ CREATE TABLE IF NOT EXISTS etl_runs (
 );
 
 CREATE INDEX IF NOT EXISTS etl_runs_source_idx ON etl_runs(source, started_at);
+
+
+-- Daily briefings (Panel 10) — one row per (date, briefing_kind).
+-- Persisted so the panel can show today's brief instantly + scroll history.
+CREATE TABLE IF NOT EXISTS daily_briefings (
+    date         DATE,
+    kind         VARCHAR,                   -- 'morning' | 'on_demand'
+    regime_label VARCHAR,
+    summary      VARCHAR,                   -- Claude-authored markdown briefing
+    context_json JSON,                      -- structured context fed to Claude
+    generated_at TIMESTAMP DEFAULT now(),
+    source       VARCHAR DEFAULT 'claude',
+    PRIMARY KEY (date, kind)
+);
+
+CREATE INDEX IF NOT EXISTS daily_briefings_date_idx ON daily_briefings(date);

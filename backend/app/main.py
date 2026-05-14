@@ -10,7 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from .briefing import claude_briefing
+from .briefing import claude_briefing, daily_briefing as daily_briefing_mod
+from .chat import terminal_chat
 from .config import settings
 from .correlations import correlation_model
 from .data import earnings as earnings_mod, macro_data, news as news_mod, options as options_mod, sec_edgar, watchlist
@@ -424,6 +425,45 @@ def get_earnings_ticker(symbol: str) -> dict:
     cal  = earnings_mod.fetch_calendar(symbol.upper())
     hist = earnings_mod.fetch_surprise_history(symbol.upper(), limit=12)
     return {**cal, "stats": hist["stats"], "events": hist["events"]}
+
+
+# ---------- Daily Briefing (Panel 10) ----------
+
+@app.get("/api/briefing/daily/cached")
+def get_daily_briefing_cached() -> dict:
+    cached = daily_briefing_mod.get_cached_briefing()
+    return cached or {"summary": None, "context": None, "regime_label": None, "generated_at": None}
+
+
+@app.get("/api/briefing/daily/history")
+def get_daily_briefing_history(limit: int = 30) -> dict:
+    return {"entries": daily_briefing_mod.list_briefings(limit=limit)}
+
+
+@app.post("/api/briefing/daily/stream")
+async def post_daily_briefing_stream() -> StreamingResponse:
+    async def gen():
+        async for event, data in daily_briefing_mod.stream_daily_briefing():
+            yield f"event: {event}\ndata: {data}\n\n"
+    return StreamingResponse(
+        gen(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+# ---------- Ask the Terminal (Panel 11) ----------
+
+@app.post("/api/chat/stream")
+async def post_chat_stream(req: terminal_chat.ChatRequest) -> StreamingResponse:
+    async def gen():
+        async for event, data in terminal_chat.stream_chat(req.messages):
+            yield f"event: {event}\ndata: {data}\n\n"
+    return StreamingResponse(
+        gen(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 # ---------- Briefing (SSE) ----------

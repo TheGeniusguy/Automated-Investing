@@ -6,6 +6,7 @@ import type {
   FundamentalsResponse,
   HealthResponse,
   ChainSummaries,
+  DailyBriefingCached,
   EarningsOverview,
   InstrumentSearchResult,
   NewsFeed,
@@ -82,6 +83,9 @@ export const api = {
   earningsOverview: (tickers: string[]) =>
     getJSON<EarningsOverview>(`/api/earnings/overview?tickers=${encodeURIComponent(tickers.join(","))}`),
 
+  // Daily briefing
+  dailyBriefingCached: () => getJSON<DailyBriefingCached>("/api/briefing/daily/cached"),
+
   // ETL triggers
   ingestUniverse: () =>
     fetch(`${API_BASE}/api/ingest/universe`, { method: "POST" }).then(_jsonOrThrow),
@@ -100,6 +104,54 @@ export const api = {
 async function _jsonOrThrow(r: Response): Promise<unknown> {
   if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
   return r.json();
+}
+
+
+// Generic SSE consumer (Server-Sent Events over a POST request).
+// Calls `onEvent(eventType, parsedData)` per event; resolves when the stream closes.
+export async function streamSSE(
+  url: string,
+  init: RequestInit | undefined,
+  signal: AbortSignal,
+  onEvent: (eventType: string, data: unknown) => void,
+): Promise<void> {
+  const r = await fetch(`${API_BASE}${url}`, {
+    ...init,
+    signal,
+    headers: { Accept: "text/event-stream", ...(init?.headers ?? {}) },
+  });
+  if (!r.ok || !r.body) {
+    throw new Error(`${r.status} ${r.statusText}`);
+  }
+  const reader = r.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    let idx;
+    while ((idx = buffer.indexOf("\n\n")) !== -1) {
+      const raw = buffer.slice(0, idx);
+      buffer = buffer.slice(idx + 2);
+
+      let event = "message";
+      let data = "";
+      for (const line of raw.split("\n")) {
+        if (line.startsWith("event:")) event = line.slice(6).trim();
+        else if (line.startsWith("data:")) data += line.slice(5).trim();
+      }
+      if (!data) continue;
+      try {
+        onEvent(event, JSON.parse(data));
+      } catch {
+        // Plain-text token payload — pass through as a string.
+        onEvent(event, data);
+      }
+    }
+  }
 }
 
 // SSE briefing — uses fetch streaming because EventSource doesn't support POST.

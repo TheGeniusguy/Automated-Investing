@@ -311,3 +311,36 @@ export interface EarningsOverview {
   results: EarningsResult[];
   fetched_at: string;
 }
+
+// ---------- Panel 10: Daily Briefing ----------
+
+export interface DailyBriefingContext {
+  regime?: RegimeState;
+  vix_term?: VixTerm;
+  top_breakdowns?: CorrelationBreakdown[];
+  upcoming_earnings?: {
+    symbol: string;
+    date: string;
+    in_days: number;
+    eps_estimate: number | null;
+    beat_rate: number | null;
+    avg_reaction: number | null;
+  }[];
+  recent_8k?: {
+    ticker: string;
+    filing_date: string;
+    items: string;
+    url: string;
+  }[];
+  top_news?: { title: string; publisher: string; tickers: string[]; published: string | null }[];
+  as_of?: string;
+}
+
+export interface DailyBriefingCached {
+  date?: string;
+  kind?: string;
+  regime_label?: string | null;
+  summary: string | null;
+  context: DailyBriefingContext | null;
+  generated_at: string | null;
+}
