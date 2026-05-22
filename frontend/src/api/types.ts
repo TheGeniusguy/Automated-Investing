@@ -409,3 +409,939 @@ export interface ShippingDashboard {
   tiles: MacroTile[];
   fetched_at: string;
 }
+
+// ─── Wave 2: Watchlists (DB-backed multi) ─────────────────────────────────
+
+export interface WatchlistSummary {
+  id: number;
+  name: string;
+  description: string | null;
+  is_default: boolean;
+  created_at: string | null;
+  updated_at: string | null;
+  item_count: number;
+}
+
+export interface WatchlistItem {
+  ticker: string;
+  label: string | null;
+  group_name: string | null;
+  order_index: number;
+  added_at: string | null;
+}
+
+export interface Watchlist {
+  id: number;
+  name: string;
+  description: string | null;
+  is_default: boolean;
+  created_at: string | null;
+  updated_at: string | null;
+  items: WatchlistItem[];
+}
+
+// ─── Wave 2: Technical Indicators ─────────────────────────────────────────
+
+export type IndicatorKind = "sma" | "ema" | "rsi" | "macd" | "bollinger" | "crossovers";
+
+export interface IndicatorPoint {
+  date: string;
+  value: number;
+}
+
+export interface SmaEmaResponse {
+  indicator: "sma" | "ema";
+  period: number;
+  points: IndicatorPoint[];
+}
+
+export interface RsiResponse {
+  indicator: "rsi";
+  period: number;
+  overbought: number;
+  oversold: number;
+  points: IndicatorPoint[];
+}
+
+export interface MacdResponse {
+  indicator: "macd";
+  fast: number;
+  slow: number;
+  signal: number;
+  line: IndicatorPoint[];
+  signal_line: IndicatorPoint[];
+  histogram: IndicatorPoint[];
+}
+
+export interface BollingerResponse {
+  indicator: "bollinger";
+  period: number;
+  std_dev: number;
+  upper: IndicatorPoint[];
+  middle: IndicatorPoint[];
+  lower: IndicatorPoint[];
+}
+
+export interface CrossoverEvent {
+  date: string;
+  type: "golden_cross" | "death_cross";
+  fast_ma: number | null;
+  slow_ma: number | null;
+}
+
+export interface CrossoversResponse {
+  indicator: "crossovers";
+  fast: number;
+  slow: number;
+  events: CrossoverEvent[];
+}
+
+export type IndicatorResponse =
+  | SmaEmaResponse
+  | RsiResponse
+  | MacdResponse
+  | BollingerResponse
+  | CrossoversResponse;
+
+// ─── Wave 2: Sector Rotation ──────────────────────────────────────────────
+
+export interface SectorReturn {
+  abs: number | null;       // absolute return %
+  rel: number | null;       // relative to benchmark %
+}
+
+export interface SectorRow {
+  ticker: string;
+  name: string;
+  last_close: number | null;
+  last_date: string | null;
+  returns: Record<string, SectorReturn>;
+}
+
+export interface SectorRotationWindow {
+  key: string;
+  label: string;
+  days: number | null;
+}
+
+export interface SectorRotationResponse {
+  windows: SectorRotationWindow[];
+  benchmark: {
+    ticker: string;
+    returns: Record<string, number | null>;
+  };
+  sectors: SectorRow[];
+}
+
+// ─── Insider Transactions ─────────────────────────────────────────────────
+
+export interface InsiderTransaction {
+  insider_name: string;
+  insider_title: string;
+  is_director: boolean;
+  is_officer: boolean;
+  is_ten_pct: boolean;
+  txn_date: string | null;
+  txn_code: string;
+  shares: number | null;
+  price_per_share: number | null;
+  total_value: number | null;
+  shares_after: number | null;
+  ownership_type: string | null;
+  filing_date: string | null;
+  source_url: string | null;
+}
+
+export interface InsiderCluster {
+  start_date: string;
+  end_date: string;
+  insider_count: number;
+  insiders: string[];
+  signal: string;
+}
+
+export interface InsiderSummary {
+  total_transactions: number;
+  buy_count: number;
+  sell_count: number;
+  buy_value: number;
+  sell_value: number;
+  buy_shares: number;
+  sell_shares: number;
+  net_value: number;
+  net_shares: number;
+  unique_buyers: number;
+  unique_sellers: number;
+  buy_sell_ratio: number;
+}
+
+export interface InsiderTickerResponse {
+  symbol: string;
+  days: number;
+  transactions: InsiderTransaction[];
+  summary: InsiderSummary;
+  clusters: InsiderCluster[];
+}
+
+// ─── 13F Institutional Holdings ──────────────────────────────────────────
+
+export interface InstitutionalFiler {
+  name: string;
+  cik: string;
+  holdings_count: number;
+  latest_quarter: string | null;
+  latest_filing: string | null;
+}
+
+export interface InstitutionalHolding {
+  name_of_issuer: string;
+  cusip: string | null;
+  symbol: string | null;
+  shares: number | null;
+  value_x1000: number | null;
+  put_call: string | null;
+  report_date: string | null;
+  filing_date: string | null;
+}
+
+export interface InstitutionalHolder {
+  filer_name: string;
+  filer_cik: string;
+  shares: number | null;
+  value_x1000: number | null;
+  report_date: string | null;
+  filing_date: string | null;
+}
+
+export interface InstitutionalPortfolio {
+  filer_cik: string;
+  filer_name: string;
+  report_date: string | null;
+  holdings: InstitutionalHolding[];
+  total_value: number;
+  position_count: number;
+}
+
+export interface InstitutionalChange {
+  cusip: string;
+  name_of_issuer: string;
+  change_type: "new_position" | "exited" | "increased" | "decreased" | "unchanged";
+  current_shares: number;
+  prior_shares: number;
+  share_delta: number;
+  share_delta_pct: number | null;
+  current_value: number;
+  prior_value: number;
+}
+
+export interface InstitutionalChanges {
+  filer_cik: string;
+  filer_name: string;
+  current_quarter: string;
+  prior_quarter: string;
+  changes: InstitutionalChange[];
+  summary: {
+    new_positions: number;
+    exited: number;
+    increased: number;
+    decreased: number;
+    unchanged: number;
+  };
+}
+
+// ─── Compare / Portfolio Simulator ────────────────────────────────────────
+
+export interface CompareMetric {
+  symbol: string;
+  data_points: number;
+  start_date: string | null;
+  end_date: string | null;
+  start_price: number | null;
+  end_price: number | null;
+  total_return_pct: number | null;
+  annualized_return_pct: number | null;
+  volatility_pct: number | null;
+  sharpe_ratio: number | null;
+  max_drawdown_pct: number | null;
+  dividend_yield: number | null;
+}
+
+export interface CompareResponse {
+  tickers: string[];
+  days: number;
+  normalized: Record<string, SeriesPoint[]>;
+  metrics: CompareMetric[];
+  correlation: {
+    symbols: string[];
+    matrix: (number | null)[][];
+  };
+}
+
+export interface PortfolioSimResponse {
+  positions: { ticker: string; weight: number }[];
+  days: number;
+  common_dates: number;
+  equity_curve: SeriesPoint[];
+  total_return_pct: number | null;
+  annualized_return_pct: number | null;
+  volatility_pct: number | null;
+  sharpe_ratio: number | null;
+  max_drawdown_pct: number | null;
+  blended_dividend_yield: number | null;
+}
+
+// ─── Real Estate Deep-Dive ────────────────────────────────────────────────
+
+export interface ReSubsectorListItem {
+  id: string;
+  name: string;
+  description: string;
+  stock_count: number;
+  etfs: string[];
+}
+
+export interface ReStockRow {
+  symbol: string;
+  name: string;
+  last_close: number | null;
+  last_date: string | null;
+  returns: Record<string, SectorReturn>;
+  market_cap: number | null;
+  pe_ratio: number | null;
+  forward_pe: number | null;
+  dividend_yield: number | null;
+  price_to_book: number | null;
+  beta: number | null;
+  fifty_two_week_high: number | null;
+  fifty_two_week_low: number | null;
+  avg_volume: number | null;
+  industry: string | null;
+  payout_ratio: number | null;
+  debt_to_equity: number | null;
+  return_on_equity: number | null;
+  revenue_growth: number | null;
+  earnings_growth: number | null;
+}
+
+export interface ReSubsectorDetail {
+  subsector_id: string;
+  name: string;
+  description: string;
+  windows: SectorRotationWindow[];
+  benchmark: {
+    ticker: string;
+    returns: Record<string, number | null>;
+  };
+  etfs: SectorEtfRow[];
+  stocks: ReStockRow[];
+}
+
+export interface ReOverview {
+  windows: SectorRotationWindow[];
+  spy_returns: Record<string, number | null>;
+  benchmarks: SectorEtfRow[];
+  subsectors: ReSubsectorListItem[];
+}
+
+// ─── Sector Detail ────────────────────────────────────────────────────────
+
+export interface SectorListItem {
+  id: string;
+  name: string;
+  etf: string;
+  icon: string;
+  description: string;
+  stock_count: number;
+}
+
+export interface SectorStockRow {
+  symbol: string;
+  name: string;
+  last_close: number | null;
+  last_date: string | null;
+  returns: Record<string, SectorReturn>;
+  market_cap: number | null;
+  pe_ratio: number | null;
+  forward_pe: number | null;
+  dividend_yield: number | null;
+  beta: number | null;
+  fifty_two_week_high: number | null;
+  fifty_two_week_low: number | null;
+  avg_volume: number | null;
+  sector: string | null;
+  industry: string | null;
+}
+
+export interface SectorEtfRow {
+  ticker: string;
+  last_close: number | null;
+  returns: Record<string, SectorReturn>;
+}
+
+export interface SectorDetailResponse {
+  sector_id: string;
+  name: string;
+  description: string;
+  icon: string;
+  sub_industries: string[];
+  windows: SectorRotationWindow[];
+  benchmark: {
+    ticker: string;
+    returns: Record<string, number | null>;
+  };
+  etf: {
+    ticker: string;
+    name: string;
+    last_close: number | null;
+    returns: Record<string, SectorReturn>;
+    market_cap: number | null;
+  };
+  stocks: SectorStockRow[];
+  related_etfs: SectorEtfRow[];
+}
+
+export interface SectorOverviewItem {
+  id: string;
+  name: string;
+  etf: string;
+  icon: string;
+  last_close: number | null;
+  returns: Record<string, SectorReturn>;
+}
+
+export interface SectorOverviewResponse {
+  windows: SectorRotationWindow[];
+  benchmark: {
+    ticker: string;
+    returns: Record<string, number | null>;
+  };
+  sectors: SectorOverviewItem[];
+}
+
+// ─── Sector KPIs ──────────────────────────────────────────────────────────
+
+export interface SectorKpiDef {
+  key: string;
+  label: string;
+  unit: string;
+  desc: string;
+}
+
+export interface SectorKpisResponse {
+  sector_id: string;
+  kpi_defs: SectorKpiDef[];
+  sector_medians: Record<string, number | null>;
+  stocks: Array<Record<string, number | null | string>>;
+}
+
+// ─── Wave 2: Screener ─────────────────────────────────────────────────────
+
+export type ScreenerFilterType = "number" | "text";
+
+export interface ScreenerFilterMeta {
+  key: string;
+  type: ScreenerFilterType;
+}
+
+export interface ScreenerSchema {
+  filters: ScreenerFilterMeta[];
+  ops: {
+    number: string[];
+    text: string[];
+  };
+  sort_keys: string[];
+}
+
+export interface ScreenerFilter {
+  key: string;
+  op: string;
+  value: number | string | (number | string)[];
+}
+
+export interface ScreenerResult {
+  symbol: string;
+  name: string | null;
+  sector: string | null;
+  industry: string | null;
+  type: string | null;
+  country: string | null;
+  last_close: number | null;
+  last_close_date: string | null;
+  revenue: number | null;
+  gross_margin: number | null;
+  operating_margin: number | null;
+  net_margin: number | null;
+  eps_diluted: number | null;
+  free_cash_flow: number | null;
+  revenue_yoy_pct: number | null;
+}
+
+export interface ScreenerResponse {
+  filters: ScreenerFilter[];
+  sort: string;
+  sort_dir: string;
+  limit: number;
+  offset: number;
+  count: number;
+  results: ScreenerResult[];
+}
+
+// ─── Wave 3: Multi-indicator + Calendar + Drawings ────────────────────────
+
+export type Timeframe = "1d" | "1w" | "1mo";
+
+export interface OHLCVBar {
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  adj_close: number;
+  volume: number;
+}
+
+export interface MultiIndicatorRequest {
+  symbol: string;
+  indicators: string[];
+  timeframe?: Timeframe;
+  days?: number;
+  params?: Record<string, Record<string, number | string>>;
+}
+
+export interface SignalVotes {
+  [key: string]: number;
+}
+
+export interface SignalStrengthResponse {
+  indicator: "signal_strength";
+  score: number | null;
+  bucket: "strong_buy" | "buy" | "neutral" | "sell" | "strong_sell" | "insufficient_data";
+  votes: SignalVotes;
+}
+
+export interface MultiIndicatorResponse {
+  symbol: string;
+  timeframe: Timeframe;
+  bars: OHLCVBar[];
+  // Each indicator key maps to its own response shape; consumers should
+  // narrow by `indicator` field. Untyped here because the union is big.
+  indicators: Record<string, unknown>;
+}
+
+// Events Calendar
+
+export type EventImpact = "high" | "medium" | "low";
+export type EventCategory =
+  | "inflation" | "employment" | "growth" | "monetary_policy"
+  | "housing" | "sentiment" | "trade" | "earnings";
+
+export interface CalendarEvent {
+  date: string;
+  time: string | null;
+  name: string;
+  category: EventCategory;
+  impact: EventImpact;
+  source: string;
+  description: string;
+  market_impact: string;
+}
+
+export interface CalendarDay {
+  date: string;
+  weekday: string;
+  events: CalendarEvent[];
+}
+
+export interface CalendarWeekResponse {
+  start: string;
+  end: string;
+  days: CalendarDay[];
+  summary: {
+    total: number;
+    high: number;
+    medium: number;
+    low: number;
+  };
+}
+
+export interface CalendarUpcomingResponse {
+  start: string;
+  end: string;
+  events: CalendarEvent[];
+  summary: {
+    total: number;
+    high: number;
+    medium: number;
+    low: number;
+  };
+}
+
+// Chart Drawings
+
+export type DrawingType =
+  | "trend_line" | "hline" | "vline" | "fib_retracement" | "rectangle" | "text";
+
+export interface DrawingPoint {
+  time: string;
+  price: number;
+}
+
+export interface DrawingStyle {
+  color?: string;
+  line_width?: number;
+  line_style?: "solid" | "dashed" | "dotted";
+  fill?: string;
+  opacity?: number;
+}
+
+export interface Drawing {
+  id: number;
+  symbol: string;
+  timeframe: Timeframe;
+  drawing_type: DrawingType | "parallel_channel" | "fib_extension" | "fib_time_zones"
+              | "risk_reward" | "arrow" | "anchored_vwap_anchor";
+  points: DrawingPoint[];
+  style: DrawingStyle;
+  label: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+// ─── Wave 4: extended TA panel types ──────────────────────────────────────
+
+export type ExtendedDrawingType = DrawingType |
+  "parallel_channel" | "fib_extension" | "fib_time_zones" |
+  "risk_reward" | "arrow" | "anchored_vwap_anchor";
+
+export interface ChartLayoutState {
+  enabled?: string[];                                       // indicator keys turned on
+  params?: Record<string, Record<string, number | string>>; // per-indicator overrides
+  chartType?: "candle" | "line" | "area" | "heikin_ashi";
+  scaleType?: "linear" | "log";
+  compareSymbol?: string | null;
+  showMarkers?: boolean;
+  snapToOhlc?: boolean;
+  drawingsLocked?: boolean;
+  days?: number;
+}
+
+export interface ChartLayout {
+  symbol: string;
+  timeframe: Timeframe;
+  state: ChartLayoutState | null;
+  updated_at: string | null;
+}
+
+export type ChartMarkerKind = "filing" | "earnings" | "macro";
+
+export interface ChartMarker {
+  date: string;
+  kind: ChartMarkerKind;
+  label: string;
+  detail: string;
+  impact: "high" | "medium" | "low";
+  color: string;
+}
+
+export interface ChartEventsResponse {
+  symbol: string;
+  markers: ChartMarker[];
+}
+
+// Support/resistance & divergence response shapes
+
+export interface SupportResistanceLevel {
+  price: number;
+  touches: number;
+  first_date: string;
+  last_date: string;
+  types: ("support" | "resistance")[];
+}
+
+export interface SupportResistanceResponse {
+  indicator: "support_resistance";
+  pivot_window: number;
+  levels: SupportResistanceLevel[];
+}
+
+export interface DivergenceEvent {
+  type: "bullish" | "bearish";
+  from_date: string;
+  to_date: string;
+  price_from: number;
+  price_to: number;
+  indicator_from: number;
+  indicator_to: number;
+}
+
+export interface DivergenceResponse {
+  indicator: "divergence";
+  kind: "rsi" | "macd";
+  period: number;
+  events: DivergenceEvent[];
+}
+
+export interface HeikinAshiBar {
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+export interface HeikinAshiResponse {
+  indicator: "heikin_ashi";
+  bars: HeikinAshiBar[];
+}
+
+// ───────── Wave 5: Mile-deep Macro ─────────
+
+export interface CurvePoint {
+  maturity: string;
+  years: number;
+  yield: number | null;
+  prior?: number | null;
+  delta_bps?: number | null;
+  fred_id: string;
+}
+
+export interface YieldCurve {
+  date: string | null;
+  prior_date: string | null;
+  kind: "nominal" | "real";
+  points: CurvePoint[];
+}
+
+export interface CurveShape {
+  spread_2_10_bps: number | null;
+  spread_3m_10y_bps: number | null;
+  spread_10_30_bps: number | null;
+  classification: string;
+}
+
+export interface SpreadSeries {
+  id: string;
+  label?: string;
+  description: string;
+  points: SeriesPoint[];
+}
+
+export interface RecessionProbabilityPoint {
+  date: string;
+  spread: number;
+  probability: number;
+}
+
+export interface RecessionProbabilityCurrent extends RecessionProbabilityPoint {
+  summary: string;
+  model: string;
+}
+
+export interface YieldCurveDashboard {
+  curve: YieldCurve;
+  real_curve: YieldCurve;
+  shape: CurveShape;
+  spreads: SpreadSeries[];
+  butterflies: SpreadSeries[];
+  recession: {
+    current: RecessionProbabilityCurrent;
+    history: RecessionProbabilityPoint[];
+  };
+  term_premium: {
+    points: SeriesPoint[];
+    summary: string | null;
+    method: string;
+  };
+  maturities: { id: string; label: string; years: number }[];
+}
+
+// ── Inflation
+export interface InflationMomentumSeries {
+  series_id: string;
+  label?: string;
+  yoy: SeriesPoint[];
+  mom_annualized: SeriesPoint[];
+  three_m_ann: SeriesPoint[];
+  six_m_ann: SeriesPoint[];
+  is_rate: boolean;
+}
+
+export interface InflationClassification {
+  label: string;
+  summary: string;
+  above_target_pp?: number;
+  accelerating?: boolean;
+}
+
+export interface InflationExpectationPoint {
+  id: string;
+  label: string;
+  unit: string;
+  value: number | null;
+  date: string | null;
+}
+
+export interface InflationDecomposition {
+  nominal: SeriesPoint[];
+  real: SeriesPoint[];
+  breakeven: SeriesPoint[];
+}
+
+export interface InflationDashboard {
+  series: InflationMomentumSeries[];
+  expectations: { points: InflationExpectationPoint[] };
+  decomposition: InflationDecomposition;
+  classification: InflationClassification;
+  summary: {
+    core_pce_yoy: number | null;
+    headline_pce_yoy: number | null;
+    core_pce_3m_ann: number | null;
+    fed_target: number;
+  };
+}
+
+// ── Recession
+export interface SahmRule {
+  current: number | null;
+  triggered: boolean;
+  history: { date: string; value: number; triggered: boolean }[];
+  summary: string;
+  threshold: number;
+}
+
+export interface ClaimsMomentum {
+  current_yoy: number | null;
+  current_ma: number | null;
+  history: { date: string; ma: number; value: number }[];
+  summary: string;
+  threshold: number;
+}
+
+export interface LeiProxy {
+  current: number | null;
+  history: SeriesPoint[];
+  summary: string;
+}
+
+export interface RecessionComposite {
+  composite: number | null;
+  bucket: string;
+  components: { label: string; value: number | null; score: number | null }[];
+}
+
+export interface RecessionDashboard {
+  composite: RecessionComposite;
+  sahm: SahmRule;
+  nyfed: {
+    current: RecessionProbabilityCurrent;
+    history: RecessionProbabilityPoint[];
+  };
+  lei_proxy: LeiProxy;
+  claims: ClaimsMomentum;
+  industrial: { current: number | null; history: SeriesPoint[]; summary: string };
+  real_retail: { current: number | null; history: SeriesPoint[]; summary: string };
+}
+
+// ── Nowcast
+export interface NowcastComponent {
+  label: string;
+  series_id: string;
+  transform: string;
+  latest: number | null;
+  latest_date: string | null;
+  z: number | null;
+  history: SeriesPoint[];
+}
+
+export interface NowcastDashboard {
+  atlanta_fed: {
+    value: number | null;
+    asof: string | null;
+    quarter: string | null;
+    source: string;
+    url?: string;
+    summary: string;
+  };
+  composite: {
+    components: NowcastComponent[];
+    composite_z: number | null;
+    summary: string;
+  };
+}
+
+// ── Series detail
+export type MacroTransform = "level" | "yoy" | "mom" | "mom_ann"
+  | "three_m_ann" | "six_m_ann" | "log_diff" | "z_score" | "percentile" | "detrend";
+
+export interface SeriesDescriptiveStats {
+  count: number;
+  min?: number;
+  max?: number;
+  mean?: number;
+  median?: number;
+  std?: number;
+  last?: number;
+  last_date?: string;
+  z_5y?: number | null;
+  percentile?: number;
+}
+
+export interface MacroSeriesDetail {
+  series_id: string;
+  transform: MacroTransform;
+  label: string;
+  unit: string;
+  frequency: string;
+  note: string;
+  points: SeriesPoint[];
+  stats: SeriesDescriptiveStats;
+}
+
+// ── Heatmap
+export interface HeatmapTile {
+  id: string;
+  label: string;
+  unit?: string;
+  category: string;
+  last: number | null;
+  last_date?: string;
+  z: number | null;
+  percentile: number | null;
+}
+
+export interface MacroHeatmap {
+  tiles: HeatmapTile[];
+  transform: string;
+}
+
+// ── Regime v2
+export type RegimeV2Label = "risk_on" | "early_cycle" | "late_cycle" | "risk_off" | "recession";
+
+export interface RegimeV2Driver {
+  name: string;
+  value: number;
+  interpretation: string;
+}
+
+export interface RegimeV2State {
+  label: RegimeV2Label;
+  probabilities: Record<RegimeV2Label, number>;
+  confidence: number;
+  reason: string;
+  drivers: RegimeV2Driver[];
+}
+
+// ── Macro boards
+export interface MacroBoard {
+  id: number;
+  name: string;
+  description: string | null;
+  series_ids: string[];
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface MacroBoardSnapshot {
+  board: MacroBoard;
+  tiles: MacroTile[];
+}

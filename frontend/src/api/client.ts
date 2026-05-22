@@ -1,6 +1,11 @@
 import type {
+  CalendarUpcomingResponse,
+  CalendarWeekResponse,
+  ChartEventsResponse,
+  ChartLayout,
   CorrelationsResponse,
   DbStatus,
+  Drawing,
   FilingsDefaults,
   FilingsResponse,
   FundamentalsResponse,
@@ -10,10 +15,18 @@ import type {
   EarningsOverview,
   EnergyDashboard,
   EnergySection,
+  IndicatorKind,
+  IndicatorResponse,
   InstrumentSearchResult,
   MacroCatalog,
   MacroSnapshot,
+  MultiIndicatorRequest,
+  MultiIndicatorResponse,
   NewsFeed,
+  ScreenerFilter,
+  ScreenerResponse,
+  ScreenerSchema,
+  SectorRotationResponse,
   ShippingDashboard,
   VixTerm,
   JournalSpxResponse,
@@ -22,6 +35,8 @@ import type {
   SeriesBundle,
   StressTestPosition,
   StressTestResponse,
+  Watchlist,
+  WatchlistSummary,
 } from "./types";
 
 // In dev, Vite proxies /api → backend. In prod, same-origin or VITE_API_BASE.
@@ -113,6 +128,272 @@ export const api = {
       `${API_BASE}/api/ingest/fundamentals?symbols=${encodeURIComponent(symbols.join(","))}`,
       { method: "POST" },
     ).then(_jsonOrThrow),
+
+  // ── Wave 2: Watchlists (DB-backed multi)
+  listWatchlists: () =>
+    getJSON<{ watchlists: WatchlistSummary[] }>("/api/watchlists"),
+  getWatchlist: (id: number) => getJSON<Watchlist>(`/api/watchlists/${id}`),
+  createWatchlist: (name: string, description?: string) =>
+    fetch(`${API_BASE}/api/watchlists`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, description }),
+    }).then(_jsonOrThrow) as Promise<Watchlist>,
+  updateWatchlist: (
+    id: number,
+    patch: { name?: string; description?: string; is_default?: boolean },
+  ) =>
+    fetch(`${API_BASE}/api/watchlists/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch),
+    }).then(_jsonOrThrow) as Promise<Watchlist>,
+  deleteWatchlist: (id: number) =>
+    fetch(`${API_BASE}/api/watchlists/${id}`, { method: "DELETE" }).then(_jsonOrThrow),
+  addWatchlistItem: (
+    id: number,
+    item: { ticker: string; label?: string; group_name?: string; order_index?: number },
+  ) =>
+    fetch(`${API_BASE}/api/watchlists/${id}/items`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(item),
+    }).then(_jsonOrThrow),
+  removeWatchlistItem: (id: number, ticker: string) =>
+    fetch(`${API_BASE}/api/watchlists/${id}/items/${encodeURIComponent(ticker)}`, {
+      method: "DELETE",
+    }).then(_jsonOrThrow),
+  reorderWatchlistItems: (id: number, tickers: string[]) =>
+    fetch(`${API_BASE}/api/watchlists/${id}/reorder`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tickers }),
+    }).then(_jsonOrThrow),
+
+  // ── Wave 2: Technical Indicators
+  indicator: (
+    symbol: string,
+    indicator: IndicatorKind,
+    opts: Partial<{ period: number; fast: number; slow: number; signal: number; std_dev: number; days: number }> = {},
+  ) => {
+    const qs = new URLSearchParams({ indicator });
+    for (const [k, v] of Object.entries(opts)) {
+      if (v !== undefined && v !== null) qs.set(k, String(v));
+    }
+    return getJSON<IndicatorResponse>(`/api/indicators/${encodeURIComponent(symbol)}?${qs}`);
+  },
+
+  // ── Wave 2: Sector Rotation
+  sectorRotation: () => getJSON<SectorRotationResponse>("/api/sector-rotation"),
+
+  // ── Insider Transactions
+  insiderSummary: (symbol: string, days = 365) =>
+    getJSON<import("./types").InsiderTickerResponse>(
+      `/api/insider/${encodeURIComponent(symbol)}?days=${days}`,
+    ),
+  insiderIngest: (tickers: string[], days = 365) =>
+    fetch(`${API_BASE}/api/insider/ingest?tickers=${encodeURIComponent(tickers.join(","))}&days=${days}`, {
+      method: "POST",
+    }).then(_jsonOrThrow),
+
+  // ── 13F Institutional Holdings
+  institutionalFilers: () =>
+    getJSON<{ filers: import("./types").InstitutionalFiler[] }>("/api/institutional/filers"),
+  institutionalIngest: () =>
+    fetch(`${API_BASE}/api/institutional/ingest`, { method: "POST" }).then(_jsonOrThrow),
+  institutionalHolders: (symbol: string, limit = 20) =>
+    getJSON<{ symbol: string; holders: import("./types").InstitutionalHolder[] }>(
+      `/api/institutional/holders/${encodeURIComponent(symbol)}?limit=${limit}`,
+    ),
+  institutionalPortfolio: (filerCik: string, reportDate?: string) =>
+    getJSON<import("./types").InstitutionalPortfolio>(
+      `/api/institutional/portfolio/${encodeURIComponent(filerCik)}${reportDate ? `?report_date=${reportDate}` : ""}`,
+    ),
+  institutionalChanges: (filerCik: string) =>
+    getJSON<import("./types").InstitutionalChanges>(
+      `/api/institutional/changes/${encodeURIComponent(filerCik)}`,
+    ),
+
+  // ── Compare / Portfolio Simulator
+  compare: (tickers: string[], days = 365) =>
+    getJSON<import("./types").CompareResponse>(
+      `/api/compare?tickers=${encodeURIComponent(tickers.join(","))}&days=${days}`,
+    ),
+  portfolioSimulate: (positions: { ticker: string; weight: number }[], days = 365) =>
+    fetch(`${API_BASE}/api/compare/portfolio`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ positions, days }),
+    }).then(_jsonOrThrow) as Promise<import("./types").PortfolioSimResponse>,
+
+  // ── Real Estate Deep-Dive
+  realEstateOverview: () =>
+    getJSON<import("./types").ReOverview>("/api/real-estate/overview"),
+  realEstateSubsectors: () =>
+    getJSON<{ subsectors: import("./types").ReSubsectorListItem[] }>("/api/real-estate/subsectors"),
+  realEstateSubsector: (id: string) =>
+    getJSON<import("./types").ReSubsectorDetail>(`/api/real-estate/${encodeURIComponent(id)}`),
+
+  // ── Sector Detail
+  sectorsList: () =>
+    getJSON<{ sectors: import("./types").SectorListItem[] }>("/api/sectors"),
+  sectorsOverview: () =>
+    getJSON<import("./types").SectorOverviewResponse>("/api/sectors/overview"),
+  sectorDetail: (sectorId: string) =>
+    getJSON<import("./types").SectorDetailResponse>(`/api/sectors/${encodeURIComponent(sectorId)}`),
+  sectorKpis: (sectorId: string) =>
+    getJSON<import("./types").SectorKpisResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/kpis`),
+
+  // ── Wave 2: Screener
+  screenerSchema: () => getJSON<ScreenerSchema>("/api/screener/schema"),
+  runScreener: (req: {
+    filters: ScreenerFilter[];
+    sort?: string;
+    sort_dir?: string;
+    limit?: number;
+    offset?: number;
+  }) =>
+    fetch(`${API_BASE}/api/screener`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+    }).then(_jsonOrThrow) as Promise<ScreenerResponse>,
+
+  // ── Wave 3: Multi-indicator batch
+  indicatorsMulti: (req: MultiIndicatorRequest) =>
+    fetch(`${API_BASE}/api/indicators/multi`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+    }).then(_jsonOrThrow) as Promise<MultiIndicatorResponse>,
+
+  indicatorMeta: () =>
+    getJSON<{ supported: string[]; timeframes: string[] }>("/api/indicators"),
+
+  // ── Wave 3: Calendar
+  calendarWeek: (reference_date?: string) =>
+    getJSON<CalendarWeekResponse>(
+      reference_date
+        ? `/api/calendar/week?reference_date=${encodeURIComponent(reference_date)}`
+        : "/api/calendar/week",
+    ),
+  calendarUpcoming: (daysForward = 14) =>
+    getJSON<CalendarUpcomingResponse>(`/api/calendar/upcoming?days_forward=${daysForward}`),
+
+  // ── Wave 3: Drawings
+  listDrawings: (symbol: string, timeframe = "1d") =>
+    getJSON<{ drawings: Drawing[] }>(
+      `/api/drawings?symbol=${encodeURIComponent(symbol)}&timeframe=${timeframe}`,
+    ),
+  createDrawing: (req: {
+    symbol: string;
+    timeframe?: string;
+    drawing_type: string;
+    points: { time: string; price: number }[];
+    style?: Record<string, unknown>;
+    label?: string;
+  }) =>
+    fetch(`${API_BASE}/api/drawings`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+    }).then(_jsonOrThrow) as Promise<Drawing>,
+  updateDrawing: (
+    id: number,
+    patch: {
+      points?: { time: string; price: number }[];
+      style?: Record<string, unknown>;
+      label?: string;
+    },
+  ) =>
+    fetch(`${API_BASE}/api/drawings/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch),
+    }).then(_jsonOrThrow) as Promise<Drawing>,
+  deleteDrawing: (id: number) =>
+    fetch(`${API_BASE}/api/drawings/${id}`, { method: "DELETE" }).then(_jsonOrThrow),
+  clearDrawings: (symbol: string, timeframe = "1d") =>
+    fetch(
+      `${API_BASE}/api/drawings?symbol=${encodeURIComponent(symbol)}&timeframe=${timeframe}`,
+      { method: "DELETE" },
+    ).then(_jsonOrThrow),
+
+  // ── Wave 4: Chart layouts
+  getLayout: (symbol: string, timeframe = "1d") =>
+    getJSON<ChartLayout>(`/api/layouts/${encodeURIComponent(symbol)}?timeframe=${timeframe}`),
+  saveLayout: (symbol: string, timeframe: string, state: Record<string, unknown>) =>
+    fetch(`${API_BASE}/api/layouts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol, timeframe, state }),
+    }).then(_jsonOrThrow) as Promise<ChartLayout>,
+  deleteLayout: (symbol: string, timeframe = "1d") =>
+    fetch(
+      `${API_BASE}/api/layouts/${encodeURIComponent(symbol)}?timeframe=${timeframe}`,
+      { method: "DELETE" },
+    ).then(_jsonOrThrow),
+
+  // ── Wave 4: Chart event markers (filings + earnings + macro)
+  chartEvents: (symbol: string, days = 365) =>
+    getJSON<ChartEventsResponse>(
+      `/api/chart-events/${encodeURIComponent(symbol)}?days=${days}`,
+    ),
+
+  // ── Wave 5: Mile-deep Macro
+  yieldCurveDashboard: () =>
+    getJSON<import("./types").YieldCurveDashboard>("/api/yield-curve/dashboard"),
+  yieldCurveCurrent: (real = false) =>
+    getJSON<import("./types").YieldCurve>(`/api/yield-curve/current?real=${real}`),
+  yieldCurveHistorical: (date: string, real = false) =>
+    getJSON<import("./types").YieldCurve>(
+      `/api/yield-curve/historical?date=${date}&real=${real}`,
+    ),
+  yieldCurveSpread: (id: string, days = 365 * 5) =>
+    getJSON<import("./types").SpreadSeries>(`/api/yield-curve/spread/${id}?days=${days}`),
+  yieldCurveButterfly: (id: string, days = 365 * 2) =>
+    getJSON<import("./types").SpreadSeries>(`/api/yield-curve/butterfly/${id}?days=${days}`),
+
+  inflationDashboard: () =>
+    getJSON<import("./types").InflationDashboard>("/api/inflation/dashboard"),
+
+  recessionDashboard: () =>
+    getJSON<import("./types").RecessionDashboard>("/api/recession/dashboard"),
+
+  nowcastDashboard: () =>
+    getJSON<import("./types").NowcastDashboard>("/api/nowcast/dashboard"),
+
+  macroSeriesDetail: (id: string, transform: import("./types").MacroTransform = "level", years = 20) =>
+    getJSON<import("./types").MacroSeriesDetail>(
+      `/api/macro/series-detail/${encodeURIComponent(id)}?transform=${transform}&years=${years}`,
+    ),
+
+  macroHeatmap: (transform: import("./types").MacroTransform = "z_score") =>
+    getJSON<import("./types").MacroHeatmap>(`/api/macro/heatmap?transform=${transform}`),
+
+  regimeV2: () =>
+    getJSON<import("./types").RegimeV2State>("/api/regime/v2"),
+
+  listMacroBoards: () =>
+    getJSON<{ boards: import("./types").MacroBoard[] }>("/api/macro/boards"),
+  getMacroBoard: (id: number) =>
+    getJSON<import("./types").MacroBoard>(`/api/macro/boards/${id}`),
+  createMacroBoard: (payload: { name: string; description?: string; series_ids?: string[] }) =>
+    fetch(`${API_BASE}/api/macro/boards`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).then(_jsonOrThrow) as Promise<import("./types").MacroBoard>,
+  updateMacroBoard: (id: number, payload: { name: string; description?: string; series_ids?: string[] }) =>
+    fetch(`${API_BASE}/api/macro/boards/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).then(_jsonOrThrow) as Promise<import("./types").MacroBoard>,
+  deleteMacroBoard: (id: number) =>
+    fetch(`${API_BASE}/api/macro/boards/${id}`, { method: "DELETE" }).then(_jsonOrThrow),
+  macroBoardSnapshot: (id: number) =>
+    getJSON<import("./types").MacroBoardSnapshot>(`/api/macro/boards/${id}/snapshot`),
 };
 
 async function _jsonOrThrow(r: Response): Promise<unknown> {
