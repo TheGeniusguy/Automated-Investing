@@ -818,6 +818,22 @@ export interface SectorOverviewResponse {
   sectors: SectorOverviewItem[];
 }
 
+// ─── Sector Supply Chain ──────────────────────────────────────────────────
+
+export interface SupplyChainNode {
+  id: string;
+  name: string;
+  etf: string;
+}
+
+export interface SectorSupplyChainResponse {
+  sector_id: string;
+  upstream: SupplyChainNode[];
+  downstream: SupplyChainNode[];
+  correlated: SupplyChainNode[];
+  notes: string;
+}
+
 // ─── Sector Relative Strength ─────────────────────────────────────────────
 
 export interface RsSeries {

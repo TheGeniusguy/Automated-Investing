@@ -40,6 +40,7 @@ from .data import (
     sector_kpis as sector_kpis_mod,
     sector_macro_drivers as sector_macro_drivers_mod,
     sector_rs as sector_rs_mod,
+    sector_supply_chain as sector_supply_chain_mod,
     sector_rotation,
     series_stats as series_stats_mod,
     shipping as shipping_mod,
@@ -904,6 +905,14 @@ def get_sector_macro_drivers(sector_id: str) -> dict:
         raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
     etf = sec.get("etf", "SPY")
     return sector_macro_drivers_mod.sector_macro_drivers(sector_id, etf)
+
+
+@app.get("/api/sectors/{sector_id}/supply-chain")
+def get_sector_supply_chain(sector_id: str) -> dict:
+    """Static upstream/downstream/correlated sector adjacency map."""
+    if sector_id not in sector_detail.SECTORS:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    return sector_supply_chain_mod.supply_chain(sector_id, sector_detail.SECTORS)
 
 
 @app.get("/api/sectors/{sector_id}/relative-strength")

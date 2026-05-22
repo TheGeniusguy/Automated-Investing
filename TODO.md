@@ -259,7 +259,7 @@ flow live, but FRED macro tiles show `—` and Claude surfaces show
       Endpoint: `/api/sectors/{id}/relative-strength?window=20`.
       Frontend: small chart above the stocks table in SectorDetailPanel.
 
-- [ ] **Supply chain / related sectors map** — static adjacency graph per sector
+- [x] **Supply chain / related sectors map** — static adjacency graph per sector
       showing upstream/downstream dependencies (e.g. semis -> tech, energy -> industrials,
       materials -> clean energy). Render as an SVG node-link diagram or a simple
       "related sectors" pill grid with ETF tickers. No new data needed -- purely

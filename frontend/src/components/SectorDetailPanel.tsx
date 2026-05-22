@@ -10,20 +10,24 @@ import type {
   SectorMacroDriversResponse,
   SectorNewsResponse,
   SectorRsResponse,
+  SectorSupplyChainResponse,
 } from "../api/types";
 import { SectorRsChart } from "./SectorRsChart";
+import { SectorSupplyChainMap } from "./SectorSupplyChainMap";
 import { TechnicalIndicatorsPanel } from "./TechnicalIndicatorsPanel";
 
 interface SectorDetailPanelProps {
   sectorId: string;
   onBack: () => void;
+  onSelectSector?: (id: string) => void;
 }
 
-export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) {
+export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDetailPanelProps) {
   const [data, setData] = useState<SectorDetailResponse | null>(null);
   const [kpis, setKpis] = useState<SectorKpisResponse | null>(null);
   const [macroDrivers, setMacroDrivers] = useState<SectorMacroDriversResponse | null>(null);
   const [showMacroDrivers, setShowMacroDrivers] = useState(false);
+  const [supplyChain, setSupplyChain] = useState<SectorSupplyChainResponse | null>(null);
   const [sectorRs, setSectorRs] = useState<SectorRsResponse | null>(null);
   const [sectorNews, setSectorNews] = useState<SectorNewsResponse | null>(null);
   const [showNews, setShowNews] = useState(false);
@@ -43,6 +47,7 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
     setKpis(null);
     setMacroDrivers(null);
     setShowMacroDrivers(false);
+    setSupplyChain(null);
     setSectorRs(null);
     setSectorNews(null);
     setShowNews(false);
@@ -61,6 +66,7 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
     // All secondary data loads independently — main table never blocks
     api.sectorKpis(sectorId).then(setKpis).catch(() => {});
     api.sectorMacroDrivers(sectorId).then(setMacroDrivers).catch(() => {});
+    api.sectorSupplyChain(sectorId).then(setSupplyChain).catch(() => {});
     api.sectorRelativeStrength(sectorId).then(setSectorRs).catch(() => {});
     api.sectorNews(sectorId).then(setSectorNews).catch(() => {});
     api.sectorEarnings(sectorId).then(setSectorEarnings).catch(() => {});
@@ -488,6 +494,21 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
                   </tbody>
                 </table>
               </div>
+            </section>
+          )}
+
+          {/* Supply Chain Map */}
+          {supplyChain && (
+            <section className="panel p-4">
+              <h3 className="text-xs text-terminal-muted uppercase tracking-wider mb-3">
+                Supply Chain Map
+              </h3>
+              <SectorSupplyChainMap
+                data={supplyChain}
+                sectorName={data.name}
+                sectorEtf={data.etf.ticker}
+                onSelectSector={onSelectSector}
+              />
             </section>
           )}
 
