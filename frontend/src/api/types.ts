@@ -924,6 +924,68 @@ export interface SectorKpisResponse {
   stocks: Array<Record<string, number | null | string>>;
 }
 
+// ─── Sector: Breadth indicators ──────────────────────────────────────────
+
+export interface SectorBreadthStock {
+  symbol: string;
+  price: number;
+  ma50: number | null;
+  ma200: number | null;
+  high_52w: number;
+  low_52w: number;
+  above_50ma: boolean;
+  above_200ma: boolean;
+  at_52w_high: boolean;
+  at_52w_low: boolean;
+  dist_from_52w_high_pct: number | null;
+}
+
+export interface SectorBreadthSummary {
+  above_50ma_count: number;
+  above_50ma_pct: number;
+  above_200ma_count: number;
+  above_200ma_pct: number;
+  at_52w_high_count: number;
+  at_52w_high_pct: number;
+  at_52w_low_count: number;
+  at_52w_low_pct: number;
+  avg_dist_from_52w_high_pct: number | null;
+}
+
+export interface SectorBreadthResponse {
+  sector_id: string;
+  stock_count: number;
+  stocks: SectorBreadthStock[];
+  summary: SectorBreadthSummary | null;
+}
+
+// ─── Sector: Regime playbook ──────────────────────────────────────────────
+
+export interface RegimePlaybookRow {
+  regime: string;
+  label: string;
+  is_current: boolean;
+  days: number;
+  etf_avg_daily_pct: number;
+  etf_annualized_pct: number;
+  spy_avg_daily_pct: number;
+  spy_annualized_pct: number;
+  avg_excess_daily_pct: number;
+  avg_excess_annualized_pct: number;
+  beat_rate_pct: number;
+  best_day_pct: number;
+  worst_day_pct: number;
+}
+
+export interface SectorRegimePlaybookResponse {
+  sector_id: string;
+  etf: string;
+  current_regime: string;
+  total_days?: number;
+  regimes: RegimePlaybookRow[];
+  error?: string;
+}
+
 // ─── Wave 2: Screener ─────────────────────────────────────────────────────
 
 export type ScreenerFilterType = "number" | "text";

@@ -37,8 +37,10 @@ from .data import (
     screener as screener_mod,
     sec_edgar,
     sector_detail,
+    sector_breadth as sector_breadth_mod,
     sector_kpis as sector_kpis_mod,
     sector_macro_drivers as sector_macro_drivers_mod,
+    sector_regime_playbook as sector_regime_playbook_mod,
     sector_rs as sector_rs_mod,
     sector_supply_chain as sector_supply_chain_mod,
     sector_rotation,
@@ -987,6 +989,32 @@ def get_sector_kpis(sector_id: str) -> dict:
         raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
     stocks = sec.get("key_stocks", [])
     return sector_kpis_mod.sector_kpis(sector_id, stocks)
+
+
+@app.get("/api/sectors/{sector_id}/breadth")
+def get_sector_breadth(sector_id: str) -> dict:
+    """Breadth indicators: % above 50/200MA, % at 52w high/low, avg distance from 52w high."""
+    sec = sector_detail.SECTORS.get(sector_id)
+    if sec is None:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    stocks = sec.get("key_stocks", [])
+    return sector_breadth_mod.sector_breadth(sector_id, stocks)
+
+
+@app.get("/api/sectors/{sector_id}/regime-playbook")
+def get_sector_regime_playbook(sector_id: str) -> dict:
+    """Historical avg return + beat rate vs SPY per regime state for this sector ETF."""
+    sec = sector_detail.SECTORS.get(sector_id)
+    if sec is None:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    etf = sec.get("etf", "SPY")
+    # get current regime from the live regime endpoint
+    try:
+        from .regime import regime_model
+        current = regime_model.current_regime().get("regime", "unknown")
+    except Exception:
+        current = "unknown"
+    return sector_regime_playbook_mod.sector_regime_playbook(sector_id, etf, current)
 
 
 # ──────────────────────────────────────────────────────────────────────────

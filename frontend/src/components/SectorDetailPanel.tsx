@@ -4,11 +4,13 @@ import { api } from "../api/client";
 import type {
   EarningsCalendar,
   NewsItem,
+  SectorBreadthResponse,
   SectorDetailResponse,
   SectorEarningsResponse,
   SectorKpisResponse,
   SectorMacroDriversResponse,
   SectorNewsResponse,
+  SectorRegimePlaybookResponse,
   SectorRsResponse,
   SectorSupplyChainResponse,
 } from "../api/types";
@@ -33,6 +35,9 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
   const [showNews, setShowNews] = useState(false);
   const [sectorEarnings, setSectorEarnings] = useState<SectorEarningsResponse | null>(null);
   const [showEarnings, setShowEarnings] = useState(false);
+  const [breadth, setBreadth] = useState<SectorBreadthResponse | null>(null);
+  const [regimePlaybook, setRegimePlaybook] = useState<SectorRegimePlaybookResponse | null>(null);
+  const [showRegimePlaybook, setShowRegimePlaybook] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showRelative, setShowRelative] = useState(false);
@@ -53,6 +58,9 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
     setShowNews(false);
     setSectorEarnings(null);
     setShowEarnings(false);
+    setBreadth(null);
+    setRegimePlaybook(null);
+    setShowRegimePlaybook(false);
     api
       .sectorDetail(sectorId)
       .then((d) => {
@@ -70,6 +78,8 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
     api.sectorRelativeStrength(sectorId).then(setSectorRs).catch(() => {});
     api.sectorNews(sectorId).then(setSectorNews).catch(() => {});
     api.sectorEarnings(sectorId).then(setSectorEarnings).catch(() => {});
+    api.sectorBreadth(sectorId).then(setBreadth).catch(() => {});
+    api.sectorRegimePlaybook(sectorId).then(setRegimePlaybook).catch(() => {});
   }, [sectorId]);
 
   const sortedStocks = data
@@ -291,6 +301,66 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
             )}
           </div>
 
+          {/* Breadth Indicators strip */}
+          {breadth?.summary && (
+            <div className="panel p-3 space-y-2">
+              <div className="text-2xs text-terminal-muted uppercase tracking-wider font-semibold mb-1">
+                Breadth Indicators
+                <span className="ml-2 normal-case font-normal text-terminal-dim">
+                  {breadth.stock_count} stocks
+                </span>
+              </div>
+              <div className="grid grid-cols-5 gap-2">
+                <BreadthStat
+                  label="Above 50MA"
+                  count={breadth.summary.above_50ma_count}
+                  total={breadth.stock_count}
+                  pct={breadth.summary.above_50ma_pct}
+                />
+                <BreadthStat
+                  label="Above 200MA"
+                  count={breadth.summary.above_200ma_count}
+                  total={breadth.stock_count}
+                  pct={breadth.summary.above_200ma_pct}
+                />
+                <BreadthStat
+                  label="At 52w High"
+                  count={breadth.summary.at_52w_high_count}
+                  total={breadth.stock_count}
+                  pct={breadth.summary.at_52w_high_pct}
+                  highlight={breadth.summary.at_52w_high_pct >= 50}
+                />
+                <BreadthStat
+                  label="At 52w Low"
+                  count={breadth.summary.at_52w_low_count}
+                  total={breadth.stock_count}
+                  pct={breadth.summary.at_52w_low_pct}
+                  bearish
+                  highlight={breadth.summary.at_52w_low_pct >= 25}
+                />
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-terminal-dim text-2xs uppercase">Avg vs 52w High</span>
+                  <span
+                    className="tabular-nums text-sm font-semibold"
+                    style={{
+                      color:
+                        (breadth.summary.avg_dist_from_52w_high_pct ?? 0) >= -5
+                          ? "#22c55e"
+                          : (breadth.summary.avg_dist_from_52w_high_pct ?? 0) >= -15
+                            ? "#f59e0b"
+                            : "#ef4444",
+                    }}
+                  >
+                    {breadth.summary.avg_dist_from_52w_high_pct != null
+                      ? `${breadth.summary.avg_dist_from_52w_high_pct.toFixed(1)}%`
+                      : "--"}
+                  </span>
+                  <span className="text-terminal-dim text-2xs">drawdown</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Macro Drivers card */}
           <section className="panel">
             <button
@@ -351,6 +421,87 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
                           </td>
                           <td className="py-1.5 px-2 text-terminal-dim truncate max-w-[200px]" title={d.desc}>
                             {d.desc}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* Regime Playbook */}
+          <section className="panel">
+            <button
+              type="button"
+              onClick={() => setShowRegimePlaybook((v) => !v)}
+              className="w-full flex items-center justify-between px-3 py-2 text-xs hover:bg-terminal-border/20"
+            >
+              <span className="text-terminal-muted uppercase tracking-wider font-semibold">
+                Regime Playbook
+                {regimePlaybook && !regimePlaybook.error && (
+                  <span className="ml-2 text-terminal-dim normal-case font-normal">
+                    {regimePlaybook.etf} performance by macro regime · {regimePlaybook.total_days ?? "?"} days
+                  </span>
+                )}
+              </span>
+              <span className="text-terminal-dim">{showRegimePlaybook ? "−" : "+"}</span>
+            </button>
+            {showRegimePlaybook && (
+              <div className="px-3 pb-3">
+                {!regimePlaybook ? (
+                  <div className="text-terminal-dim text-xs py-2">Loading regime playbook...</div>
+                ) : regimePlaybook.error ? (
+                  <div className="text-terminal-dim text-xs py-2 italic">{regimePlaybook.error}</div>
+                ) : regimePlaybook.regimes.length === 0 ? (
+                  <div className="text-terminal-dim text-xs py-2 italic">No regime data available.</div>
+                ) : (
+                  <table className="w-full text-xs mt-1">
+                    <thead className="text-terminal-dim uppercase tracking-wide">
+                      <tr>
+                        <th className="text-left py-1 px-2">Regime</th>
+                        <th className="text-right py-1 px-2">Days</th>
+                        <th className="text-right py-1 px-2">{regimePlaybook.etf} Ann.</th>
+                        <th className="text-right py-1 px-2">SPY Ann.</th>
+                        <th className="text-right py-1 px-2">Excess Ann.</th>
+                        <th className="text-right py-1 px-2">Beat Rate</th>
+                        <th className="text-right py-1 px-2">Best Day</th>
+                        <th className="text-right py-1 px-2">Worst Day</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {regimePlaybook.regimes.map((r) => (
+                        <tr
+                          key={r.regime}
+                          className={`border-b border-terminal-border/30 ${r.is_current ? "bg-accent/10" : "hover:bg-terminal-panel/40"}`}
+                        >
+                          <td className="py-1.5 px-2 font-semibold">
+                            {r.is_current && (
+                              <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent mr-1.5 align-middle" />
+                            )}
+                            {r.label}
+                          </td>
+                          <td className="py-1.5 px-2 text-right text-terminal-dim tabular-nums">{r.days}</td>
+                          <td className="py-1.5 px-2 text-right tabular-nums font-semibold" style={{ color: pctColor(r.etf_annualized_pct) }}>
+                            {r.etf_annualized_pct > 0 ? "+" : ""}{r.etf_annualized_pct.toFixed(1)}%
+                          </td>
+                          <td className="py-1.5 px-2 text-right tabular-nums" style={{ color: pctColor(r.spy_annualized_pct) }}>
+                            {r.spy_annualized_pct > 0 ? "+" : ""}{r.spy_annualized_pct.toFixed(1)}%
+                          </td>
+                          <td className="py-1.5 px-2 text-right tabular-nums font-semibold" style={{ color: pctColor(r.avg_excess_annualized_pct) }}>
+                            {r.avg_excess_annualized_pct > 0 ? "+" : ""}{r.avg_excess_annualized_pct.toFixed(1)}%
+                          </td>
+                          <td className="py-1.5 px-2 text-right tabular-nums">
+                            <span style={{ color: r.beat_rate_pct >= 50 ? "#22c55e" : "#ef4444" }}>
+                              {r.beat_rate_pct.toFixed(1)}%
+                            </span>
+                          </td>
+                          <td className="py-1.5 px-2 text-right tabular-nums text-green-400">
+                            +{r.best_day_pct.toFixed(2)}%
+                          </td>
+                          <td className="py-1.5 px-2 text-right tabular-nums text-rose-400">
+                            {r.worst_day_pct.toFixed(2)}%
                           </td>
                         </tr>
                       ))}
@@ -771,4 +922,41 @@ function pctColor(v: number | null | undefined): string | undefined {
   const intensity = Math.min(1, Math.abs(clamped) / 10);
   if (v >= 0) return `rgb(${110 - intensity * 60},${220 - intensity * 40},${130 - intensity * 50})`;
   return `rgb(${230 - intensity * 30},${110 - intensity * 50},${120 - intensity * 50})`;
+}
+
+function BreadthStat({
+  label,
+  count,
+  total,
+  pct,
+  bearish = false,
+  highlight = false,
+}: {
+  label: string;
+  count: number;
+  total: number;
+  pct: number;
+  bearish?: boolean;
+  highlight?: boolean;
+}) {
+  const color = highlight
+    ? bearish
+      ? "#ef4444"
+      : "#22c55e"
+    : pct >= 70
+      ? "#22c55e"
+      : pct >= 40
+        ? "#f59e0b"
+        : "#ef4444";
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-terminal-dim text-2xs uppercase">{label}</span>
+      <span className="tabular-nums text-sm font-semibold" style={{ color }}>
+        {pct}%
+      </span>
+      <span className="text-terminal-dim text-2xs">
+        {count}/{total}
+      </span>
+    </div>
+  );
 }

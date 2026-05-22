@@ -253,6 +253,10 @@ export const api = {
     getJSON<import("./types").SectorNewsResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/news`),
   sectorEarnings: (sectorId: string) =>
     getJSON<import("./types").SectorEarningsResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/earnings`),
+  sectorBreadth: (sectorId: string) =>
+    getJSON<import("./types").SectorBreadthResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/breadth`),
+  sectorRegimePlaybook: (sectorId: string) =>
+    getJSON<import("./types").SectorRegimePlaybookResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/regime-playbook`),
 
   // ── Wave 2: Screener
   screenerSchema: () => getJSON<ScreenerSchema>("/api/screener/schema"),
