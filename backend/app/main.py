@@ -39,6 +39,7 @@ from .data import (
     sector_detail,
     sector_breadth as sector_breadth_mod,
     sector_kpis as sector_kpis_mod,
+    sector_peer_comparison as sector_peer_comparison_mod,
     sector_macro_drivers as sector_macro_drivers_mod,
     sector_regime_playbook as sector_regime_playbook_mod,
     sector_rs as sector_rs_mod,
@@ -989,6 +990,17 @@ def get_sector_kpis(sector_id: str) -> dict:
         raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
     stocks = sec.get("key_stocks", [])
     return sector_kpis_mod.sector_kpis(sector_id, stocks)
+
+
+@app.get("/api/sectors/{sector_id}/peer-comparison")
+def get_sector_peer_comparison(sector_id: str) -> dict:
+    """YTD price series for all sector stocks + ETF, normalized to 100 at Jan 1."""
+    sec = sector_detail.SECTORS.get(sector_id)
+    if sec is None:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    stocks = sec.get("key_stocks", [])
+    etf = sec.get("etf", "SPY")
+    return sector_peer_comparison_mod.sector_peer_comparison(sector_id, stocks, etf)
 
 
 @app.get("/api/sectors/{sector_id}/breadth")

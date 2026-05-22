@@ -10,10 +10,12 @@ import type {
   SectorKpisResponse,
   SectorMacroDriversResponse,
   SectorNewsResponse,
+  SectorPeerComparisonResponse,
   SectorRegimePlaybookResponse,
   SectorRsResponse,
   SectorSupplyChainResponse,
 } from "../api/types";
+import { SectorPeerChart } from "./SectorPeerChart";
 import { SectorRsChart } from "./SectorRsChart";
 import { SectorSupplyChainMap } from "./SectorSupplyChainMap";
 import { TechnicalIndicatorsPanel } from "./TechnicalIndicatorsPanel";
@@ -36,6 +38,7 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
   const [sectorEarnings, setSectorEarnings] = useState<SectorEarningsResponse | null>(null);
   const [showEarnings, setShowEarnings] = useState(false);
   const [breadth, setBreadth] = useState<SectorBreadthResponse | null>(null);
+  const [peerComparison, setPeerComparison] = useState<SectorPeerComparisonResponse | null>(null);
   const [regimePlaybook, setRegimePlaybook] = useState<SectorRegimePlaybookResponse | null>(null);
   const [showRegimePlaybook, setShowRegimePlaybook] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -59,6 +62,7 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
     setSectorEarnings(null);
     setShowEarnings(false);
     setBreadth(null);
+    setPeerComparison(null);
     setRegimePlaybook(null);
     setShowRegimePlaybook(false);
     api
@@ -79,6 +83,7 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
     api.sectorNews(sectorId).then(setSectorNews).catch(() => {});
     api.sectorEarnings(sectorId).then(setSectorEarnings).catch(() => {});
     api.sectorBreadth(sectorId).then(setBreadth).catch(() => {});
+    api.sectorPeerComparison(sectorId).then(setPeerComparison).catch(() => {});
     api.sectorRegimePlaybook(sectorId).then(setRegimePlaybook).catch(() => {});
   }, [sectorId]);
 
@@ -296,6 +301,22 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
                 </span>
                 <span className="text-terminal-dim text-2xs">
                   {sectorRs?.error ?? "Loading..."}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Peer Comparison Chart */}
+          <div className="panel p-3">
+            {peerComparison && peerComparison.series.length > 0 ? (
+              <SectorPeerChart data={peerComparison} />
+            ) : (
+              <div className="flex items-center justify-between h-10">
+                <span className="text-terminal-dim text-xs uppercase tracking-wider">
+                  YTD Peer Comparison
+                </span>
+                <span className="text-terminal-dim text-2xs">
+                  {peerComparison ? "No data available" : "Loading..."}
                 </span>
               </div>
             )}

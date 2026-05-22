@@ -276,10 +276,10 @@ Items below are prioritized; build in order.
       average distance from 52w high. Surface as a stat bar in SectorDetailPanel.
       Backend: `/api/sectors/{id}/breadth`. No new DB tables needed.
 
-- [ ] **Peer Comparison Chart** — side-by-side YTD performance line chart for all
+- [x] **Peer Comparison Chart** — side-by-side YTD performance line chart for all
       stocks in the sector (normalized to 100 at Jan 1). Highlights the best/worst
-      performer. Backend: reuse existing price cache. Frontend: lightweight-charts
-      multi-line with a legend.
+      performer. Backend: `/api/sectors/{id}/peer-comparison`. Frontend: SectorPeerChart
+      with color-coded multi-line chart + scrollable legend showing YTD % per symbol.
 
 - [ ] **Regime-Based Playbook** (building now) — using 5-state regime history + ETF
       price data, compute average sector return per regime state, annualized. Show

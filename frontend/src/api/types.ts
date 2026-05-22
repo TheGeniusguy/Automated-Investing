@@ -924,6 +924,23 @@ export interface SectorKpisResponse {
   stocks: Array<Record<string, number | null | string>>;
 }
 
+// ─── Sector: Peer comparison chart ───────────────────────────────────────
+
+export interface PeerSeries {
+  symbol: string;
+  points: { date: string; value: number }[];
+  ytd_pct: number;
+  last_close: number;
+}
+
+export interface SectorPeerComparisonResponse {
+  sector_id: string;
+  etf: string;
+  series: PeerSeries[];
+  best: string | null;
+  worst: string | null;
+}
+
 // ─── Sector: Breadth indicators ──────────────────────────────────────────
 
 export interface SectorBreadthStock {
