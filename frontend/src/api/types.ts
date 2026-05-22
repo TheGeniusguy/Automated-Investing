@@ -818,6 +818,26 @@ export interface SectorOverviewResponse {
   sectors: SectorOverviewItem[];
 }
 
+// ─── Sector Relative Strength ─────────────────────────────────────────────
+
+export interface RsSeries {
+  key: string;
+  label: string;
+  color: string;
+  points: { date: string; value: number }[];
+}
+
+export interface SectorRsResponse {
+  sector_id: string;
+  etf: string;
+  benchmark: string;
+  error?: string;
+  series: RsSeries[];
+  current: { rs_raw?: number | null; rs_20d?: number | null; rs_60d?: number | null };
+  outperforming_20d: boolean | null;
+  outperforming_60d: boolean | null;
+}
+
 // ─── Sector News + Earnings ───────────────────────────────────────────────
 
 export interface NewsItem {

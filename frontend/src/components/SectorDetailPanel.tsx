@@ -9,7 +9,9 @@ import type {
   SectorKpisResponse,
   SectorMacroDriversResponse,
   SectorNewsResponse,
+  SectorRsResponse,
 } from "../api/types";
+import { SectorRsChart } from "./SectorRsChart";
 import { TechnicalIndicatorsPanel } from "./TechnicalIndicatorsPanel";
 
 interface SectorDetailPanelProps {
@@ -22,6 +24,7 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
   const [kpis, setKpis] = useState<SectorKpisResponse | null>(null);
   const [macroDrivers, setMacroDrivers] = useState<SectorMacroDriversResponse | null>(null);
   const [showMacroDrivers, setShowMacroDrivers] = useState(false);
+  const [sectorRs, setSectorRs] = useState<SectorRsResponse | null>(null);
   const [sectorNews, setSectorNews] = useState<SectorNewsResponse | null>(null);
   const [showNews, setShowNews] = useState(false);
   const [sectorEarnings, setSectorEarnings] = useState<SectorEarningsResponse | null>(null);
@@ -40,6 +43,7 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
     setKpis(null);
     setMacroDrivers(null);
     setShowMacroDrivers(false);
+    setSectorRs(null);
     setSectorNews(null);
     setShowNews(false);
     setSectorEarnings(null);
@@ -57,6 +61,7 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
     // All secondary data loads independently — main table never blocks
     api.sectorKpis(sectorId).then(setKpis).catch(() => {});
     api.sectorMacroDrivers(sectorId).then(setMacroDrivers).catch(() => {});
+    api.sectorRelativeStrength(sectorId).then(setSectorRs).catch(() => {});
     api.sectorNews(sectorId).then(setSectorNews).catch(() => {});
     api.sectorEarnings(sectorId).then(setSectorEarnings).catch(() => {});
   }, [sectorId]);
@@ -262,6 +267,22 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
                 {w.label} {fmtPct(data.benchmark.returns[w.key])}
               </span>
             ))}
+          </div>
+
+          {/* Relative Strength Chart */}
+          <div className="panel p-3">
+            {sectorRs && !sectorRs.error ? (
+              <SectorRsChart data={sectorRs} />
+            ) : (
+              <div className="flex items-center justify-between h-10">
+                <span className="text-terminal-dim text-xs uppercase tracking-wider">
+                  Relative Strength vs SPY
+                </span>
+                <span className="text-terminal-dim text-2xs">
+                  {sectorRs?.error ?? "Loading..."}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Macro Drivers card */}

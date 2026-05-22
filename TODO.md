@@ -253,7 +253,7 @@ flow live, but FRED macro tiles show `—` and Claude surfaces show
       Or add `?tickers=AAPL,MSFT,...` params to those endpoints.
       Frontend: two collapsible panels at the bottom of SectorDetailPanel.
 
-- [ ] **Relative strength momentum chart** — rolling 20-day and 60-day RS of
+- [x] **Relative strength momentum chart** — rolling 20-day and 60-day RS of
       the sector ETF vs SPY (RS = sector / SPY, normalized to 1.0 at window start).
       Show as a two-line chart. Backend: compute from existing price cache.
       Endpoint: `/api/sectors/{id}/relative-strength?window=20`.

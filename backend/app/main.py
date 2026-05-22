@@ -39,6 +39,7 @@ from .data import (
     sector_detail,
     sector_kpis as sector_kpis_mod,
     sector_macro_drivers as sector_macro_drivers_mod,
+    sector_rs as sector_rs_mod,
     sector_rotation,
     series_stats as series_stats_mod,
     shipping as shipping_mod,
@@ -903,6 +904,20 @@ def get_sector_macro_drivers(sector_id: str) -> dict:
         raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
     etf = sec.get("etf", "SPY")
     return sector_macro_drivers_mod.sector_macro_drivers(sector_id, etf)
+
+
+@app.get("/api/sectors/{sector_id}/relative-strength")
+def get_sector_relative_strength(sector_id: str, benchmark: str = "SPY") -> dict:
+    """Rolling 20d and 60d relative strength of sector ETF vs SPY (or custom benchmark).
+
+    Returns normalized raw RS + two rolling momentum series for charting.
+    Values above 1.0 = outperforming; below = underperforming.
+    """
+    sec = sector_detail.SECTORS.get(sector_id)
+    if sec is None:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    etf = sec.get("etf", "SPY")
+    return sector_rs_mod.sector_relative_strength(sector_id, etf, benchmark=benchmark)
 
 
 @app.get("/api/sectors/{sector_id}/news")

@@ -245,6 +245,8 @@ export const api = {
     getJSON<import("./types").SectorKpisResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/kpis`),
   sectorMacroDrivers: (sectorId: string) =>
     getJSON<import("./types").SectorMacroDriversResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/macro-drivers`),
+  sectorRelativeStrength: (sectorId: string) =>
+    getJSON<import("./types").SectorRsResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/relative-strength`),
   sectorNews: (sectorId: string) =>
     getJSON<import("./types").SectorNewsResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/news`),
   sectorEarnings: (sectorId: string) =>
