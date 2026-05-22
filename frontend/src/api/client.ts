@@ -245,6 +245,10 @@ export const api = {
     getJSON<import("./types").SectorKpisResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/kpis`),
   sectorMacroDrivers: (sectorId: string) =>
     getJSON<import("./types").SectorMacroDriversResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/macro-drivers`),
+  sectorNews: (sectorId: string) =>
+    getJSON<import("./types").SectorNewsResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/news`),
+  sectorEarnings: (sectorId: string) =>
+    getJSON<import("./types").SectorEarningsResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/earnings`),
 
   // ── Wave 2: Screener
   screenerSchema: () => getJSON<ScreenerSchema>("/api/screener/schema"),

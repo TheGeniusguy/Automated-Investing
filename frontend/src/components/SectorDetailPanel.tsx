@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 
 import { api } from "../api/client";
-import type { SectorDetailResponse, SectorKpisResponse, SectorMacroDriversResponse } from "../api/types";
+import type {
+  EarningsCalendar,
+  NewsItem,
+  SectorDetailResponse,
+  SectorEarningsResponse,
+  SectorKpisResponse,
+  SectorMacroDriversResponse,
+  SectorNewsResponse,
+} from "../api/types";
 import { TechnicalIndicatorsPanel } from "./TechnicalIndicatorsPanel";
 
 interface SectorDetailPanelProps {
@@ -14,6 +22,10 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
   const [kpis, setKpis] = useState<SectorKpisResponse | null>(null);
   const [macroDrivers, setMacroDrivers] = useState<SectorMacroDriversResponse | null>(null);
   const [showMacroDrivers, setShowMacroDrivers] = useState(false);
+  const [sectorNews, setSectorNews] = useState<SectorNewsResponse | null>(null);
+  const [showNews, setShowNews] = useState(false);
+  const [sectorEarnings, setSectorEarnings] = useState<SectorEarningsResponse | null>(null);
+  const [showEarnings, setShowEarnings] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showRelative, setShowRelative] = useState(false);
@@ -28,6 +40,10 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
     setKpis(null);
     setMacroDrivers(null);
     setShowMacroDrivers(false);
+    setSectorNews(null);
+    setShowNews(false);
+    setSectorEarnings(null);
+    setShowEarnings(false);
     api
       .sectorDetail(sectorId)
       .then((d) => {
@@ -38,9 +54,11 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
         setErr(String(e));
         setLoading(false);
       });
-    // KPIs + macro drivers load independently so they don't block the main table
+    // All secondary data loads independently — main table never blocks
     api.sectorKpis(sectorId).then(setKpis).catch(() => {});
     api.sectorMacroDrivers(sectorId).then(setMacroDrivers).catch(() => {});
+    api.sectorNews(sectorId).then(setSectorNews).catch(() => {});
+    api.sectorEarnings(sectorId).then(setSectorEarnings).catch(() => {});
   }, [sectorId]);
 
   const sortedStocks = data
@@ -452,6 +470,81 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
             </section>
           )}
 
+          {/* Upcoming Earnings */}
+          <section className="panel">
+            <button
+              type="button"
+              onClick={() => setShowEarnings((v) => !v)}
+              className="w-full flex items-center justify-between px-3 py-2 text-xs hover:bg-terminal-border/20"
+            >
+              <span className="text-terminal-muted uppercase tracking-wider font-semibold">
+                Upcoming Earnings
+                {sectorEarnings && (
+                  <span className="ml-2 text-terminal-dim normal-case font-normal">
+                    {sectorEarnings.calendars.filter((c) => c.next_earnings && c.next_earnings >= sectorEarnings.today).length} stocks with dates
+                  </span>
+                )}
+              </span>
+              <span className="text-terminal-dim">{showEarnings ? "−" : "+"}</span>
+            </button>
+            {showEarnings && (
+              <div className="px-3 pb-3">
+                {!sectorEarnings ? (
+                  <div className="text-terminal-dim text-xs py-2">Loading earnings calendar...</div>
+                ) : (
+                  <table className="w-full text-xs mt-1">
+                    <thead className="text-terminal-dim uppercase tracking-wide">
+                      <tr>
+                        <th className="text-left py-1 px-2">Symbol</th>
+                        <th className="text-left py-1 px-2">Next Earnings</th>
+                        <th className="text-right py-1 px-2">EPS Est.</th>
+                        <th className="text-right py-1 px-2">Rev Est.</th>
+                        <th className="text-left py-1 px-2">Days Away</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sectorEarnings.calendars.map((c) => (
+                        <EarningsRow key={c.symbol} cal={c} today={sectorEarnings.today} />
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* Sector News */}
+          <section className="panel">
+            <button
+              type="button"
+              onClick={() => setShowNews((v) => !v)}
+              className="w-full flex items-center justify-between px-3 py-2 text-xs hover:bg-terminal-border/20"
+            >
+              <span className="text-terminal-muted uppercase tracking-wider font-semibold">
+                Sector News
+                {sectorNews && (
+                  <span className="ml-2 text-terminal-dim normal-case font-normal">
+                    {sectorNews.items.length} stories
+                  </span>
+                )}
+              </span>
+              <span className="text-terminal-dim">{showNews ? "−" : "+"}</span>
+            </button>
+            {showNews && (
+              <div className="px-3 pb-3 space-y-2 mt-1">
+                {!sectorNews ? (
+                  <div className="text-terminal-dim text-xs py-2">Loading news...</div>
+                ) : sectorNews.items.length === 0 ? (
+                  <div className="text-terminal-dim text-xs py-2">No news found.</div>
+                ) : (
+                  sectorNews.items.map((item, i) => (
+                    <NewsRow key={item.url + i} item={item} />
+                  ))
+                )}
+              </div>
+            )}
+          </section>
+
           {/* Related ETFs */}
           {data.related_etfs.length > 0 && (
             <section>
@@ -539,6 +632,79 @@ function fmtCap(v: number | null | undefined): string {
   if (v >= 1e9) return `${(v / 1e9).toFixed(1)}B`;
   if (v >= 1e6) return `${(v / 1e6).toFixed(0)}M`;
   return String(v);
+}
+
+function EarningsRow({ cal, today }: { cal: EarningsCalendar; today: string }) {
+  const hasDate = cal.next_earnings != null;
+  const isUpcoming = hasDate && cal.next_earnings! >= today;
+  const daysAway = hasDate
+    ? Math.round(
+        (new Date(cal.next_earnings!).getTime() - new Date(today).getTime()) /
+          86400000,
+      )
+    : null;
+
+  return (
+    <tr className="border-b border-terminal-border/30 hover:bg-terminal-panel/40">
+      <td className="py-1.5 px-2 font-mono text-accent">{cal.symbol}</td>
+      <td className="py-1.5 px-2 tabular-nums">
+        {cal.next_earnings ?? <span className="text-terminal-dim">--</span>}
+      </td>
+      <td className="py-1.5 px-2 text-right tabular-nums">
+        {cal.eps_estimate != null ? cal.eps_estimate.toFixed(2) : "--"}
+      </td>
+      <td className="py-1.5 px-2 text-right tabular-nums">
+        {cal.revenue_estimate != null ? fmtCap(cal.revenue_estimate) : "--"}
+      </td>
+      <td className="py-1.5 px-2">
+        {daysAway == null ? (
+          <span className="text-terminal-dim">--</span>
+        ) : isUpcoming ? (
+          <span className={daysAway <= 7 ? "text-accent-amber font-semibold" : "text-terminal-fg"}>
+            {daysAway === 0 ? "Today" : `${daysAway}d`}
+          </span>
+        ) : (
+          <span className="text-terminal-dim">{Math.abs(daysAway)}d ago</span>
+        )}
+      </td>
+    </tr>
+  );
+}
+
+function NewsRow({ item }: { item: NewsItem }) {
+  const age = item.published
+    ? (() => {
+        const diff = Date.now() - new Date(item.published).getTime();
+        const h = Math.floor(diff / 3600000);
+        if (h < 1) return `${Math.floor(diff / 60000)}m ago`;
+        if (h < 24) return `${h}h ago`;
+        return `${Math.floor(h / 24)}d ago`;
+      })()
+    : null;
+
+  return (
+    <div className="border-b border-terminal-border/20 pb-2">
+      <div className="flex items-start justify-between gap-2">
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-terminal-fg hover:text-accent leading-snug"
+        >
+          {item.title}
+        </a>
+        {age && <span className="text-terminal-dim text-2xs shrink-0">{age}</span>}
+      </div>
+      <div className="flex items-center gap-2 mt-0.5">
+        <span className="text-terminal-dim text-2xs">{item.publisher}</span>
+        <div className="flex gap-1 flex-wrap">
+          {item.tickers.slice(0, 4).map((t) => (
+            <span key={t} className="pill text-2xs bg-terminal-border/30 py-0">{t}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function fmtKpiValue(v: number | null | undefined, unit: string): string {

@@ -247,7 +247,7 @@ flow live, but FRED macro tiles show `—` and Claude surfaces show
       ISM for industrials). Surface as a sortable table in the sector drill-down.
       Backend: `/api/sectors/{id}/macro-drivers`. Frontend: collapsible card below KPIs.
 
-- [ ] **Sector-filtered news + earnings calendar** — in the sector drill-down,
+- [x] **Sector-filtered news + earnings calendar** — in the sector drill-down,
       show only news and upcoming earnings for that sector's key stocks.
       Backend: filter existing `/api/news/feed` and `/api/earnings/overview` by ticker list.
       Or add `?tickers=AAPL,MSFT,...` params to those endpoints.

@@ -818,6 +818,39 @@ export interface SectorOverviewResponse {
   sectors: SectorOverviewItem[];
 }
 
+// ─── Sector News + Earnings ───────────────────────────────────────────────
+
+export interface NewsItem {
+  title: string;
+  publisher: string;
+  url: string;
+  summary: string;
+  published: string | null;
+  tickers: string[];
+  source: string;
+}
+
+export interface SectorNewsResponse {
+  items: NewsItem[];
+  tickers: string[];
+  fetched_at: string;
+  elapsed_s: number;
+}
+
+export interface EarningsCalendar {
+  symbol: string;
+  next_earnings: string | null;
+  eps_estimate: number | null;
+  revenue_estimate: number | null;
+  error: string | null;
+}
+
+export interface SectorEarningsResponse {
+  sector_id: string;
+  today: string;
+  calendars: EarningsCalendar[];
+}
+
 // ─── Sector Macro Drivers ─────────────────────────────────────────────────
 
 export interface SectorMacroDriver {

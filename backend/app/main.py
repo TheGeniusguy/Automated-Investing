@@ -905,6 +905,52 @@ def get_sector_macro_drivers(sector_id: str) -> dict:
     return sector_macro_drivers_mod.sector_macro_drivers(sector_id, etf)
 
 
+@app.get("/api/sectors/{sector_id}/news")
+def get_sector_news(sector_id: str, per_ticker: int = 5, limit: int = 30) -> dict:
+    """Latest news for all key stocks in a sector, merged and deduped."""
+    sec = sector_detail.SECTORS.get(sector_id)
+    if sec is None:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    stocks = sec.get("key_stocks", [])
+    return news_mod.fetch_news_feed(stocks, per_ticker=per_ticker, overall=limit)
+
+
+@app.get("/api/sectors/{sector_id}/earnings")
+def get_sector_earnings(sector_id: str) -> dict:
+    """Upcoming earnings calendar for all key stocks in a sector."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    from datetime import date
+
+    sec = sector_detail.SECTORS.get(sector_id)
+    if sec is None:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    stocks = sec.get("key_stocks", [])
+
+    calendars: list[dict] = []
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        futures = {pool.submit(earnings_mod.fetch_calendar, sym): sym for sym in stocks}
+        for fut in as_completed(futures):
+            try:
+                calendars.append(fut.result())
+            except Exception:
+                pass
+
+    today = date.today().isoformat()
+    # Sort: upcoming first, then past/None
+    def _sort_key(c: dict):
+        d = c.get("next_earnings")
+        if d and d >= today:
+            return (0, d)
+        return (1, d or "9999")
+
+    calendars.sort(key=_sort_key)
+    return {
+        "sector_id": sector_id,
+        "today": today,
+        "calendars": calendars,
+    }
+
+
 @app.get("/api/sectors/{sector_id}/kpis")
 def get_sector_kpis(sector_id: str) -> dict:
     """Sector-specific KPIs: medians + per-stock breakdown.
