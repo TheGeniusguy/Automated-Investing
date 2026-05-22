@@ -241,7 +241,7 @@ flow live, but FRED macro tiles show `—` and Claude surfaces show
       `/api/sectors/{id}/kpis` returns sector medians + per-stock breakdown.
       KPI card strip + breakdown table rendered in SectorDetailPanel.
 
-- [ ] **Macro correlation per sector** — which FRED series drives each sector.
+- [x] **Macro correlation per sector** — which FRED series drives each sector.
       For each sector, compute rolling 90-day correlation between sector ETF returns
       and a curated set of FRED series (e.g. DGS10 + oil for energy, 10Y for utilities,
       ISM for industrials). Surface as a sortable table in the sector drill-down.

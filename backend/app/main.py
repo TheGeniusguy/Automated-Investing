@@ -38,6 +38,7 @@ from .data import (
     sec_edgar,
     sector_detail,
     sector_kpis as sector_kpis_mod,
+    sector_macro_drivers as sector_macro_drivers_mod,
     sector_rotation,
     series_stats as series_stats_mod,
     shipping as shipping_mod,
@@ -889,6 +890,19 @@ def get_sector_detail(sector_id: str) -> dict:
         return sector_detail.sector_detail(sector_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.get("/api/sectors/{sector_id}/macro-drivers")
+def get_sector_macro_drivers(sector_id: str) -> dict:
+    """Rolling 90-day correlation between sector ETF and curated macro series.
+
+    yfinance drivers always available. FRED drivers require FRED_API_KEY.
+    """
+    sec = sector_detail.SECTORS.get(sector_id)
+    if sec is None:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    etf = sec.get("etf", "SPY")
+    return sector_macro_drivers_mod.sector_macro_drivers(sector_id, etf)
 
 
 @app.get("/api/sectors/{sector_id}/kpis")

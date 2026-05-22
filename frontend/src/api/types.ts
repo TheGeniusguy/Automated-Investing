@@ -818,6 +818,27 @@ export interface SectorOverviewResponse {
   sectors: SectorOverviewItem[];
 }
 
+// ─── Sector Macro Drivers ─────────────────────────────────────────────────
+
+export interface SectorMacroDriver {
+  id: string;
+  label: string;
+  source: "fred" | "yfinance";
+  direction: "+" | "-";
+  desc: string;
+  correlation: number | null;
+  available: boolean;
+  n_obs?: number;
+}
+
+export interface SectorMacroDriversResponse {
+  sector_id: string;
+  etf: string;
+  lookback_days: number;
+  fred_available: boolean;
+  drivers: SectorMacroDriver[];
+}
+
 // ─── Sector KPIs ──────────────────────────────────────────────────────────
 
 export interface SectorKpiDef {

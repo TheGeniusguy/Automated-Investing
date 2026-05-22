@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { api } from "../api/client";
-import type { SectorDetailResponse, SectorKpisResponse } from "../api/types";
+import type { SectorDetailResponse, SectorKpisResponse, SectorMacroDriversResponse } from "../api/types";
 import { TechnicalIndicatorsPanel } from "./TechnicalIndicatorsPanel";
 
 interface SectorDetailPanelProps {
@@ -12,6 +12,8 @@ interface SectorDetailPanelProps {
 export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) {
   const [data, setData] = useState<SectorDetailResponse | null>(null);
   const [kpis, setKpis] = useState<SectorKpisResponse | null>(null);
+  const [macroDrivers, setMacroDrivers] = useState<SectorMacroDriversResponse | null>(null);
+  const [showMacroDrivers, setShowMacroDrivers] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showRelative, setShowRelative] = useState(false);
@@ -24,6 +26,8 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
     setErr(null);
     setData(null);
     setKpis(null);
+    setMacroDrivers(null);
+    setShowMacroDrivers(false);
     api
       .sectorDetail(sectorId)
       .then((d) => {
@@ -34,8 +38,9 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
         setErr(String(e));
         setLoading(false);
       });
-    // KPIs load independently so they don't block the main table
+    // KPIs + macro drivers load independently so they don't block the main table
     api.sectorKpis(sectorId).then(setKpis).catch(() => {});
+    api.sectorMacroDrivers(sectorId).then(setMacroDrivers).catch(() => {});
   }, [sectorId]);
 
   const sortedStocks = data
@@ -240,6 +245,76 @@ export function SectorDetailPanel({ sectorId, onBack }: SectorDetailPanelProps) 
               </span>
             ))}
           </div>
+
+          {/* Macro Drivers card */}
+          <section className="panel">
+            <button
+              type="button"
+              onClick={() => setShowMacroDrivers((v) => !v)}
+              className="w-full flex items-center justify-between px-3 py-2 text-xs hover:bg-terminal-border/20"
+            >
+              <span className="text-terminal-muted uppercase tracking-wider font-semibold">
+                Macro Drivers
+                {macroDrivers && (
+                  <span className="ml-2 text-terminal-dim normal-case font-normal">
+                    90d rolling correlation · {macroDrivers.etf}
+                    {!macroDrivers.fred_available && " · FRED key needed for full view"}
+                  </span>
+                )}
+              </span>
+              <span className="text-terminal-dim">{showMacroDrivers ? "−" : "+"}</span>
+            </button>
+            {showMacroDrivers && (
+              <div className="px-3 pb-3">
+                {!macroDrivers ? (
+                  <div className="text-terminal-dim text-xs py-2">Loading macro drivers...</div>
+                ) : (
+                  <table className="w-full text-xs mt-1">
+                    <thead className="text-terminal-dim uppercase tracking-wide">
+                      <tr>
+                        <th className="text-left py-1 px-2">Driver</th>
+                        <th className="text-left py-1 px-2">Source</th>
+                        <th className="text-left py-1 px-2">Expected</th>
+                        <th className="text-right py-1 px-2">Correlation</th>
+                        <th className="text-right py-1 px-2">Obs</th>
+                        <th className="text-left py-1 px-2 max-w-[200px]">Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {macroDrivers.drivers.map((d) => (
+                        <tr key={d.id} className="border-b border-terminal-border/30 hover:bg-terminal-panel/40">
+                          <td className="py-1.5 px-2 font-semibold">{d.label}</td>
+                          <td className="py-1.5 px-2 text-terminal-dim font-mono text-2xs">{d.id}</td>
+                          <td className="py-1.5 px-2">
+                            <span className={d.direction === "+" ? "text-green-400" : "text-rose-400"}>
+                              {d.direction === "+" ? "↑ bullish" : "↓ bearish"}
+                            </span>
+                          </td>
+                          <td className="py-1.5 px-2 text-right tabular-nums font-semibold">
+                            {!d.available ? (
+                              <span className="text-terminal-dim">no key</span>
+                            ) : d.correlation === null ? (
+                              <span className="text-terminal-dim">--</span>
+                            ) : (
+                              <span style={{ color: corrColor(d.correlation) }}>
+                                {d.correlation > 0 ? "+" : ""}{d.correlation.toFixed(2)}
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-1.5 px-2 text-right text-terminal-dim">
+                            {d.n_obs ?? "--"}
+                          </td>
+                          <td className="py-1.5 px-2 text-terminal-dim truncate max-w-[200px]" title={d.desc}>
+                            {d.desc}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+          </section>
 
           {/* Key Stocks table */}
           <section>
@@ -473,6 +548,13 @@ function fmtKpiValue(v: number | null | undefined, unit: string): string {
   // % values
   const sign = v > 0 ? "+" : "";
   return `${sign}${v.toFixed(1)}%`;
+}
+
+function corrColor(v: number): string {
+  const abs = Math.abs(v);
+  if (abs >= 0.5) return v > 0 ? "#4ade80" : "#f87171";
+  if (abs >= 0.25) return v > 0 ? "#86efac" : "#fca5a5";
+  return "#6b7280"; // neutral
 }
 
 function pctColor(v: number | null | undefined): string | undefined {
