@@ -236,6 +236,8 @@ flow live, but FRED macro tiles show `—` and Claude surfaces show
 
 ## 8. Sector/Subsector depth (queued from session 2026-05-22)
 
+### Mile-deep sector intelligence (session 2026-05-22)
+
 - [x] **Sector-specific KPIs** — shipped. Per-sector curated metrics (Rule of 40 for tech,
       EV/EBITDA for O&G, P/B + ROE for banks, inventory days for semis, etc.).
       `/api/sectors/{id}/kpis` returns sector medians + per-stock breakdown.
@@ -265,10 +267,76 @@ flow live, but FRED macro tiles show `—` and Claude surfaces show
       "related sectors" pill grid with ETF tickers. No new data needed -- purely
       editorial config in a Python dict.
 
-## 9. Wave 3+ feature backlog (from prior sessions)
+## 9. Mile-deep sector intelligence — next build queue (session 2026-05-22)
 
-These items were surfaced earlier in this session and remain on the
-build queue.
+Items below are prioritized; build in order.
+
+- [ ] **Sector Breadth Indicators** (building now) — for each sector's key stocks,
+      compute % above 50MA, % above 200MA, % at 52w highs, % at 52w lows,
+      average distance from 52w high. Surface as a stat bar in SectorDetailPanel.
+      Backend: `/api/sectors/{id}/breadth`. No new DB tables needed.
+
+- [ ] **Peer Comparison Chart** — side-by-side YTD performance line chart for all
+      stocks in the sector (normalized to 100 at Jan 1). Highlights the best/worst
+      performer. Backend: reuse existing price cache. Frontend: lightweight-charts
+      multi-line with a legend.
+
+- [ ] **Regime-Based Playbook** (building now) — using 5-state regime history + ETF
+      price data, compute average sector return per regime state, annualized. Show
+      beat rate vs SPY per regime, highlight current regime.
+      Backend: `/api/sectors/{id}/regime-playbook`. Frontend: table in SectorDetailPanel.
+
+- [ ] **Historical Seasonality** — average monthly return per calendar month for the
+      sector ETF over the last 10 years. Show as a 12-bar chart colored green/red.
+      Backend: simple groupby on cached price data. No new endpoints needed beyond
+      `/api/sectors/{id}/seasonality`.
+
+- [ ] **Valuation Percentile** — for each sector KPI (P/E, EV/EBITDA, P/S),
+      show where today's reading sits vs the 5-year history of the sector median.
+      "Cheap / Fair / Expensive" label + percentile rank. Requires accumulating
+      sector medians over time (new DuckDB table or rolling from fundamentals).
+
+- [ ] **Earnings Season Aggregator** — during earnings season, show the sector's
+      beat rate (EPS + revenue), average earnings surprise %, and guidance trend
+      for the current quarter. Backend: use existing per-ticker earnings data.
+
+- [ ] **Sub-industry Performance** — within a sector, break down by GICS sub-industry
+      (e.g. within tech: semiconductors vs software vs hardware vs cloud infra).
+      Show each sub-group's YTD return. Requires a static sub-industry → tickers map.
+
+- [ ] **Options Flow per Sector ETF** — put/call ratio, IV rank, largest open interest
+      strikes for the sector ETF (XLK, XLE, etc.). Reuse existing `options.py`
+      fetcher with the ETF symbol.
+
+- [ ] **Sector Concentration + Top Holdings** — pie chart of top 10 constituent
+      weights for each sector ETF (sourced from yfinance `.info` or a static config).
+      Show how top-heavy the sector is.
+
+- [ ] **Dividend Growth Tracker** — for dividend-paying sectors (utilities, REITs,
+      consumer staples, financials), show trailing 5-year dividend CAGR per stock,
+      yield vs 10Y Treasury spread, payout ratio.
+
+- [ ] **Rotation Radar** — a 2D scatter of 20D momentum (x) vs 60D momentum (y)
+      for all 11 sectors simultaneously. Visual "rotation clock" showing which
+      sectors are leading/lagging/turning.
+
+- [ ] **Regime → Sector Allocation Matrix** — across all 5 regime states, show the
+      historically optimal sector allocation (which 3 sectors outperform each regime
+      the most). Export as a reference card for portfolio construction.
+
+- [ ] **Sector Correlation Matrix** — rolling 60D pairwise correlation heatmap across
+      all 11 sectors. Highlights diversification opportunities and crowded trades.
+
+### Quick UX wins for sector drill-down
+
+- [ ] **Search / filter bar** across all sector panels (filter stocks by name/ticker)
+- [ ] **Sector comparison toggle** — view any two sectors side-by-side in one panel
+- [ ] **Pin sector** — bookmark a sector for fast access without scrolling the sidebar
+- [ ] **Last-updated timestamps** on each collapsible card so you know data freshness
+
+## 10. Wave 3+ feature backlog (from prior sessions)
+
+These items were surfaced in earlier sessions and remain on the build queue.
 
 - [ ] **Insider Transaction analytics** — aggregate Form 4 buys/sells per
       ticker via existing `sec_edgar.py`; detect insider clusters
