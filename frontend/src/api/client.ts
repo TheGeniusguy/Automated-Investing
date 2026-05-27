@@ -557,6 +557,14 @@ export const etfApi = {
     getJSON<import("./types").ETFCompareResponse>(
       `/api/etf/compare?symbols=${symbols.join(",")}&days=${days}&benchmark=${benchmark}`,
     ),
+
+  // Cross-asset investment comparator — compares returns across asset classes.
+  compareInvestments: (investments: import("./types").InvestmentSpec[]) =>
+    fetch(`${API_BASE}/api/compare/investments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ investments }),
+    }).then(_jsonOrThrow) as Promise<import("./types").CompareInvestmentsResponse>,
 };
 
 // ── Cross-Asset: Crypto API ──────────────────────────────────────────────────

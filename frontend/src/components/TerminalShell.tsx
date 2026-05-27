@@ -21,6 +21,7 @@ import { FundamentalsBrowser } from "./FundamentalsBrowser";
 import { InflationDashboard } from "./InflationDashboard";
 import { InsiderTransactionsPanel } from "./InsiderTransactionsPanel";
 import { InstitutionalHoldingsPanel } from "./InstitutionalHoldingsPanel";
+import { InvestmentComparePanel } from "./InvestmentComparePanel";
 import { PortfolioPanel } from "./PortfolioPanel";
 import { MacroExplorer } from "./MacroExplorer";
 import { MacroHeatmap } from "./MacroHeatmap";
@@ -79,6 +80,7 @@ const LAYOUT: Layout[] = [
   { i: "fx",              x: 0, y: 706, w: 12, h: 22, minW: 6, minH: 14 },
   { i: "fixed-income",    x: 0, y: 730, w: 12, h: 22, minW: 6, minH: 14 },
   { i: "ticker-dossier",  x: 0, y: 758, w: 12, h: 30, minW: 6, minH: 16 },
+  { i: "investment-compare", x: 0, y: 788, w: 12, h: 34, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -269,6 +271,9 @@ export function TerminalShell() {
               </div>
               <div key="ticker-dossier" data-panel-key="ticker-dossier">
                 <TickerDossierPanel symbol={dossierSymbol} />
+              </div>
+              <div key="investment-compare" data-panel-key="investment-compare">
+                <InvestmentComparePanel />
               </div>
             </GridLayout>
           </div>

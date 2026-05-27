@@ -2199,6 +2199,75 @@ export interface ETFCompareResponse {
   info: Record<string, ETFInfo>;
 }
 
+// ── Cross-Asset Investment Comparator ────────────────────────────────────────
+export interface RealEstateParams {
+  purchase_price: number;
+  down_payment_pct: number;
+  loan_rate: number;
+  loan_term_years: number;
+  monthly_rent: number;
+  monthly_expenses: number;
+  vacancy_pct: number;
+  annual_appreciation_pct: number;
+  rent_growth_pct?: number;
+  expense_growth_pct?: number;
+  hold_years: number;
+  sale_cost_pct: number;
+  closing_cost_pct?: number;
+}
+
+export interface MarketParams {
+  symbol: string;
+  initial_investment: number;
+  hold_years: number;
+  monthly_contribution?: number;
+  dividend_yield_pct?: number;
+}
+
+export interface CustomCashflow {
+  date: string;
+  amount: number;
+}
+
+export interface CustomParams {
+  initial_investment: number;
+  cashflows: CustomCashflow[];
+  terminal_value?: number;
+  hold_years: number;
+}
+
+export type InvestmentSpec =
+  | { kind: "real_estate"; label: string; params: RealEstateParams }
+  | { kind: "market"; label: string; params: MarketParams }
+  | { kind: "custom"; label: string; params: CustomParams };
+
+export interface InvestmentResult {
+  kind: string;
+  label: string;
+  metrics: Record<string, number | null>;
+  monthly: { month: number; date: string; equity: number }[];
+  normalized_curve?: number[];
+  error?: string;
+}
+
+export interface InvestmentMetricsRow {
+  label: string;
+  irr_annual: number | null;     // decimal (0.156 = 15.6%)
+  cagr: number | null;           // decimal
+  total_return_pct: number | null; // already a percent
+  equity_multiple: number | null;  // multiple (1.8 = 1.8x)
+}
+
+export interface CompareInvestmentsResponse {
+  investments: InvestmentResult[];
+  comparison: {
+    dates: string[];
+    series: Record<string, (number | null)[]>; // each normalized to 100 at start
+    metrics_table: InvestmentMetricsRow[];
+    best_by_irr: string | null;
+  };
+}
+
 // ── Cross-Asset: Crypto ──────────────────────────────────────────────────────
 export interface CryptoCoin {
   symbol: string;

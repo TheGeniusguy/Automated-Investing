@@ -79,6 +79,7 @@ from .portfolio import tax as ptax
 from .portfolio import rebalancing as prebal
 from .portfolio import csv_import as pcsv
 from .etf.compare import compare_tickers
+from .compare import engine as compare_engine
 from .regime import regime_model, regime_model_v2, stress_test as stress_test_mod
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
@@ -1910,3 +1911,19 @@ def portfolio_import_commit(portfolio_id: int, body: CsvImportCommit) -> dict:
     if not pf:
         raise HTTPException(status_code=404, detail="Portfolio not found")
     return pcrud.bulk_insert_transactions(portfolio_id, body.rows)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Cross-asset investment return comparator
+# ──────────────────────────────────────────────────────────────────────────
+
+class CompareInvestmentsRequest(BaseModel):
+    investments: list[dict]
+
+
+@app.post("/api/compare/investments")
+def compare_investments_route(body: CompareInvestmentsRequest) -> dict:
+    """Compare heterogeneous investments (real estate / market / custom)
+    side-by-side on an apples-to-apples basis (IRR, CAGR, total return,
+    equity multiple) with a normalized equity-value-over-time overlay."""
+    return compare_engine.compare_investments(body.investments)

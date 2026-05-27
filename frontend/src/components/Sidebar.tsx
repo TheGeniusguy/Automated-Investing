@@ -45,6 +45,7 @@ export const NAV_SECTIONS = [
       { key: "ticker-dossier", label: "Ticker Dossier" },
       { key: "compare", label: "Compare / Portfolio" },
       { key: "etf-compare", label: "ETF Comparison" },
+      { key: "investment-compare", label: "Investment Compare" },
       { key: "indicators", label: "Technical Analysis" },
       { key: "screener", label: "Screener" },
       { key: "watchlists", label: "Watchlists" },
