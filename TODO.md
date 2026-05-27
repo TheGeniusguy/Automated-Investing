@@ -50,22 +50,87 @@ is held to all five:
 
 ---
 
-## 1. P0 - Critical hygiene (repo is NOT fresh-clone-safe)
+## 1. Production-readiness audit (2026-05-27)
 
-- [ ] **Commit the untracked dependency files.** ~26 backend modules under
-      `backend/app/data` + `app/regime` and ~23 frontend components under
-      `frontend/src/components` are imported by `main.py` / `TerminalShell.tsx`
-      but were never committed. A fresh `git clone` will fail to import the app
-      and fail to build the frontend. Stage and commit them (Wave 3-5 sector
-      panels, technical analysis, macro dashboards, etc.) in coherent commits.
-      This is the highest-priority item: nothing else is truly shippable until
-      the working tree and the repo agree.
-- [ ] Resolve the one modified-but-uncommitted file
-      (`frontend/src/components/SectorDetailPanel.tsx`) - confirm intent, then
-      commit.
-- [ ] **CI gate**: add a GitHub Actions (or equivalent) workflow that runs
-      `pip install -r backend/requirements.txt`, `pytest`, `bun install`, and
-      `bun run build` on every push, so the fresh-clone contract stays enforced.
+A full backend / frontend / data / test audit found the project is feature-rich
+but not yet production-grade. The systemic flaw: failures and missing data are
+silently rendered as plausible-but-empty results, so a user cannot tell "the
+source is down" or "never populated" from "the real answer is zero." Items
+below are the fix, in priority order.
+
+### Hygiene (done)
+- [x] Commit the ~49 untracked dependency files so the repo is fresh-clone-safe
+      (committed 2026-05-27).
+- [x] Resolve the modified `SectorDetailPanel.tsx` (committed).
+- [ ] **CI gate**: GitHub Actions running `pip install -r backend/requirements.txt`,
+      `pytest`, `bun install`, `bun run build` on every push.
+
+### P0 - blocks "production-grade"
+- [ ] **The data pipeline does not run.** `prices_daily`,
+      `fundamentals_quarterly`, `filings_archive`, `etl_runs` have 0 rows. The
+      scheduler (`scheduler.py:26`) only refreshes FRED. Add a nightly + on-demand
+      ingest job over the watchlist universe that populates these tables and
+      writes an `etl_runs` status row (success/fail/count) every run.
+- [ ] **Dead analytical surfaces.** `indicators._load_ohlcv` (`indicators.py:55`)
+      reads the empty `prices_daily` and returns an empty frame with NO live
+      fallback, so Technical Analysis (32 indicators), the dossier technicals,
+      the screener, and sector rotation silently render blank/"neutral". Route
+      these readers through `fetch_arbitrary_ticker` when the store is cold (or
+      hard-gate the UI behind a visible "not ingested yet" state).
+- [ ] **No authentication on any of 150 routes**, including destructive
+      `DELETE /api/portfolio/{id}` and the ingest endpoints, while CLAUDE.md
+      documents `--host 0.0.0.0`. Add an API-key/bearer dependency on all
+      mutating + ingest routes; default-bind localhost.
+- [ ] **No React error boundary** (`main.tsx` / `App.tsx` render `TerminalShell`
+      raw). One panel throwing on a backend shape drift white-screens all ~35
+      panels. Add a per-panel `ErrorBoundary` + a top-level backstop.
+
+### P1 - quality and correctness
+- [ ] **Make failure visible, not silent.** Add a `degraded` / `errors[]` field
+      to data payloads; stop the ~148 `except Exception` blocks from returning
+      bare `{}`/`[]`.
+- [ ] **Stop caching empty responses** at full TTL (`macro_data.py`) - use a
+      short negative-cache TTL so a transient outage is not frozen for an hour.
+- [ ] **Stop fabricating prices.** `valuation.py:70` substitutes `avg_cost` when
+      a quote fetch fails, reporting a fake flat portfolio. Mark the position
+      `stale`/null instead.
+- [ ] **yfinance hardening**: per-call timeouts (none today), a shared bounded
+      executor, retry/backoff, and rate limiting (slowapi). A few concurrent
+      users currently risk threadpool exhaustion or a Yahoo IP ban.
+- [ ] **Serialize DuckDB writes.** `engine.py` opens a fresh connection per call
+      with no lock while ThreadPoolExecutors write concurrently; DuckDB is
+      single-writer. Add a shared write lock / queue.
+- [ ] **Runtime validation**: Pydantic models for the 2 raw `dict` bodies +
+      bounded query params (backend); zod at the `getJSON` boundary or OpenAPI
+      codegen (frontend) so backend shape drift is caught, not a deep
+      `undefined` throw.
+- [ ] **Frontend load behavior**: ~35 panels mount and fetch simultaneously
+      (thundering herd); no `React.lazy`/code-split (920KB single chunk); no
+      `AbortController` in `getJSON` (~30 fetchers risk setState-after-unmount).
+      Lazy-mount off-screen panels (IntersectionObserver) + `manualChunks`.
+- [ ] **Adopt a data-fetching layer** (TanStack Query) or one shared
+      `usePanelData` hook to replace ~50 hand-rolled loading/error triads and
+      get caching, dedup, and abort for free.
+
+### P2 - polish, accessibility, accuracy of claims
+- [ ] **Fix the dead `accent` Tailwind classes.** `tailwind.config.js` defines
+      `accent.{amber,green,red,blue}` but no `DEFAULT`, so `text-accent`/
+      `bg-accent` emit no CSS. The command palette's selected row
+      (`CommandPalette.tsx:174`) has NO visible highlight; dozens of headings
+      render the wrong color. Add `accent.DEFAULT` or sweep usages, then add a
+      lint/safelist so invalid classes fail the build.
+- [ ] **Accessibility** (the "grandpa-readable" goal): only 1 aria attribute
+      across 73 components; P&L is color-only (add a +/- glyph); the
+      command-palette modal needs `role="dialog"`, focus trap, and focus
+      restore; sortable `<th>` need `scope`/`aria-sort`.
+- [ ] **AI moat is overclaimed.** CLAUDE.md says every Claude call sees portfolio
+      context; the briefing and chat inject regime + macro only. Wire holdings
+      into `assemble_context()` (see section 4) or correct the docs.
+- [ ] **Architecture debt**: split the 1929-line `main.py` into `APIRouter`s; a
+      shared dependency so portfolio routes load + enrich once (today `/overview`
+      + `/allocation` double the live-price fan-out); tighten CORS
+      (`allow_credentials=True` + wildcard methods/headers); structured logging +
+      metrics; scheduler jobs must write an `etl_runs` error row on failure.
 
 ---
 
