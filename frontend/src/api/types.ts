@@ -2030,6 +2030,123 @@ export interface PortfolioCompareResponse {
   correlation_labels: string[];
 }
 
+// ── Portfolio Tax / Wash-Sale / TLH ──────────────────────────
+export interface TaxWashSaleFlag {
+  symbol: string;
+  close_date: string;
+  loss: number;
+  repurchase_date: string;
+  disallowed: boolean;
+}
+
+export interface TaxLot {
+  symbol: string;
+  quantity: number;
+  open_date: string;
+  close_date: string;
+  proceeds: number;
+  cost_basis: number;
+  gain: number;
+  term: "short" | "long";
+  holding_days: number | null;
+}
+
+export interface TaxSummary {
+  year: number | null;
+  short_term_gain: number;
+  long_term_gain: number;
+  total_realized: number;
+  lot_count: number;
+  wash_sale_flags: TaxWashSaleFlag[];
+  lots: TaxLot[];
+}
+
+export interface TlhCandidate {
+  symbol: string;
+  unrealized_pl: number;
+  unrealized_pl_pct: number;
+  market_value: number;
+}
+
+export interface PortfolioTaxResponse {
+  summary: TaxSummary;
+  tlh: TlhCandidate[];
+}
+
+// ── Portfolio Rebalance ──────────────────────────────────────
+export interface RebalanceRow {
+  symbol: string;
+  current_weight_pct: number;
+  target_weight_pct: number;
+  drift_pct: number;
+  current_value: number;
+  target_value: number;
+  trade_value: number;
+  action: "buy" | "sell" | "hold";
+}
+
+export interface RebalanceResponse {
+  rows: RebalanceRow[];
+  total_drift_pct: number;
+  threshold_pct: number;
+  rebalance_needed: boolean;
+  total_value: number;
+}
+
+// ── Portfolio Regime Stress ──────────────────────────────────
+export interface RegimeStressSegment {
+  label: string;
+  start: string;
+  end: string;
+  days: number;
+}
+
+export interface RegimeStressPerSegment {
+  label: string;
+  start: string;
+  end: string;
+  return: number | null;
+}
+
+export interface RegimeStressPosition {
+  ticker: string;
+  weight: number;
+  regime_returns: {
+    risk_on: number | null;
+    risk_off: number | null;
+    transition: number | null;
+  };
+  per_segment: RegimeStressPerSegment[];
+  total_return: number | null;
+  data_points: number;
+}
+
+export interface RegimeStressResponse {
+  segments: RegimeStressSegment[];
+  positions: RegimeStressPosition[];
+  aggregate_by_regime: {
+    risk_on: number | null;
+    risk_off: number | null;
+    transition: number | null;
+  };
+}
+
+// ── Portfolio CSV Import ─────────────────────────────────────
+export interface ImportRow {
+  symbol: string;
+  trade_date: string;
+  trade_type: string;
+  quantity: number;
+  price: number;
+  commission: number;
+}
+
+export interface ImportPreviewResponse {
+  rows: ImportRow[];
+  errors: string[];
+  detected_format: string | null;
+}
+
 // ── ETF Comparison ───────────────────────────────────────────
 export interface ETFMetrics {
   ann_return_pct: number | null;

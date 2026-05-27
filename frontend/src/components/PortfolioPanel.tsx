@@ -9,12 +9,15 @@ import { PortfolioHeader } from "./portfolio/PortfolioHeader";
 import { PortfolioOverviewTab } from "./portfolio/PortfolioOverviewTab";
 import { PortfolioPerformanceTab } from "./portfolio/PortfolioPerformanceTab";
 import { PortfolioPositionsTab } from "./portfolio/PortfolioPositionsTab";
+import { PortfolioRebalanceTab } from "./portfolio/PortfolioRebalanceTab";
+import { PortfolioRegimeStressTab } from "./portfolio/PortfolioRegimeStressTab";
 import { PortfolioRiskTab } from "./portfolio/PortfolioRiskTab";
+import { PortfolioTaxTab } from "./portfolio/PortfolioTaxTab";
 import { PortfolioTransactionsTab } from "./portfolio/PortfolioTransactionsTab";
 
-type Tab = "Overview" | "Positions" | "Performance" | "Risk" | "Fundamentals" | "Dividends" | "Compare" | "Transactions";
+type Tab = "Overview" | "Positions" | "Performance" | "Risk" | "Fundamentals" | "Dividends" | "Tax" | "Rebalance" | "Regime Stress" | "Compare" | "Transactions";
 
-const TABS: Tab[] = ["Overview", "Positions", "Performance", "Risk", "Fundamentals", "Dividends", "Compare", "Transactions"];
+const TABS: Tab[] = ["Overview", "Positions", "Performance", "Risk", "Fundamentals", "Dividends", "Tax", "Rebalance", "Regime Stress", "Compare", "Transactions"];
 
 export function PortfolioPanel() {
   const [portfolios, setPortfolios]   = useState<Portfolio[]>([]);
@@ -121,6 +124,9 @@ export function PortfolioPanel() {
             {activeTab === "Risk"          && <PortfolioRiskTab          portfolioId={selectedId} />}
             {activeTab === "Fundamentals"  && <PortfolioFundamentalsTab  portfolioId={selectedId} />}
             {activeTab === "Dividends"     && <PortfolioDividendsTab     portfolioId={selectedId} />}
+            {activeTab === "Tax"           && <PortfolioTaxTab           portfolioId={selectedId} />}
+            {activeTab === "Rebalance"     && <PortfolioRebalanceTab     portfolioId={selectedId} />}
+            {activeTab === "Regime Stress" && <PortfolioRegimeStressTab  portfolioId={selectedId} />}
             {activeTab === "Compare"       && <PortfolioCompareTab       allPortfolios={portfolios} currentPortfolioId={selectedId} />}
             {activeTab === "Transactions"  && (
               <PortfolioTransactionsTab

@@ -509,6 +509,46 @@ export const portfolioApi = {
     getJSON<import("./types").PortfolioCompareResponse>(
       `/api/portfolio/compare?ids=${ids.join(",")}&days=${days}`,
     ),
+
+  tax: (id: number, year?: number): Promise<import("./types").PortfolioTaxResponse> =>
+    getJSON<import("./types").PortfolioTaxResponse>(
+      `/api/portfolio/${id}/tax${year != null ? `?year=${year}` : ""}`,
+    ),
+
+  rebalance: (
+    id: number,
+    targets: Record<string, number>,
+    thresholdPct?: number,
+  ): Promise<import("./types").RebalanceResponse> =>
+    fetch(`${API_BASE}/api/portfolio/${id}/rebalance`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        thresholdPct != null ? { targets, threshold_pct: thresholdPct } : { targets },
+      ),
+    }).then(_jsonOrThrow) as Promise<import("./types").RebalanceResponse>,
+
+  regimeStress: (id: number, days?: number): Promise<import("./types").RegimeStressResponse> =>
+    getJSON<import("./types").RegimeStressResponse>(
+      `/api/portfolio/${id}/regime-stress${days != null ? `?days=${days}` : ""}`,
+    ),
+
+  importPreview: (id: number, csv: string): Promise<import("./types").ImportPreviewResponse> =>
+    fetch(`${API_BASE}/api/portfolio/${id}/import/preview`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ csv }),
+    }).then(_jsonOrThrow) as Promise<import("./types").ImportPreviewResponse>,
+
+  importCommit: (
+    id: number,
+    rows: import("./types").ImportRow[],
+  ): Promise<{ inserted: number }> =>
+    fetch(`${API_BASE}/api/portfolio/${id}/import`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rows }),
+    }).then(_jsonOrThrow) as Promise<{ inserted: number }>,
 };
 
 // ── ETF Comparison API ───────────────────────────────────────────────────────
