@@ -54,25 +54,10 @@ TIMEFRAMES = ("1d", "1w", "1mo")
 # ── Data loading + timeframe resampling ─────────────────────────────────────
 
 def _load_ohlcv(symbol: str, days: int) -> pd.DataFrame:
-    rows = db_engine.fetchall(
-        """
-        SELECT date, open, high, low, close, adj_close, volume
-        FROM prices_daily
-        WHERE symbol = ?
-        ORDER BY date DESC
-        LIMIT ?
-        """,
-        [symbol.upper().strip(), days],
-    )
-    if not rows:
-        return pd.DataFrame(columns=["date", "open", "high", "low", "close", "adj_close", "volume"])
-    df = pd.DataFrame(rows, columns=["date", "open", "high", "low", "close", "adj_close", "volume"])
-    df = df.iloc[::-1].reset_index(drop=True)
-    df["date"] = pd.to_datetime(df["date"])
-    for col in ("open", "high", "low", "close", "adj_close"):
-        df[col] = df[col].astype(float)
-    df["volume"] = df["volume"].astype(float).fillna(0.0)
-    return df
+    # DuckDB prices_daily first, with a live yfinance fallback when the store is
+    # cold (so indicators/dossier work before the ingest job has run).
+    from .ohlcv import load_ohlcv
+    return load_ohlcv(symbol, days)
 
 
 def _resample(df: pd.DataFrame, timeframe: str) -> pd.DataFrame:
