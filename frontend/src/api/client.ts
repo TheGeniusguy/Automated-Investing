@@ -13,6 +13,7 @@ import type {
   ChainSummaries,
   CryptoCompareResponse,
   CryptoOverviewResponse,
+  DataHealthResponse,
   DossierResponse,
   SearchResponse,
   DailyBriefingCached,
@@ -90,6 +91,7 @@ export const api = {
 
   // DuckDB
   dbStatus: () => getJSON<DbStatus>("/api/db/status"),
+  dataHealth: () => getJSON<DataHealthResponse>("/api/data-health"),
   searchInstruments: (q: string, limit = 15) =>
     getJSON<{ results: InstrumentSearchResult[] }>(
       `/api/db/instruments/search?q=${encodeURIComponent(q)}&limit=${limit}`,

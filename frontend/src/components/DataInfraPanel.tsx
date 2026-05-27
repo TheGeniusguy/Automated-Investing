@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { api } from "../api/client";
-import type { DbStatus, EtlRun } from "../api/types";
+import type { DataHealthResponse, DataHealthSource, DbStatus, EtlRun } from "../api/types";
 
 const REFRESH_MS = 5000; // poll while an ETL is in-flight
 
@@ -19,6 +19,10 @@ export function DataInfraPanel() {
   const [pricesSymbol, setPricesSymbol] = useState<string>("AAPL,MSFT,NVDA,SPY,QQQ");
   const [fundamentalsSymbol, setFundamentalsSymbol] = useState<string>("AAPL,MSFT,NVDA");
 
+  const [health, setHealth] = useState<DataHealthResponse | null>(null);
+  const [healthErr, setHealthErr] = useState<string | null>(null);
+  const [healthLoading, setHealthLoading] = useState<boolean>(true);
+
   const reload = async () => {
     try {
       setStatus(await api.dbStatus());
@@ -28,9 +32,24 @@ export function DataInfraPanel() {
     }
   };
 
+  const reloadHealth = async () => {
+    try {
+      setHealth(await api.dataHealth());
+      setHealthErr(null);
+    } catch (e) {
+      setHealthErr(String(e));
+    } finally {
+      setHealthLoading(false);
+    }
+  };
+
   useEffect(() => {
     reload();
-    const t = setInterval(reload, REFRESH_MS);
+    reloadHealth();
+    const t = setInterval(() => {
+      reload();
+      reloadHealth();
+    }, REFRESH_MS);
     return () => clearInterval(t);
   }, []);
 
@@ -134,8 +153,109 @@ export function DataInfraPanel() {
           <EtlRunsCard runs={status?.recent_runs ?? []} />
         </div>
       </div>
+      <div className="col-span-3">
+        <DataHealthCard health={health} err={healthErr} loading={healthLoading} />
+      </div>
     </div>
   );
+}
+
+function DataHealthCard({
+  health,
+  err,
+  loading,
+}: {
+  health: DataHealthResponse | null;
+  err: string | null;
+  loading: boolean;
+}) {
+  return (
+    <div className="panel h-full">
+      <div className="panel-header">
+        <span>Data Health</span>
+        {health && (
+          <span className="normal-case tracking-normal text-terminal-dim">
+            <span className="text-accent-green">{health.summary.fresh} fresh</span>
+            {" · "}
+            <span className="text-accent-amber">{health.summary.stale} stale</span>
+            {" · "}
+            <span className="text-accent-red">{health.summary.missing} missing</span>
+          </span>
+        )}
+      </div>
+      <div className="panel-body text-xs space-y-3">
+        {err && <div className="text-accent-red">⚠ {err}</div>}
+        {loading && !health && <div className="text-terminal-dim">loading…</div>}
+        {health && (
+          <>
+            <div>
+              <div className="text-2xs uppercase tracking-wider text-terminal-muted mb-1">Sources</div>
+              <table className="w-full text-xs">
+                <thead className="text-terminal-muted text-2xs uppercase tracking-wider">
+                  <tr className="border-b border-terminal-divider">
+                    <th className="text-left py-1 pr-2">Source</th>
+                    <th className="text-left pr-2">Last updated</th>
+                    <th className="text-right pr-2">Age</th>
+                    <th className="text-left">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-terminal-divider">
+                  {health.sources.map((s) => (
+                    <tr key={s.source} className="hover:bg-white/[0.02]">
+                      <td className="py-1 pr-2 text-accent-amber">{s.source}</td>
+                      <td className="pr-2 text-terminal-muted whitespace-nowrap" title={s.last_updated ?? ""}>
+                        {shortTime(s.last_updated)}
+                      </td>
+                      <td className="pr-2 text-right tabular-nums text-terminal-text">{fmtAge(s.age_hours)}</td>
+                      <td>
+                        <HealthBadge status={s.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="text-terminal-muted">
+              <span className="text-2xs uppercase tracking-wider">Cache</span>{" "}
+              {fmtCount(health.cache.rows ?? 0)} rows · {fmtBytes(health.cache.size_bytes)}
+            </div>
+            <div>
+              <div className="text-2xs uppercase tracking-wider text-terminal-muted mb-1">Scheduler jobs</div>
+              {health.scheduler.length === 0 ? (
+                <div className="text-terminal-dim">no jobs scheduled</div>
+              ) : (
+                health.scheduler.map((j) => (
+                  <Row key={j.id} k={j.name} v={shortTime(j.next_run_time)} />
+                ))
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HealthBadge({ status }: { status: DataHealthSource["status"] }) {
+  if (status === "fresh")
+    return <span className="pill bg-accent-green/15 text-accent-green border border-accent-green/40">fresh</span>;
+  if (status === "stale")
+    return <span className="pill bg-accent-amber/15 text-accent-amber border border-accent-amber/40">stale</span>;
+  return <span className="pill bg-accent-red/15 text-accent-red border border-accent-red/40">missing</span>;
+}
+
+function fmtAge(hours: number | null): string {
+  if (hours === null) return "—";
+  if (hours < 1) return `${Math.round(hours * 60)}m`;
+  if (hours < 48) return `${hours.toFixed(1)}h`;
+  return `${(hours / 24).toFixed(1)}d`;
+}
+
+function fmtBytes(b: number | null): string {
+  if (b === null) return "—";
+  if (b >= 1_048_576) return (b / 1_048_576).toFixed(1) + " MB";
+  if (b >= 1024) return (b / 1024).toFixed(1) + " KB";
+  return b + " B";
 }
 
 function StatsCard({ status, err }: { status: DbStatus | null; err: string | null }) {

@@ -18,6 +18,7 @@ from .data import (
     calendar as calendar_mod,
     compare as compare_mod,
     crypto as crypto_mod,
+    data_health as data_health_mod,
     drawings as drawings_mod,
     earnings as earnings_mod,
     eia_energy,
@@ -89,6 +90,14 @@ app = FastAPI(
 @app.on_event("startup")
 def _on_startup() -> None:
     db_engine.init()
+    from .scheduler import start as _sched_start
+    _sched_start()
+
+
+@app.on_event("shutdown")
+def _on_shutdown() -> None:
+    from .scheduler import shutdown
+    shutdown()
 
 app.add_middleware(
     CORSMiddleware,
@@ -363,6 +372,13 @@ def get_db_status() -> dict:
         "recent_runs":       recent_runs,
         "db_path":           str(db_engine.db_path()),
     }
+
+
+@app.get("/api/data-health")
+def get_data_health() -> dict:
+    """Freshness of each persistent source, sqlite cache footprint, and the
+    background scheduler job state."""
+    return data_health_mod.health()
 
 
 @app.get("/api/db/instruments/search")

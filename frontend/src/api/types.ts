@@ -189,6 +189,25 @@ export interface EtlRun {
   note: string | null;
 }
 
+export interface DataHealthSource {
+  source: string;
+  last_updated: string | null;
+  age_hours: number | null;
+  status: "fresh" | "stale" | "missing";
+}
+
+export interface DataHealthResponse {
+  sources: DataHealthSource[];
+  cache: { rows: number | null; size_bytes: number | null };
+  scheduler: {
+    id: string;
+    name: string;
+    next_run_time: string | null;
+    trigger: string;
+  }[];
+  summary: { fresh: number; stale: number; missing: number };
+}
+
 export interface InstrumentSearchResult {
   symbol: string;
   cik: string | null;
