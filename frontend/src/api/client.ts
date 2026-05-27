@@ -11,8 +11,12 @@ import type {
   FundamentalsResponse,
   HealthResponse,
   ChainSummaries,
+  CryptoCompareResponse,
+  CryptoOverviewResponse,
   DailyBriefingCached,
   EarningsOverview,
+  FixedIncomeOverviewResponse,
+  FxMatrixResponse,
   EnergyDashboard,
   EnergySection,
   IndicatorKind,
@@ -503,6 +507,25 @@ export const etfApi = {
     getJSON<import("./types").ETFCompareResponse>(
       `/api/etf/compare?symbols=${symbols.join(",")}&days=${days}&benchmark=${benchmark}`,
     ),
+};
+
+// ── Cross-Asset: Crypto API ──────────────────────────────────────────────────
+export const cryptoApi = {
+  overview: () => getJSON<CryptoOverviewResponse>("/api/crypto/overview"),
+  compare: (symbols: string[], days = 365) =>
+    getJSON<CryptoCompareResponse>(
+      `/api/crypto/compare?symbols=${encodeURIComponent(symbols.join(","))}&days=${days}`,
+    ),
+};
+
+// ── Cross-Asset: FX API ──────────────────────────────────────────────────────
+export const fxApi = {
+  matrix: () => getJSON<FxMatrixResponse>("/api/fx/matrix"),
+};
+
+// ── Cross-Asset: Fixed Income API ────────────────────────────────────────────
+export const fixedIncomeApi = {
+  overview: () => getJSON<FixedIncomeOverviewResponse>("/api/fixed-income/overview"),
 };
 
 

@@ -6,6 +6,9 @@ import type { HealthResponse } from "../api/types";
 import { ChatPanel } from "./ChatPanel";
 import { ComparePanel } from "./ComparePanel";
 import { CorrelationsPanel } from "./CorrelationsPanel";
+import { CryptoPanel } from "./CryptoPanel";
+import { FixedIncomePanel } from "./FixedIncomePanel";
+import { FXPanel } from "./FXPanel";
 import { DailyBriefingPanel } from "./DailyBriefingPanel";
 import { DataInfraPanel } from "./DataInfraPanel";
 import { EarningsPanel } from "./EarningsPanel";
@@ -70,6 +73,9 @@ const LAYOUT: Layout[] = [
   { i: "institutional",   x: 0, y: 566, w: 12, h: 24, minW: 6, minH: 14 },
   { i: "portfolio",       x: 0, y: 590, w: 12, h: 44, minW: 6, minH: 24 },
   { i: "etf-compare",     x: 0, y: 634, w: 12, h: 48, minW: 6, minH: 24 },
+  { i: "crypto",          x: 0, y: 682, w: 12, h: 22, minW: 6, minH: 14 },
+  { i: "fx",              x: 0, y: 706, w: 12, h: 22, minW: 6, minH: 14 },
+  { i: "fixed-income",    x: 0, y: 730, w: 12, h: 22, minW: 6, minH: 14 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -247,6 +253,15 @@ export function TerminalShell() {
               </div>
               <div key="etf-compare" data-panel-key="etf-compare">
                 <ETFComparePanel />
+              </div>
+              <div key="crypto" data-panel-key="crypto">
+                <CryptoPanel />
+              </div>
+              <div key="fx" data-panel-key="fx">
+                <FXPanel />
+              </div>
+              <div key="fixed-income" data-panel-key="fixed-income">
+                <FixedIncomePanel />
               </div>
             </GridLayout>
           </div>

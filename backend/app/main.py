@@ -17,10 +17,13 @@ from .correlations import correlation_model
 from .data import (
     calendar as calendar_mod,
     compare as compare_mod,
+    crypto as crypto_mod,
     drawings as drawings_mod,
     earnings as earnings_mod,
     eia_energy,
+    fixed_income as fixed_income_mod,
     fred_catalog,
+    fx as fx_mod,
     indicators as indicators_mod,
     insider_transactions as insider_mod,
     inflation as inflation_mod,
@@ -1738,6 +1741,31 @@ def etf_compare(symbols: str, days: int = 252, benchmark: str = "SPY"):
     if not syms:
         raise HTTPException(400, "Provide at least one symbol")
     return compare_tickers(syms, lookback_days=days, benchmark=benchmark)
+
+
+# ── Cross-Asset: Crypto / FX / Fixed Income ──────────────────────────────────
+@app.get("/api/crypto/overview")
+def crypto_overview() -> dict:
+    return crypto_mod.overview()
+
+
+@app.get("/api/crypto/compare")
+def crypto_compare(symbols: str = "BTC-USD,ETH-USD", days: int = 365) -> dict:
+    # symbols is comma-separated: "BTC-USD,ETH-USD,SOL-USD"
+    syms = [s.strip().upper() for s in symbols.split(",") if s.strip()]
+    if not syms:
+        raise HTTPException(400, "Provide at least one symbol")
+    return crypto_mod.compare(syms, days=days)
+
+
+@app.get("/api/fx/matrix")
+def fx_matrix() -> dict:
+    return fx_mod.matrix()
+
+
+@app.get("/api/fixed-income/overview")
+def fixed_income_overview() -> dict:
+    return fixed_income_mod.overview()
 
 
 @app.post("/api/portfolio/{portfolio_id}/transactions")

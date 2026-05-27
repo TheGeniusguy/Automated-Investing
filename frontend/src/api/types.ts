@@ -2062,3 +2062,95 @@ export interface ETFCompareResponse {
   rolling_returns: Record<string, Record<string, number | null>>;
   info: Record<string, ETFInfo>;
 }
+
+// ── Cross-Asset: Crypto ──────────────────────────────────────────────────────
+export interface CryptoCoin {
+  symbol: string;
+  name: string;
+  price: number | null;
+  change_24h_pct: number | null;
+  change_7d_pct: number | null;
+  market_cap: number | null;
+  volume_24h: number | null;
+}
+
+export interface CryptoGlobalStats {
+  total_market_cap_usd: number | null;
+  btc_dominance_pct: number | null;
+  market_cap_change_24h_pct: number | null;
+}
+
+export interface CryptoOverviewResponse {
+  coins: CryptoCoin[];
+  global: CryptoGlobalStats;
+}
+
+export interface CryptoCompareMetric {
+  return_pct: number | null;
+  start: number | null;
+  latest: number | null;
+}
+
+export interface CryptoCompareResponse {
+  symbols: string[];
+  days: number;
+  series: Record<string, Array<{ date: string; value: number }>>;
+  metrics: Record<string, CryptoCompareMetric>;
+}
+
+// ── Cross-Asset: FX ──────────────────────────────────────────────────────────
+export interface FxPair {
+  symbol: string;
+  pair: string;
+  rate: number | null;
+  change_1d_pct: number | null;
+  change_1m_pct: number | null;
+}
+
+export interface FxDxy {
+  symbol: string;
+  level: number | null;
+  change_1d_pct: number | null;
+  change_1m_pct: number | null;
+  trend: string | null;
+}
+
+export interface FxMatrixResponse {
+  pairs: FxPair[];
+  dxy: FxDxy;
+}
+
+// ── Cross-Asset: Fixed Income ────────────────────────────────────────────────
+export interface FiTreasuryMaturity {
+  maturity: string;
+  years: number;
+  yield_pct: number | null;
+  change_bps: number | null;
+}
+
+export interface FiCurveShape {
+  spread_2_10_bps: number | null;
+  spread_3m_10y_bps: number | null;
+  spread_10_30_bps: number | null;
+  classification: string;
+}
+
+export interface FiTreasurySection {
+  date: string | null;
+  maturities: FiTreasuryMaturity[];
+  shape: FiCurveShape | null;
+}
+
+export interface FiBondEtf {
+  symbol: string;
+  tracks: string;
+  price: number | null;
+  yield_pct: number | null;
+  change_1m_pct: number | null;
+  change_ytd_pct: number | null;
+}
+
+export interface FixedIncomeOverviewResponse {
+  treasuries: FiTreasurySection;
+  bond_etfs: FiBondEtf[];
+}

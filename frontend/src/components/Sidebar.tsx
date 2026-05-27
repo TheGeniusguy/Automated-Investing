@@ -54,6 +54,14 @@ const NAV_SECTIONS = [
     ],
   },
   {
+    label: "Cross-Asset",
+    items: [
+      { key: "crypto", label: "Crypto" },
+      { key: "fx", label: "FX / Currencies" },
+      { key: "fixed-income", label: "Fixed Income" },
+    ],
+  },
+  {
     label: "Trading",
     items: [
       { key: "journal", label: "Regime Journal" },
