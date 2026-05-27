@@ -1003,6 +1003,364 @@ export interface SectorRegimePlaybookResponse {
   error?: string;
 }
 
+// ─── Sector: Sub-industry decomposition ──────────────────────────────────
+
+export interface SubIndustryMember {
+  symbol: string;
+  market_cap: number | null;
+  returns_pct: Record<string, number | null>;
+}
+
+export interface SubIndustryTopPerformer {
+  symbol: string;
+  return_pct: number;
+  weight_in_subi: number | null;
+  contribution_pct: number | null;
+}
+
+export interface SubIndustryRow {
+  name: string;
+  stock_count: number;
+  total_market_cap: number | null;
+  weight_pct_of_sector: number | null;
+  members: SubIndustryMember[];
+  returns_pct: Record<string, number | null>;
+  top_per_window: Record<string, SubIndustryTopPerformer | null>;
+}
+
+export interface SectorSubIndustriesResponse {
+  sector_id: string;
+  name: string;
+  etf: string;
+  available: boolean;
+  reason?: string;
+  windows: { key: string; label: string }[];
+  sub_industries: SubIndustryRow[];
+  sector_total_market_cap: number | null;
+  notes?: string;
+}
+
+// ─── Sector: Flows (pair spreads + options) ──────────────────────────────
+
+export interface PairSpread {
+  label: string;
+  numer: string;
+  denom: string;
+  current: number | null;
+  change_1w_pct: number | null;
+  change_1m_pct: number | null;
+  change_3m_pct: number | null;
+  change_ytd_pct: number | null;
+  spark: { date: string; value: number }[];
+  n_obs: number;
+}
+
+export interface SectorFlowsOptions {
+  spot: number | null;
+  expiry_30: string | null;
+  expiry_90: string | null;
+  days_to_30: number | null;
+  days_to_90: number | null;
+  atm_iv_30d: number | null;
+  atm_iv_90d: number | null;
+  term_structure_delta: number | null;
+  term_inverted: boolean;
+  iv_skew_30d: number | null;
+  iv_skew_90d: number | null;
+  pc_ratio_oi_30d: number | null;
+  pc_ratio_vol_30d: number | null;
+  implied_move_1sigma_30d: number | null;
+  implied_move_1sigma_90d: number | null;
+  realized_vol_21d_ann: number | null;
+  iv_vs_realized_ratio: number | null;
+  error_30: string | null;
+  error_90: string | null;
+}
+
+export interface SectorFlowsResponse {
+  sector_id: string;
+  name?: string;
+  etf: string;
+  pair_partner: string;
+  pair_description: string;
+  pairs: PairSpread[];
+  options: SectorFlowsOptions;
+  available: boolean;
+}
+
+// ─── Sector: Credit + bond layer ─────────────────────────────────────────
+
+export interface SectorCreditKpi {
+  id: string;
+  label: string;
+  source: "fred" | "yfinance" | "derived";
+  unit: string;
+  desc: string;
+  last_value: number | null;
+  last_date: string | null;
+  change_1d_pct: number | null;
+  change_1w_pct: number | null;
+  change_1m_pct: number | null;
+  change_3m_pct: number | null;
+  change_ytd_pct: number | null;
+  change_1d_abs: number | null;
+  change_1w_abs: number | null;
+  change_1m_abs: number | null;
+  spark: { date: string; value: number }[];
+  available: boolean;
+  reason?: string;
+}
+
+export interface SectorCreditBucket {
+  label: string;
+  kpis: SectorCreditKpi[];
+  sector_specific?: boolean;
+}
+
+export interface CreditDivergence {
+  available: boolean;
+  reason?: string;
+  current_corr?: number;
+  baseline_mean?: number;
+  baseline_std?: number;
+  z_score?: number | null;
+  flagged?: boolean;
+  window?: number;
+  n_obs?: number;
+  interpretation?: string;
+}
+
+export interface SectorCreditResponse {
+  sector_id: string;
+  name?: string;
+  etf: string;
+  fred_available: boolean;
+  lookback_days?: number;
+  spark_tail?: number;
+  buckets: SectorCreditBucket[];
+  divergence: CreditDivergence;
+  available: boolean;
+}
+
+// ─── Sector: Risk + drawdowns ────────────────────────────────────────────
+
+export interface DrawdownRow {
+  peak_date: string;
+  peak_value: number;
+  trough_date: string;
+  trough_value: number;
+  recovery_date: string | null;
+  depth_pct: number;
+  drawdown_days: number | null;
+  recovery_days: number | null;
+  total_days: number | null;
+  ongoing: boolean;
+  trough_regime: string;
+}
+
+export interface TailRisk {
+  annual_return_pct: number | null;
+  annual_vol_pct: number | null;
+  vol_21d_annualized_pct: number | null;
+  vol_252d_annualized_pct: number | null;
+  sharpe_ann: number | null;
+  sortino_ann: number | null;
+  downside_dev_ann_pct: number | null;
+  cvar_95_daily_pct: number | null;
+  max_dd_depth_pct: number | null;
+  max_dd_duration_days: number | null;
+  n_obs: number;
+}
+
+export interface VolRegime {
+  current_vol_pct: number | null;
+  percentile: number | null;
+  p10: number | null;
+  p50: number | null;
+  p90: number | null;
+}
+
+export interface CorrelationToSpy {
+  current: number | null;
+  mean: number | null;
+  std: number | null;
+  z: number | null;
+  percentile: number | null;
+  window?: number;
+}
+
+export interface SectorRiskResponse {
+  sector_id: string;
+  name?: string;
+  etf: string;
+  lookback_days?: number;
+  available: boolean;
+  reason?: string;
+  regime_classifier_available: boolean;
+  drawdowns: DrawdownRow[];
+  drawdown_count_total?: number;
+  tail_risk: TailRisk | Record<string, never>;
+  vol_regime: VolRegime;
+  correlation_to_spy: CorrelationToSpy;
+  equity_curve: { date: string; value: number }[];
+}
+
+// ─── Sector: AI Briefing ─────────────────────────────────────────────────
+
+export interface SectorBriefingContext {
+  sector_id: string;
+  sector_name: string;
+  etf: string;
+  etf_returns_pct: Record<string, number | null>;
+  concentration: {
+    herfindahl: number;
+    constituent_count: number;
+    top1_weight_pct: number;
+    top3_weight_pct: number;
+    top5_weight_pct: number;
+    top10_weight_pct: number;
+  } | null;
+  top_contributors_1m: Array<{
+    symbol: string;
+    weight_pct: number;
+    return_1m_pct: number | null;
+    contribution_1m_pct: number | null;
+  }>;
+  bottom_contributors_1m: Array<{
+    symbol: string;
+    weight_pct: number;
+    return_1m_pct: number | null;
+    contribution_1m_pct: number | null;
+  }>;
+  hidden_weakness: {
+    window: string;
+    basket_return_pct: number;
+    pct_constituents_negative: number;
+    n_constituents: number;
+    n_negative: number;
+    masking_names: { symbol: string; contribution_pct: number }[];
+  } | null;
+  breadth: {
+    above_50ma_pct: number | null;
+    above_200ma_pct: number | null;
+    at_52w_high_pct: number | null;
+    at_52w_low_pct: number | null;
+    avg_dist_from_52w_high_pct: number | null;
+    stock_count: number | null;
+  } | null;
+  top_macro_drivers: Array<{
+    id: string;
+    label: string;
+    correlation: number;
+    expected: "+" | "-" | null;
+    desc: string | null;
+  }>;
+  recent_news: Array<{
+    title: string | null;
+    publisher: string | null;
+    tickers: string[];
+    published: string | null;
+  }>;
+  regime: Record<string, unknown>;
+  as_of: string;
+}
+
+export interface SectorBriefingCached {
+  sector_id: string;
+  date: string | null;
+  regime_label?: string;
+  summary: string | null;
+  context: SectorBriefingContext | null;
+  generated_at?: string;
+}
+
+// ─── Sector: Constituent decomposition ──────────────────────────────────
+
+export interface DecompositionConstituent {
+  symbol: string;
+  market_cap: number | null;
+  weight_pct: number;
+  returns_pct: Record<string, number | null>;
+  contributions_pct: Record<string, number | null>;
+}
+
+export interface DecompositionConcentration {
+  herfindahl: number;
+  constituent_count: number;
+  top1_weight_pct: number;
+  top3_weight_pct: number;
+  top5_weight_pct: number;
+  top10_weight_pct: number;
+}
+
+export interface IfRemovedRow {
+  label: string;
+  removed: string[];
+  return_pct: number | null;
+  delta_vs_full_pct: number | null;
+}
+
+export interface HiddenWeaknessResult {
+  basket_return_pct: number;
+  pct_constituents_negative: number;
+  n_constituents: number;
+  n_negative: number;
+  masking_names: { symbol: string; contribution_pct: number }[];
+}
+
+export interface SectorDecompositionResponse {
+  sector_id: string;
+  name: string;
+  etf: string;
+  windows: { key: string; label: string }[];
+  constituents: DecompositionConstituent[];
+  basket_returns_pct: Record<string, number | null>;
+  etf_returns_pct: Record<string, number | null>;
+  concentration: DecompositionConcentration;
+  if_removed: Record<string, IfRemovedRow[]>;
+  hidden_weakness: Record<string, HiddenWeaknessResult | null>;
+  notes: string;
+}
+
+// ─── Sector: Operational KPIs (factory dashboard) ────────────────────────
+
+export interface SectorOperationalKpi {
+  id: string;
+  label: string;
+  source: "fred" | "yfinance" | "derived";
+  unit: string;
+  desc: string;
+  last_value: number | null;
+  last_date: string | null;
+  change_1d_pct: number | null;
+  change_1w_pct: number | null;
+  change_1m_pct: number | null;
+  change_3m_pct: number | null;
+  change_ytd_pct: number | null;
+  change_1d_abs: number | null;
+  change_1w_abs: number | null;
+  change_1m_abs: number | null;
+  spark: { date: string; value: number }[];
+  available: boolean;
+  reason?: string;
+}
+
+export interface SectorOperationalBucket {
+  label: string;
+  kpis: SectorOperationalKpi[];
+}
+
+export interface SectorOperationalResponse {
+  sector_id: string;
+  fred_available: boolean;
+  lookback_days?: number;
+  spark_tail?: number;
+  buckets: SectorOperationalBucket[];
+  derived: SectorOperationalKpi[];
+  available: boolean;
+  reason?: string;
+}
+
 // ─── Wave 2: Screener ─────────────────────────────────────────────────────
 
 export type ScreenerFilterType = "number" | "text";
@@ -1513,4 +1871,194 @@ export interface MacroBoard {
 export interface MacroBoardSnapshot {
   board: MacroBoard;
   tiles: MacroTile[];
+}
+
+// ── Portfolio Tracker ────────────────────────────────────────
+export interface Portfolio {
+  id: number;
+  name: string;
+  description: string | null;
+  cash_balance: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface PortfolioTransaction {
+  id: number;
+  portfolio_id: number;
+  symbol: string;
+  trade_date: string;
+  trade_type: "buy" | "sell" | "dividend" | "deposit" | "withdrawal";
+  quantity: number;
+  price: number;
+  commission: number;
+  notes: string | null;
+  created_at: string | null;
+}
+
+export interface PortfolioPosition {
+  symbol: string;
+  name: string;
+  sector: string | null;
+  industry: string | null;
+  shares: number;
+  avg_cost: number;
+  total_cost: number;
+  current_price: number;
+  prev_close: number;
+  day_change: number;
+  day_change_pct: number;
+  market_value: number;
+  unrealized_pl: number;
+  unrealized_pl_pct: number;
+  realized_pl: number;
+  total_pl: number;
+  "52w_high": number | null;
+  "52w_low": number | null;
+  pct_from_52w_high: number | null;
+  ytd_return_pct: number | null;
+  beta: number | null;
+  volume: number | null;
+  avg_volume: number | null;
+  market_cap: number | null;
+  pe_ratio: number | null;
+  forward_pe: number | null;
+  dividend_yield: number | null;
+  dividend_rate: number | null;
+  portfolio_weight: number;
+  day_pl: number;
+  cash_weight: number;
+  lots: Array<{ quantity: number; cost_per_share: number; trade_date: string }>;
+}
+
+export interface PortfolioSummary {
+  total_market_value: number;
+  cash_balance: number;
+  total_value: number;
+  total_cost_basis: number;
+  total_unrealized_pl: number;
+  total_realized_pl: number;
+  total_pl: number;
+  total_pl_pct: number;
+  total_day_pl: number;
+  total_day_pl_pct: number;
+  position_count: number;
+  cash_pct: number;
+}
+
+export interface PortfolioMetrics {
+  ann_return_pct: number | null;
+  ann_volatility_pct: number | null;
+  sharpe: number | null;
+  sortino: number | null;
+  calmar: number | null;
+  treynor: number | null;
+  information_ratio: number | null;
+  tracking_error_pct: number | null;
+  alpha_pct: number | null;
+  beta: number | null;
+  r_squared: number | null;
+  max_drawdown_pct: number | null;
+  max_drawdown_start: string | null;
+  max_drawdown_end: string | null;
+  win_rate_pct: number | null;
+  twr_pct: number | null;
+  mwr_pct: number | null;
+}
+
+export interface PortfolioAllocation {
+  sectors: Array<{ sector: string; weight_pct: number }>;
+  cash_pct: number;
+  total_value: number | null;
+}
+
+// ── Portfolio Comparison ─────────────────────────────────────
+export interface ComparePortfolio {
+  id: number;
+  name: string;
+  curve: {
+    dates: string[];
+    portfolio: number[];
+    benchmarks: { SPY: number[]; QQQ: number[] };
+  };
+  metrics: {
+    ann_return_pct: number | null;
+    ann_volatility_pct: number | null;
+    sharpe: number | null;
+    sortino: number | null;
+    calmar: number | null;
+    max_drawdown_pct: number | null;
+    beta: number | null;
+    alpha_pct: number | null;
+    twr_pct: number | null;
+  };
+  risk: {
+    var_95_daily_pct: number | null;
+    portfolio_volatility_pct: number | null;
+    herfindahl: number | null;
+  };
+  summary: {
+    total_value: number;
+    total_pl: number;
+    total_pl_pct: number;
+  };
+}
+
+export interface PortfolioCompareResponse {
+  portfolios: ComparePortfolio[];
+  common_dates: string[];
+  correlation_matrix: Array<Array<number | null>>;
+  correlation_labels: string[];
+}
+
+// ── ETF Comparison ───────────────────────────────────────────
+export interface ETFMetrics {
+  ann_return_pct: number | null;
+  ann_volatility_pct: number | null;
+  sharpe: number | null;
+  sortino: number | null;
+  calmar: number | null;
+  max_drawdown_pct: number | null;
+  max_drawdown_start: string | null;
+  max_drawdown_end: string | null;
+  beta_vs_benchmark: number | null;
+  alpha_vs_benchmark_pct: number | null;
+  r_squared: number | null;
+  var_95_daily_pct: number | null;
+  cvar_95_daily_pct: number | null;
+  var_99_daily_pct: number | null;
+  total_return_pct: number | null;
+  ytd_return_pct: number | null;
+  win_rate_vs_benchmark_pct: number | null;
+  up_capture: number | null;
+  down_capture: number | null;
+}
+
+export interface ETFInfo {
+  name: string | null;
+  category: string | null;
+  expense_ratio: number | null;
+  aum: number | null;
+  inception_date: string | null;
+  beta: number | null;
+  pe_ratio: number | null;
+  dividend_yield: number | null;
+  holdings_count: number | null;
+}
+
+export interface ETFCompareResponse {
+  symbols: string[];
+  benchmark: string;
+  lookback_days: number;
+  curves: {
+    dates: string[];
+    series: Record<string, number[]>;
+  };
+  metrics: Record<string, ETFMetrics>;
+  correlation_matrix: Array<Array<number | null>>;
+  correlation_labels: string[];
+  factor_exposures: Record<string, Array<{ factor: string; beta: number }>>;
+  monthly_returns: Record<string, Record<string, number>>;
+  rolling_returns: Record<string, Record<string, number | null>>;
+  info: Record<string, ETFInfo>;
 }

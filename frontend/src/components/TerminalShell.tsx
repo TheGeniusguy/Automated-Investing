@@ -10,12 +10,14 @@ import { DailyBriefingPanel } from "./DailyBriefingPanel";
 import { DataInfraPanel } from "./DataInfraPanel";
 import { EarningsPanel } from "./EarningsPanel";
 import { EnergyPanel } from "./EnergyPanel";
+import { ETFComparePanel } from "./ETFComparePanel";
 import { EventsCalendarPanel } from "./EventsCalendarPanel";
 import { FilingsPanel } from "./FilingsPanel";
 import { FundamentalsBrowser } from "./FundamentalsBrowser";
 import { InflationDashboard } from "./InflationDashboard";
 import { InsiderTransactionsPanel } from "./InsiderTransactionsPanel";
 import { InstitutionalHoldingsPanel } from "./InstitutionalHoldingsPanel";
+import { PortfolioPanel } from "./PortfolioPanel";
 import { MacroExplorer } from "./MacroExplorer";
 import { MacroHeatmap } from "./MacroHeatmap";
 import { MacroPinboard } from "./MacroPinboard";
@@ -66,6 +68,8 @@ const LAYOUT: Layout[] = [
   { i: "real-estate",     x: 0, y: 540, w: 12, h: 28, minW: 6, minH: 16 },
   { i: "insider",         x: 0, y: 542, w: 12, h: 24, minW: 6, minH: 14 },
   { i: "institutional",   x: 0, y: 566, w: 12, h: 24, minW: 6, minH: 14 },
+  { i: "portfolio",       x: 0, y: 590, w: 12, h: 44, minW: 6, minH: 24 },
+  { i: "etf-compare",     x: 0, y: 634, w: 12, h: 48, minW: 6, minH: 24 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -237,6 +241,12 @@ export function TerminalShell() {
               </div>
               <div key="institutional" data-panel-key="institutional">
                 <InstitutionalHoldingsPanel />
+              </div>
+              <div key="portfolio" data-panel-key="portfolio">
+                <PortfolioPanel />
+              </div>
+              <div key="etf-compare" data-panel-key="etf-compare">
+                <ETFComparePanel />
               </div>
             </GridLayout>
           </div>

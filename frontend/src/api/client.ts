@@ -23,6 +23,11 @@ import type {
   MultiIndicatorRequest,
   MultiIndicatorResponse,
   NewsFeed,
+  Portfolio,
+  PortfolioAllocation,
+  PortfolioPosition,
+  PortfolioSummary,
+  PortfolioTransaction,
   ScreenerFilter,
   ScreenerResponse,
   ScreenerSchema,
@@ -259,6 +264,20 @@ export const api = {
     getJSON<import("./types").SectorBreadthResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/breadth`),
   sectorRegimePlaybook: (sectorId: string) =>
     getJSON<import("./types").SectorRegimePlaybookResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/regime-playbook`),
+  sectorOperational: (sectorId: string) =>
+    getJSON<import("./types").SectorOperationalResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/operational`),
+  sectorDecomposition: (sectorId: string) =>
+    getJSON<import("./types").SectorDecompositionResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/decomposition`),
+  sectorBriefingCached: (sectorId: string) =>
+    getJSON<import("./types").SectorBriefingCached>(`/api/sectors/${encodeURIComponent(sectorId)}/briefing/cached`),
+  sectorRisk: (sectorId: string) =>
+    getJSON<import("./types").SectorRiskResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/risk`),
+  sectorCredit: (sectorId: string) =>
+    getJSON<import("./types").SectorCreditResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/credit`),
+  sectorFlows: (sectorId: string) =>
+    getJSON<import("./types").SectorFlowsResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/flows`),
+  sectorSubIndustries: (sectorId: string) =>
+    getJSON<import("./types").SectorSubIndustriesResponse>(`/api/sectors/${encodeURIComponent(sectorId)}/sub-industries`),
 
   // ── Wave 2: Screener
   screenerSchema: () => getJSON<ScreenerSchema>("/api/screener/schema"),
@@ -416,6 +435,75 @@ async function _jsonOrThrow(r: Response): Promise<unknown> {
   if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
   return r.json();
 }
+
+// ── Portfolio Tracker API ────────────────────────────────────────────────────
+export const portfolioApi = {
+  list: (): Promise<Portfolio[]> =>
+    getJSON<Portfolio[]>("/api/portfolio"),
+
+  create: (body: { name: string; description?: string; cash_balance?: number }): Promise<Portfolio> =>
+    fetch(`${API_BASE}/api/portfolio`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).then(_jsonOrThrow) as Promise<Portfolio>,
+
+  delete: (id: number): Promise<{ ok: boolean }> =>
+    fetch(`${API_BASE}/api/portfolio/${id}`, { method: "DELETE" })
+      .then(_jsonOrThrow) as Promise<{ ok: boolean }>,
+
+  overview: (id: number) =>
+    getJSON<Record<string, unknown>>(`/api/portfolio/${id}/overview`),
+
+  positions: (id: number): Promise<{ positions: PortfolioPosition[]; summary: PortfolioSummary }> =>
+    getJSON<{ positions: PortfolioPosition[]; summary: PortfolioSummary }>(`/api/portfolio/${id}/positions`),
+
+  performance: (id: number, days?: number) =>
+    getJSON<Record<string, unknown>>(`/api/portfolio/${id}/performance${days ? `?days=${days}` : ""}`),
+
+  risk: (id: number, days?: number) =>
+    getJSON<Record<string, unknown>>(`/api/portfolio/${id}/risk${days ? `?days=${days}` : ""}`),
+
+  fundamentals: (id: number) =>
+    getJSON<Record<string, unknown>>(`/api/portfolio/${id}/fundamentals`),
+
+  dividends: (id: number) =>
+    getJSON<Record<string, unknown>>(`/api/portfolio/${id}/dividends`),
+
+  allocation: (id: number): Promise<PortfolioAllocation> =>
+    getJSON<PortfolioAllocation>(`/api/portfolio/${id}/allocation`),
+
+  transactions: (id: number): Promise<PortfolioTransaction[]> =>
+    getJSON<PortfolioTransaction[]>(`/api/portfolio/${id}/transactions`),
+
+  addTransaction: (
+    id: number,
+    body: Omit<PortfolioTransaction, "id" | "portfolio_id" | "created_at">,
+  ): Promise<PortfolioTransaction> =>
+    fetch(`${API_BASE}/api/portfolio/${id}/transactions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).then(_jsonOrThrow) as Promise<PortfolioTransaction>,
+
+  deleteTransaction: (portfolioId: number, txnId: number): Promise<{ ok: boolean }> =>
+    fetch(`${API_BASE}/api/portfolio/${portfolioId}/transactions/${txnId}`, {
+      method: "DELETE",
+    }).then(_jsonOrThrow) as Promise<{ ok: boolean }>,
+
+  compare: (ids: number[], days = 365) =>
+    getJSON<import("./types").PortfolioCompareResponse>(
+      `/api/portfolio/compare?ids=${ids.join(",")}&days=${days}`,
+    ),
+};
+
+// ── ETF Comparison API ───────────────────────────────────────────────────────
+export const etfApi = {
+  compare: (symbols: string[], days = 252, benchmark = "SPY") =>
+    getJSON<import("./types").ETFCompareResponse>(
+      `/api/etf/compare?symbols=${symbols.join(",")}&days=${days}&benchmark=${benchmark}`,
+    ),
+};
 
 
 // Generic SSE consumer (Server-Sent Events over a POST request).

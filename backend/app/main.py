@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from .briefing import claude_briefing, daily_briefing as daily_briefing_mod
+from .briefing import claude_briefing, daily_briefing as daily_briefing_mod, sector_briefing as sector_briefing_mod
 from .chat import terminal_chat
 from .config import settings
 from .correlations import correlation_model
@@ -44,6 +44,12 @@ from .data import (
     sector_regime_playbook as sector_regime_playbook_mod,
     sector_rs as sector_rs_mod,
     sector_supply_chain as sector_supply_chain_mod,
+    sector_operational as sector_operational_mod,
+    sector_decomposition as sector_decomposition_mod,
+    sector_risk as sector_risk_mod,
+    sector_credit as sector_credit_mod,
+    sector_flows as sector_flows_mod,
+    sector_subindustry as sector_subindustry_mod,
     sector_rotation,
     series_stats as series_stats_mod,
     shipping as shipping_mod,
@@ -55,6 +61,15 @@ from .db import engine as db_engine
 from .ingest import fundamentals as ingest_fundamentals
 from .ingest import instruments as ingest_instruments
 from .ingest import prices as ingest_prices
+from .portfolio import crud as pcrud
+from .portfolio.analytics import build_equity_curve, compute_performance_metrics
+from .portfolio.dividends import compute_dividend_income
+from .portfolio.fundamentals import enrich_fundamentals
+from .portfolio.positions import compute_positions
+from .portfolio.risk import compute_portfolio_risk
+from .portfolio.valuation import enrich_positions
+from .portfolio.comparison import compare_portfolios
+from .etf.compare import compare_tickers
 from .regime import regime_model, regime_model_v2, stress_test as stress_test_mod
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
@@ -918,6 +933,98 @@ def get_sector_supply_chain(sector_id: str) -> dict:
     return sector_supply_chain_mod.supply_chain(sector_id, sector_detail.SECTORS)
 
 
+@app.get("/api/sectors/{sector_id}/briefing/cached")
+def get_sector_briefing_cached(sector_id: str) -> dict:
+    """Today's cached sector briefing, if one was generated. None when missing."""
+    if sector_id not in sector_detail.SECTORS:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    cached = sector_briefing_mod.get_cached_briefing(sector_id)
+    return cached or {"sector_id": sector_id, "summary": None, "context": None, "date": None}
+
+
+@app.post("/api/sectors/{sector_id}/briefing/stream")
+async def post_sector_briefing_stream(sector_id: str) -> StreamingResponse:
+    if sector_id not in sector_detail.SECTORS:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+
+    async def _gen() -> AsyncIterator[str]:
+        async for event, data in sector_briefing_mod.stream_sector_briefing(sector_id):
+            yield _sse_event(event, data)
+
+    return StreamingResponse(
+        _gen(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+@app.get("/api/sectors/{sector_id}/sub-industries")
+def get_sector_sub_industries(sector_id: str) -> dict:
+    """Editorial sub-industry decomposition for a sector. Returns per-group
+    member tickers, total market cap, weight % of sector, cap-weighted returns
+    across 1d/1w/1m/3m/ytd/1y, and top performer per window."""
+    if sector_id not in sector_detail.SECTORS:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    return sector_subindustry_mod.sector_sub_industries(sector_id)
+
+
+@app.get("/api/sectors/{sector_id}/flows")
+def get_sector_flows(sector_id: str) -> dict:
+    """Pair-spread dashboard + sector ETF options summary. Two pair spreads
+    (vs SPY + vs sector's curated risk-on/off partner) with 1y normalized
+    series. Options: 30d + 90d ATM IV, term-structure delta + inversion flag,
+    P/C ratios, IV skew, implied move, IV-vs-realized ratio."""
+    if sector_id not in sector_detail.SECTORS:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    return sector_flows_mod.sector_flows(sector_id)
+
+
+@app.get("/api/sectors/{sector_id}/credit")
+def get_sector_credit(sector_id: str) -> dict:
+    """Sector-relevant credit conditions: broad IG/HY OAS, rating-tier ladder,
+    universal bond ETFs, sector-specific FRED sector indices when available,
+    plus credit-equity divergence indicator (rolling 60D correlation of sector
+    returns vs HY OAS changes vs 5y baseline)."""
+    if sector_id not in sector_detail.SECTORS:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    return sector_credit_mod.sector_credit(sector_id)
+
+
+@app.get("/api/sectors/{sector_id}/risk")
+def get_sector_risk(sector_id: str) -> dict:
+    """10-year drawdown analytics, tail-risk metrics, vol regime, and rolling
+    sector-SPY correlation z-score. Drawdown troughs are tagged with the
+    macro regime active when they hit (requires FRED key)."""
+    if sector_id not in sector_detail.SECTORS:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    return sector_risk_mod.sector_risk(sector_id)
+
+
+@app.get("/api/sectors/{sector_id}/decomposition")
+def get_sector_decomposition(sector_id: str) -> dict:
+    """Constituent decomposition: cap-weighted contribution per window, if-removed
+    simulator, Herfindahl concentration, and hidden-weakness detector for the
+    sector's curated key_stocks list.
+    """
+    if sector_id not in sector_detail.SECTORS:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    return sector_decomposition_mod.sector_decomposition(sector_id)
+
+
+@app.get("/api/sectors/{sector_id}/operational")
+def get_sector_operational(sector_id: str) -> dict:
+    """Operational KPIs (the "factory dashboard") for one sector.
+
+    Per-sector curated industry inputs: oil inventories for energy, mortgage
+    market for real estate, ISM new orders for industrials, etc. Returns
+    bucketed tiles with sparklines and 1d/1w/1m/3m/ytd change. FRED KPIs
+    degrade gracefully when FRED_API_KEY is absent.
+    """
+    if sector_id not in sector_detail.SECTORS:
+        raise HTTPException(status_code=404, detail=f"Unknown sector: {sector_id}")
+    return sector_operational_mod.sector_operational(sector_id)
+
+
 @app.get("/api/sectors/{sector_id}/relative-strength")
 def get_sector_relative_strength(sector_id: str, benchmark: str = "SPY") -> dict:
     """Rolling 20d and 60d relative strength of sector ETF vs SPY (or custom benchmark).
@@ -1479,3 +1586,176 @@ def get_institutional_portfolio(filer_cik: str, report_date: str | None = None, 
 def get_institutional_changes(filer_cik: str) -> dict:
     """QoQ position changes for a filer."""
     return inst_mod.filer_changes(filer_cik)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Portfolio Module
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/portfolio")
+def list_portfolios() -> list:
+    return pcrud.list_portfolios()
+
+
+@app.post("/api/portfolio")
+def create_portfolio(body: dict) -> dict:
+    # body: {name, description?, cash_balance?}
+    return pcrud.create_portfolio(
+        name=body["name"],
+        description=body.get("description"),
+        cash_balance=float(body.get("cash_balance", 0.0)),
+    )
+
+
+@app.delete("/api/portfolio/{portfolio_id}")
+def delete_portfolio(portfolio_id: int) -> dict:
+    ok = pcrud.delete_portfolio(portfolio_id)
+    return {"ok": ok}
+
+
+@app.get("/api/portfolio/{portfolio_id}/overview")
+def portfolio_overview(portfolio_id: int) -> dict:
+    pf = pcrud.get_portfolio(portfolio_id)
+    if not pf:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    txns = pcrud.get_transactions(portfolio_id)
+    positions, total_realized, cash_delta = compute_positions(txns)
+    current_cash = pf["cash_balance"] + cash_delta
+    enriched, summary = enrich_positions(positions, current_cash)
+    try:
+        metrics = compute_performance_metrics(txns, pf["cash_balance"])
+    except Exception as e:
+        log.warning("portfolio_overview metrics failed for %s: %s", portfolio_id, e)
+        metrics = {}
+    return {"portfolio": pf, "summary": summary, "metrics": metrics}
+
+
+@app.get("/api/portfolio/{portfolio_id}/positions")
+def portfolio_positions(portfolio_id: int) -> dict:
+    pf = pcrud.get_portfolio(portfolio_id)
+    if not pf:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    txns = pcrud.get_transactions(portfolio_id)
+    positions, total_realized, cash_delta = compute_positions(txns)
+    current_cash = pf["cash_balance"] + cash_delta
+    enriched, summary = enrich_positions(positions, current_cash)
+    return {"positions": enriched, "summary": summary}
+
+
+@app.get("/api/portfolio/{portfolio_id}/performance")
+def portfolio_performance(portfolio_id: int, days: int = 365) -> dict:
+    pf = pcrud.get_portfolio(portfolio_id)
+    if not pf:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    txns = pcrud.get_transactions(portfolio_id)
+    curve = build_equity_curve(txns, pf["cash_balance"], lookback_days=days)
+    metrics = compute_performance_metrics(txns, pf["cash_balance"], lookback_days=days)
+    return {"curve": curve, "metrics": metrics}
+
+
+@app.get("/api/portfolio/{portfolio_id}/risk")
+def portfolio_risk(portfolio_id: int, days: int = 252) -> dict:
+    pf = pcrud.get_portfolio(portfolio_id)
+    if not pf:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    txns = pcrud.get_transactions(portfolio_id)
+    positions, _, cash_delta = compute_positions(txns)
+    current_cash = pf["cash_balance"] + cash_delta
+    enriched, summary = enrich_positions(positions, current_cash)
+    risk = compute_portfolio_risk(enriched, lookback_days=days)
+    return risk
+
+
+@app.get("/api/portfolio/{portfolio_id}/fundamentals")
+def portfolio_fundamentals(portfolio_id: int) -> dict:
+    pf = pcrud.get_portfolio(portfolio_id)
+    if not pf:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    txns = pcrud.get_transactions(portfolio_id)
+    positions, _, cash_delta = compute_positions(txns)
+    current_cash = pf["cash_balance"] + cash_delta
+    enriched, _ = enrich_positions(positions, current_cash)
+    symbols = [p["symbol"] for p in enriched]
+    fundamentals = enrich_fundamentals(symbols)
+    return {"fundamentals": fundamentals, "symbols": symbols}
+
+
+@app.get("/api/portfolio/{portfolio_id}/dividends")
+def portfolio_dividends(portfolio_id: int) -> dict:
+    pf = pcrud.get_portfolio(portfolio_id)
+    if not pf:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    txns = pcrud.get_transactions(portfolio_id)
+    positions, _, cash_delta = compute_positions(txns)
+    current_cash = pf["cash_balance"] + cash_delta
+    enriched, summary = enrich_positions(positions, current_cash)
+    div_data = compute_dividend_income(enriched)
+    return div_data
+
+
+@app.get("/api/portfolio/{portfolio_id}/allocation")
+def portfolio_allocation(portfolio_id: int) -> dict:
+    from collections import defaultdict
+    pf = pcrud.get_portfolio(portfolio_id)
+    if not pf:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    txns = pcrud.get_transactions(portfolio_id)
+    positions, _, cash_delta = compute_positions(txns)
+    current_cash = pf["cash_balance"] + cash_delta
+    enriched, summary = enrich_positions(positions, current_cash)
+    sectors: dict[str, float] = defaultdict(float)
+    for p in enriched:
+        sec = p.get("sector") or "Unknown"
+        sectors[sec] += p.get("portfolio_weight", 0.0)
+    sector_list = [{"sector": k, "weight_pct": round(v, 2)} for k, v in sectors.items()]
+    sector_list.sort(key=lambda x: -x["weight_pct"])
+    cash_pct = summary.get("cash_pct", 0.0)
+    return {
+        "sectors": sector_list,
+        "cash_pct": cash_pct,
+        "total_value": summary.get("total_value"),
+    }
+
+
+@app.get("/api/portfolio/{portfolio_id}/transactions")
+def get_portfolio_transactions(portfolio_id: int) -> list:
+    return pcrud.get_transactions(portfolio_id)
+
+
+@app.get("/api/portfolio/compare")
+def portfolio_compare(ids: str, days: int = 365):
+    # ids is comma-separated: "1,2,3"
+    portfolio_ids = [int(x.strip()) for x in ids.split(",") if x.strip()]
+    if len(portfolio_ids) < 1:
+        raise HTTPException(400, "Provide at least one portfolio id")
+    return compare_portfolios(portfolio_ids, lookback_days=days)
+
+
+@app.get("/api/etf/compare")
+def etf_compare(symbols: str, days: int = 252, benchmark: str = "SPY"):
+    # symbols is comma-separated: "SPY,QQQ,IWM"
+    syms = [s.strip().upper() for s in symbols.split(",") if s.strip()]
+    if not syms:
+        raise HTTPException(400, "Provide at least one symbol")
+    return compare_tickers(syms, lookback_days=days, benchmark=benchmark)
+
+
+@app.post("/api/portfolio/{portfolio_id}/transactions")
+def add_portfolio_transaction(portfolio_id: int, body: dict) -> dict:
+    from datetime import date as _date
+    return pcrud.add_transaction(
+        portfolio_id=portfolio_id,
+        symbol=body["symbol"],
+        trade_date=body.get("trade_date", str(_date.today())),
+        trade_type=body["trade_type"],
+        quantity=float(body["quantity"]),
+        price=float(body["price"]),
+        commission=float(body.get("commission", 0.0)),
+        notes=body.get("notes"),
+    )
+
+
+@app.delete("/api/portfolio/{portfolio_id}/transactions/{txn_id}")
+def delete_portfolio_transaction(portfolio_id: int, txn_id: int) -> dict:
+    ok = pcrud.delete_transaction(portfolio_id, txn_id)
+    return {"ok": ok}
