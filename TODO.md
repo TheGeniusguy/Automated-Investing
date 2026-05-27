@@ -66,24 +66,27 @@ below are the fix, in priority order.
       `pytest`, `bun install`, `bun run build` on every push.
 
 ### P0 - blocks "production-grade"
-- [ ] **The data pipeline does not run.** `prices_daily`,
-      `fundamentals_quarterly`, `filings_archive`, `etl_runs` have 0 rows. The
-      scheduler (`scheduler.py:26`) only refreshes FRED. Add a nightly + on-demand
-      ingest job over the watchlist universe that populates these tables and
-      writes an `etl_runs` status row (success/fail/count) every run.
-- [ ] **Dead analytical surfaces.** `indicators._load_ohlcv` (`indicators.py:55`)
-      reads the empty `prices_daily` and returns an empty frame with NO live
-      fallback, so Technical Analysis (32 indicators), the dossier technicals,
-      the screener, and sector rotation silently render blank/"neutral". Route
-      these readers through `fetch_arbitrary_ticker` when the store is cold (or
-      hard-gate the UI behind a visible "not ingested yet" state).
-- [ ] **No authentication on any of 150 routes**, including destructive
-      `DELETE /api/portfolio/{id}` and the ingest endpoints, while CLAUDE.md
-      documents `--host 0.0.0.0`. Add an API-key/bearer dependency on all
-      mutating + ingest routes; default-bind localhost.
-- [ ] **No React error boundary** (`main.tsx` / `App.tsx` render `TerminalShell`
-      raw). One panel throwing on a backend shape drift white-screens all ~35
-      panels. Add a per-panel `ErrorBoundary` + a top-level backstop.
+- [x] **Data pipeline now runs.** Nightly 03:30 scheduler job +
+      `POST /api/ingest/prices/universe` (background) backfill the bounded
+      watchlist+holdings universe into `prices_daily`, writing an `etl_runs` row
+      per symbol. Verified: data-health flips prices + etl_runs to "fresh".
+      (Fundamentals/filings ingest still on-demand only - see follow-up below.)
+- [x] **Dead analytical surfaces fixed.** New read-only `app/data/ohlcv.py`
+      (DuckDB-first, cached+timeout-bounded live yfinance fallback, short
+      negative-cache TTL); `indicators` routes through it, so Technical Analysis,
+      the dossier technicals, and the composite signal compute live on a cold
+      store. (`sector_rotation` already had a fallback; `screener` is universe-SQL
+      and now warms via the ingest job.)
+- [x] **Per-panel error boundaries** added: each of the ~36 panels is isolated
+      behind an `ErrorBoundary` card with retry; top-level reload backstop in
+      `App.tsx`.
+- [ ] **No authentication on any route** (incl. destructive `DELETE` + ingest),
+      while CLAUDE.md documents `--host 0.0.0.0`. Add an API-key/bearer
+      dependency on mutating + ingest routes; default-bind localhost. NOTE:
+      for a localhost-only personal tool this is lower-urgency; gate before any
+      network/cloud exposure.
+- [ ] Follow-up: extend the nightly ingest to fundamentals + filings so the
+      screener's fundamental columns and the filings surfaces also populate.
 
 ### P1 - quality and correctness
 - [ ] **Make failure visible, not silent.** Add a `degraded` / `errors[]` field
