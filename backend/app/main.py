@@ -5,7 +5,7 @@ import json
 import logging
 from typing import AsyncIterator
 
-from fastapi import FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -493,6 +493,20 @@ def ingest_universe() -> dict:
 def ingest_prices_endpoint(symbols: str, days: int = 3650) -> dict:
     sym_list = [s.strip().upper() for s in symbols.split(",") if s.strip()]
     return ingest_prices.backfill_symbols(sym_list, days=days)
+
+
+@app.post("/api/ingest/prices/universe")
+def ingest_universe_prices(background_tasks: BackgroundTasks, days: int = 400) -> dict:
+    """Warm prices_daily for the watchlist + holdings universe in the background
+    (the sequential yfinance backfill takes minutes; don't block the request).
+    Progress shows up in /api/data-health as rows land."""
+    syms = ingest_prices.universe_symbols()
+    background_tasks.add_task(ingest_prices.backfill_universe, days=days)
+    return {
+        "started": True,
+        "symbols": len(syms),
+        "note": "ingesting in background; watch /api/data-health for prices freshness",
+    }
 
 
 @app.post("/api/ingest/fundamentals")

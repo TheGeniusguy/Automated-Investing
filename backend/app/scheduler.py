@@ -39,6 +39,21 @@ def _job_fred_refresh() -> None:
         log.warning("scheduler: FRED refresh failed: %s", e)
 
 
+def _job_price_ingest() -> None:
+    """Nightly: backfill OHLCV for the bounded watchlist+holdings universe into
+    prices_daily (writes an etl_runs row per symbol via backfill_symbol)."""
+    try:
+        from .ingest import prices as ingest_prices
+
+        result = ingest_prices.backfill_universe(days=400)
+        log.info(
+            "scheduler: price ingest complete — %d symbols, %d rows",
+            len(result.get("symbols", [])), result.get("total_rows", 0),
+        )
+    except Exception as e:
+        log.warning("scheduler: price ingest failed: %s", e)
+
+
 def _job_daily_briefing() -> None:
     """07:00: pre-bake today's daily briefing so the panel serves it instantly.
 
@@ -76,6 +91,15 @@ def start() -> None:
             minute=30,
             id="fred_nightly_refresh",
             name="Nightly FRED refresh",
+            replace_existing=True,
+        )
+        _scheduler.add_job(
+            _job_price_ingest,
+            trigger="cron",
+            hour=3,
+            minute=30,
+            id="price_nightly_ingest",
+            name="Nightly price ingest",
             replace_existing=True,
         )
         _scheduler.add_job(

@@ -130,6 +130,45 @@ def backfill_symbol(symbol: str, *, days: int = 3650) -> dict:
     }
 
 
+# Benchmark / factor ETFs that the analytics layer leans on regardless of holdings.
+_CORE_ETFS = ["SPY", "QQQ", "IWM", "DIA", "HYG", "LQD", "AGG", "TLT", "GLD"]
+
+
+def universe_symbols(*, max_symbols: int = 150) -> list[str]:
+    """The bounded symbol universe the scheduled ingest backfills.
+
+    Default equities watchlist + core benchmark/factor ETFs + every symbol held
+    across all portfolios. Deduped, uppercased, capped (yfinance throttles hard,
+    so we never ingest the full EDGAR universe on a schedule).
+    """
+    from ..data.watchlist import DEFAULT_EQUITIES_WATCHLIST
+
+    syms: list[str] = list(DEFAULT_EQUITIES_WATCHLIST) + list(_CORE_ETFS)
+    try:
+        rows = engine.fetchall(
+            "SELECT DISTINCT symbol FROM portfolio_transactions "
+            "WHERE trade_type IN ('buy', 'sell')"
+        )
+        syms += [r[0] for r in rows if r and r[0]]
+    except Exception as e:
+        log.warning("universe_symbols: portfolio holdings query failed: %s", e)
+
+    seen: set[str] = set()
+    out: list[str] = []
+    for s in syms:
+        u = (s or "").upper().strip()
+        if u and u not in seen:
+            seen.add(u)
+            out.append(u)
+    return out[:max_symbols]
+
+
+def backfill_universe(*, days: int = 400, max_symbols: int = 150) -> dict:
+    """Backfill the bounded universe (used by the nightly scheduler job and the
+    on-demand ingest route)."""
+    return backfill_symbols(universe_symbols(max_symbols=max_symbols), days=days)
+
+
 def backfill_symbols(symbols: list[str], *, days: int = 3650) -> dict:
     """Run backfill_symbol over a list. Sequential is fine — yfinance throttles
     aggressively if you parallelize."""
