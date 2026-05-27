@@ -14,6 +14,7 @@ import { DailyBriefingPanel } from "./DailyBriefingPanel";
 import { DataInfraPanel } from "./DataInfraPanel";
 import { EarningsPanel } from "./EarningsPanel";
 import { EnergyPanel } from "./EnergyPanel";
+import { ErrorBoundary } from "./ErrorBoundary";
 import { ETFComparePanel } from "./ETFComparePanel";
 import { EventsCalendarPanel } from "./EventsCalendarPanel";
 import { FilingsPanel } from "./FilingsPanel";
@@ -149,11 +150,13 @@ export function TerminalShell() {
         {/* Main content */}
         {activeSector ? (
           <div className="flex-1 overflow-auto">
-            <SectorDetailPanel
-              sectorId={activeSector}
-              onBack={() => setActiveSector(null)}
-              onSelectSector={setActiveSector}
-            />
+            <ErrorBoundary label="Sector Detail">
+              <SectorDetailPanel
+                sectorId={activeSector}
+                onBack={() => setActiveSector(null)}
+                onSelectSector={setActiveSector}
+              />
+            </ErrorBoundary>
           </div>
         ) : (
           <div ref={mainRef} className="flex-1 overflow-auto px-2">
@@ -168,112 +171,112 @@ export function TerminalShell() {
               isBounded
             >
               <div key="briefing" data-panel-key="briefing">
-                <DailyBriefingPanel />
+                <ErrorBoundary label="Daily Briefing"><DailyBriefingPanel /></ErrorBoundary>
               </div>
               <div key="chat" data-panel-key="chat">
-                <ChatPanel />
+                <ErrorBoundary label="Ask the Terminal"><ChatPanel /></ErrorBoundary>
               </div>
               <div key="macro" data-panel-key="macro">
-                <MacroRegimeTracker />
+                <ErrorBoundary label="Macro Regime Tracker"><MacroRegimeTracker /></ErrorBoundary>
               </div>
               <div key="regime-v2" data-panel-key="regime-v2">
-                <RegimeV2Panel />
+                <ErrorBoundary label="Regime Tracker"><RegimeV2Panel /></ErrorBoundary>
               </div>
               <div key="yield-curve" data-panel-key="yield-curve">
-                <YieldCurvePanel />
+                <ErrorBoundary label="Yield Curve"><YieldCurvePanel /></ErrorBoundary>
               </div>
               <div key="inflation" data-panel-key="inflation">
-                <InflationDashboard />
+                <ErrorBoundary label="Inflation"><InflationDashboard /></ErrorBoundary>
               </div>
               <div key="recession" data-panel-key="recession">
-                <RecessionDashboard />
+                <ErrorBoundary label="Recession"><RecessionDashboard /></ErrorBoundary>
               </div>
               <div key="macro-heatmap" data-panel-key="macro-heatmap">
-                <MacroHeatmap />
+                <ErrorBoundary label="Macro Heatmap"><MacroHeatmap /></ErrorBoundary>
               </div>
               <div key="pinboard" data-panel-key="pinboard">
-                <MacroPinboard />
+                <ErrorBoundary label="Pinboard"><MacroPinboard /></ErrorBoundary>
               </div>
               <div key="macro-explorer" data-panel-key="macro-explorer">
-                <MacroExplorer />
+                <ErrorBoundary label="Macro Explorer"><MacroExplorer /></ErrorBoundary>
               </div>
               <div key="energy" data-panel-key="energy">
-                <EnergyPanel />
+                <ErrorBoundary label="Energy"><EnergyPanel /></ErrorBoundary>
               </div>
               <div key="shipping" data-panel-key="shipping">
-                <ShippingPanel />
+                <ErrorBoundary label="Shipping"><ShippingPanel /></ErrorBoundary>
               </div>
               <div key="journal" data-panel-key="journal">
-                <RegimeJournal />
+                <ErrorBoundary label="Regime Journal"><RegimeJournal /></ErrorBoundary>
               </div>
               <div key="correlations" data-panel-key="correlations">
-                <CorrelationsPanel />
+                <ErrorBoundary label="Correlations"><CorrelationsPanel /></ErrorBoundary>
               </div>
               <div key="options" data-panel-key="options">
-                <OptionsPanel />
+                <ErrorBoundary label="Options"><OptionsPanel /></ErrorBoundary>
               </div>
               <div key="earnings" data-panel-key="earnings">
-                <EarningsPanel />
+                <ErrorBoundary label="Earnings"><EarningsPanel /></ErrorBoundary>
               </div>
               <div key="news" data-panel-key="news">
-                <NewsPanel />
+                <ErrorBoundary label="News"><NewsPanel /></ErrorBoundary>
               </div>
               <div key="filings" data-panel-key="filings">
-                <FilingsPanel />
+                <ErrorBoundary label="Filings"><FilingsPanel /></ErrorBoundary>
               </div>
               <div key="data-infra" data-panel-key="data-infra">
-                <DataInfraPanel />
+                <ErrorBoundary label="DB Status"><DataInfraPanel /></ErrorBoundary>
               </div>
               <div key="fundamentals" data-panel-key="fundamentals">
-                <FundamentalsBrowser />
+                <ErrorBoundary label="Fundamentals"><FundamentalsBrowser /></ErrorBoundary>
               </div>
               <div key="sector-rotation" data-panel-key="sector-rotation">
-                <SectorRotationPanel />
+                <ErrorBoundary label="Sector Rotation"><SectorRotationPanel /></ErrorBoundary>
               </div>
               <div key="indicators" data-panel-key="indicators">
-                <TechnicalIndicatorsPanel />
+                <ErrorBoundary label="Indicators"><TechnicalIndicatorsPanel /></ErrorBoundary>
               </div>
               <div key="calendar" data-panel-key="calendar">
-                <EventsCalendarPanel />
+                <ErrorBoundary label="Calendar"><EventsCalendarPanel /></ErrorBoundary>
               </div>
               <div key="screener" data-panel-key="screener">
-                <ScreenerPanel />
+                <ErrorBoundary label="Screener"><ScreenerPanel /></ErrorBoundary>
               </div>
               <div key="watchlists" data-panel-key="watchlists">
-                <WatchlistsPanel />
+                <ErrorBoundary label="Watchlists"><WatchlistsPanel /></ErrorBoundary>
               </div>
               <div key="compare" data-panel-key="compare">
-                <ComparePanel />
+                <ErrorBoundary label="Compare"><ComparePanel /></ErrorBoundary>
               </div>
               <div key="real-estate" data-panel-key="real-estate">
-                <RealEstatePanel />
+                <ErrorBoundary label="Real Estate"><RealEstatePanel /></ErrorBoundary>
               </div>
               <div key="insider" data-panel-key="insider">
-                <InsiderTransactionsPanel />
+                <ErrorBoundary label="Insider"><InsiderTransactionsPanel /></ErrorBoundary>
               </div>
               <div key="institutional" data-panel-key="institutional">
-                <InstitutionalHoldingsPanel />
+                <ErrorBoundary label="Institutional"><InstitutionalHoldingsPanel /></ErrorBoundary>
               </div>
               <div key="portfolio" data-panel-key="portfolio">
-                <PortfolioPanel />
+                <ErrorBoundary label="Portfolio"><PortfolioPanel /></ErrorBoundary>
               </div>
               <div key="etf-compare" data-panel-key="etf-compare">
-                <ETFComparePanel />
+                <ErrorBoundary label="ETF Compare"><ETFComparePanel /></ErrorBoundary>
               </div>
               <div key="crypto" data-panel-key="crypto">
-                <CryptoPanel />
+                <ErrorBoundary label="Crypto"><CryptoPanel /></ErrorBoundary>
               </div>
               <div key="fx" data-panel-key="fx">
-                <FXPanel />
+                <ErrorBoundary label="FX / Currencies"><FXPanel /></ErrorBoundary>
               </div>
               <div key="fixed-income" data-panel-key="fixed-income">
-                <FixedIncomePanel />
+                <ErrorBoundary label="Fixed Income"><FixedIncomePanel /></ErrorBoundary>
               </div>
               <div key="ticker-dossier" data-panel-key="ticker-dossier">
-                <TickerDossierPanel symbol={dossierSymbol} />
+                <ErrorBoundary label="Ticker Dossier"><TickerDossierPanel symbol={dossierSymbol} /></ErrorBoundary>
               </div>
               <div key="investment-compare" data-panel-key="investment-compare">
-                <InvestmentComparePanel />
+                <ErrorBoundary label="Investment Compare"><InvestmentComparePanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>
