@@ -5,16 +5,29 @@ import type {
   EarningsCalendar,
   NewsItem,
   SectorBreadthResponse,
+  SectorCreditResponse,
+  SectorDecompositionResponse,
   SectorDetailResponse,
   SectorEarningsResponse,
+  SectorFlowsResponse,
   SectorKpisResponse,
   SectorMacroDriversResponse,
   SectorNewsResponse,
+  SectorOperationalResponse,
   SectorPeerComparisonResponse,
   SectorRegimePlaybookResponse,
+  SectorRiskResponse,
   SectorRsResponse,
+  SectorSubIndustriesResponse,
   SectorSupplyChainResponse,
 } from "../api/types";
+import { SectorBriefingPanel } from "./SectorBriefingPanel";
+import { SectorCreditPanel } from "./SectorCreditPanel";
+import { SectorDecompositionPanel } from "./SectorDecompositionPanel";
+import { SectorFlowsPanel } from "./SectorFlowsPanel";
+import { SectorOperationalPanel } from "./SectorOperationalPanel";
+import { SectorRiskPanel } from "./SectorRiskPanel";
+import { SectorSubIndustriesPanel } from "./SectorSubIndustriesPanel";
 import { SectorPeerChart } from "./SectorPeerChart";
 import { SectorRsChart } from "./SectorRsChart";
 import { SectorSupplyChainMap } from "./SectorSupplyChainMap";
@@ -41,6 +54,18 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
   const [peerComparison, setPeerComparison] = useState<SectorPeerComparisonResponse | null>(null);
   const [regimePlaybook, setRegimePlaybook] = useState<SectorRegimePlaybookResponse | null>(null);
   const [showRegimePlaybook, setShowRegimePlaybook] = useState(false);
+  const [operational, setOperational] = useState<SectorOperationalResponse | null>(null);
+  const [showOperational, setShowOperational] = useState(false);
+  const [decomposition, setDecomposition] = useState<SectorDecompositionResponse | null>(null);
+  const [showDecomposition, setShowDecomposition] = useState(false);
+  const [risk, setRisk] = useState<SectorRiskResponse | null>(null);
+  const [showRisk, setShowRisk] = useState(false);
+  const [credit, setCredit] = useState<SectorCreditResponse | null>(null);
+  const [showCredit, setShowCredit] = useState(false);
+  const [flows, setFlows] = useState<SectorFlowsResponse | null>(null);
+  const [showFlows, setShowFlows] = useState(false);
+  const [subIndustries, setSubIndustries] = useState<SectorSubIndustriesResponse | null>(null);
+  const [showSubIndustries, setShowSubIndustries] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showRelative, setShowRelative] = useState(false);
@@ -65,6 +90,18 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
     setPeerComparison(null);
     setRegimePlaybook(null);
     setShowRegimePlaybook(false);
+    setOperational(null);
+    setShowOperational(false);
+    setDecomposition(null);
+    setShowDecomposition(false);
+    setRisk(null);
+    setShowRisk(false);
+    setCredit(null);
+    setShowCredit(false);
+    setFlows(null);
+    setShowFlows(false);
+    setSubIndustries(null);
+    setShowSubIndustries(false);
     api
       .sectorDetail(sectorId)
       .then((d) => {
@@ -85,6 +122,12 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
     api.sectorBreadth(sectorId).then(setBreadth).catch(() => {});
     api.sectorPeerComparison(sectorId).then(setPeerComparison).catch(() => {});
     api.sectorRegimePlaybook(sectorId).then(setRegimePlaybook).catch(() => {});
+    api.sectorOperational(sectorId).then(setOperational).catch(() => {});
+    api.sectorDecomposition(sectorId).then(setDecomposition).catch(() => {});
+    api.sectorRisk(sectorId).then(setRisk).catch(() => {});
+    api.sectorCredit(sectorId).then(setCredit).catch(() => {});
+    api.sectorFlows(sectorId).then(setFlows).catch(() => {});
+    api.sectorSubIndustries(sectorId).then(setSubIndustries).catch(() => {});
   }, [sectorId]);
 
   const sortedStocks = data
@@ -381,6 +424,51 @@ export function SectorDetailPanel({ sectorId, onBack, onSelectSector }: SectorDe
               </div>
             </div>
           )}
+
+          {/* AI Briefing — moat play; rendered at top */}
+          <SectorBriefingPanel sectorId={sectorId} />
+
+          {/* Constituent Decomposition (waterfall + if-removed + concentration) */}
+          <SectorDecompositionPanel
+            data={decomposition}
+            expanded={showDecomposition}
+            onToggle={() => setShowDecomposition((v) => !v)}
+          />
+
+          {/* Sub-industries — which slice of the sector is leading */}
+          <SectorSubIndustriesPanel
+            data={subIndustries}
+            expanded={showSubIndustries}
+            onToggle={() => setShowSubIndustries((v) => !v)}
+          />
+
+          {/* Operational Dashboard (factory-floor KPIs) */}
+          <SectorOperationalPanel
+            data={operational}
+            expanded={showOperational}
+            onToggle={() => setShowOperational((v) => !v)}
+          />
+
+          {/* Risk + Drawdowns */}
+          <SectorRiskPanel
+            data={risk}
+            expanded={showRisk}
+            onToggle={() => setShowRisk((v) => !v)}
+          />
+
+          {/* Credit + Bond Layer */}
+          <SectorCreditPanel
+            data={credit}
+            expanded={showCredit}
+            onToggle={() => setShowCredit((v) => !v)}
+          />
+
+          {/* Flows + Options */}
+          <SectorFlowsPanel
+            data={flows}
+            expanded={showFlows}
+            onToggle={() => setShowFlows((v) => !v)}
+          />
 
           {/* Macro Drivers card */}
           <section className="panel">
