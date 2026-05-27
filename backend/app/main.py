@@ -75,6 +75,9 @@ from .portfolio.positions import compute_positions
 from .portfolio.risk import compute_portfolio_risk
 from .portfolio.valuation import enrich_positions
 from .portfolio.comparison import compare_portfolios
+from .portfolio import tax as ptax
+from .portfolio import rebalancing as prebal
+from .portfolio import csv_import as pcsv
 from .etf.compare import compare_tickers
 from .regime import regime_model, regime_model_v2, stress_test as stress_test_mod
 
@@ -1822,3 +1825,88 @@ def add_portfolio_transaction(portfolio_id: int, body: dict) -> dict:
 def delete_portfolio_transaction(portfolio_id: int, txn_id: int) -> dict:
     ok = pcrud.delete_transaction(portfolio_id, txn_id)
     return {"ok": ok}
+
+
+# ── Portfolio: tax, rebalancing, regime-stress, CSV import ───────────────────
+@app.get("/api/portfolio/{portfolio_id}/tax")
+def portfolio_tax(portfolio_id: int, year: int | None = None) -> dict:
+    pf = pcrud.get_portfolio(portfolio_id)
+    if not pf:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    txns = pcrud.get_transactions(portfolio_id)
+    summary = ptax.tax_summary(txns, year=year)
+    try:
+        positions, _, cash_delta = compute_positions(txns)
+        enriched, _ = enrich_positions(positions, pf["cash_balance"] + cash_delta)
+        tlh = ptax.tlh_candidates(enriched)
+    except Exception as e:
+        log.warning("portfolio_tax tlh failed for %s: %s", portfolio_id, e)
+        tlh = []
+    return {"summary": summary, "tlh": tlh}
+
+
+class RebalanceRequest(BaseModel):
+    targets: dict[str, float]
+    threshold_pct: float = 5.0
+
+
+@app.post("/api/portfolio/{portfolio_id}/rebalance")
+def portfolio_rebalance(portfolio_id: int, body: RebalanceRequest) -> dict:
+    pf = pcrud.get_portfolio(portfolio_id)
+    if not pf:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    txns = pcrud.get_transactions(portfolio_id)
+    positions, _, cash_delta = compute_positions(txns)
+    current_cash = pf["cash_balance"] + cash_delta
+    enriched, summary = enrich_positions(positions, current_cash)
+    return prebal.suggest_rebalance(
+        enriched,
+        targets=body.targets,
+        total_value=summary.get("total_value", 0.0),
+        cash_balance=current_cash,
+        threshold_pct=body.threshold_pct,
+    )
+
+
+@app.get("/api/portfolio/{portfolio_id}/regime-stress")
+def portfolio_regime_stress(portfolio_id: int, days: int = 365) -> dict:
+    pf = pcrud.get_portfolio(portfolio_id)
+    if not pf:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    txns = pcrud.get_transactions(portfolio_id)
+    positions, _, cash_delta = compute_positions(txns)
+    enriched, _ = enrich_positions(positions, pf["cash_balance"] + cash_delta)
+    stress_positions = [
+        {"ticker": p["symbol"], "weight": (p.get("portfolio_weight") or 0.0) / 100.0}
+        for p in enriched
+    ]
+    try:
+        vix = macro_data.fetch_series("^VIX", days=days)
+        y2 = macro_data.fetch_series("DGS2", days=days)
+        y10 = macro_data.fetch_series("DGS10", days=days)
+        history = regime_model.regime_history(vix, y2, y10)
+    except Exception as e:
+        log.warning("regime-stress history failed for %s: %s", portfolio_id, e)
+        history = []
+    return stress_test_mod.stress_test(stress_positions, history, days=days)
+
+
+class CsvImportPreview(BaseModel):
+    csv: str
+
+
+class CsvImportCommit(BaseModel):
+    rows: list[dict]
+
+
+@app.post("/api/portfolio/{portfolio_id}/import/preview")
+def portfolio_import_preview(portfolio_id: int, body: CsvImportPreview) -> dict:
+    return pcsv.parse_csv(body.csv)
+
+
+@app.post("/api/portfolio/{portfolio_id}/import")
+def portfolio_import_commit(portfolio_id: int, body: CsvImportCommit) -> dict:
+    pf = pcrud.get_portfolio(portfolio_id)
+    if not pf:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    return pcrud.bulk_insert_transactions(portfolio_id, body.rows)

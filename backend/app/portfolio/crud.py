@@ -102,6 +102,35 @@ def add_transaction(
     }
 
 
+def bulk_insert_transactions(portfolio_id: int, rows: list[dict]) -> dict:
+    """Insert many transactions in one connection. Each row needs symbol,
+    trade_date, trade_type, quantity, price; commission/notes optional.
+    Returns {inserted: n}."""
+    inserted = 0
+    with db.conn() as c:
+        for row in rows:
+            try:
+                c.execute(
+                    "INSERT INTO portfolio_transactions "
+                    "(portfolio_id, symbol, trade_date, trade_type, quantity, price, commission, notes) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    [
+                        portfolio_id,
+                        str(row["symbol"]).upper(),
+                        str(row["trade_date"]),
+                        row["trade_type"],
+                        float(row["quantity"]),
+                        float(row["price"]),
+                        float(row.get("commission") or 0.0),
+                        row.get("notes"),
+                    ],
+                )
+                inserted += 1
+            except (KeyError, ValueError, TypeError):
+                continue
+    return {"inserted": inserted}
+
+
 def delete_transaction(portfolio_id: int, transaction_id: int) -> bool:
     n = db.execute(
         "DELETE FROM portfolio_transactions WHERE id = ? AND portfolio_id = ?",
