@@ -9,7 +9,7 @@ interface SidebarProps {
   onScrollTo: (panelKey: string) => void;
 }
 
-const NAV_SECTIONS = [
+export const NAV_SECTIONS = [
   {
     label: "Overview",
     items: [
@@ -42,6 +42,7 @@ const NAV_SECTIONS = [
   {
     label: "Stocks",
     items: [
+      { key: "ticker-dossier", label: "Ticker Dossier" },
       { key: "compare", label: "Compare / Portfolio" },
       { key: "etf-compare", label: "ETF Comparison" },
       { key: "indicators", label: "Technical Analysis" },
@@ -80,6 +81,12 @@ const NAV_SECTIONS = [
     ],
   },
 ];
+
+// Flat list of every panel nav target — consumed by the command palette.
+export const PANEL_NAV: { key: string; label: string; section: string }[] =
+  NAV_SECTIONS.flatMap((s) =>
+    s.items.map((item) => ({ ...item, section: s.label })),
+  );
 
 export function Sidebar({ activeSector, onSelectSector, onScrollTo }: SidebarProps) {
   const [sectors, setSectors] = useState<SectorListItem[]>([]);

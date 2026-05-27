@@ -2154,3 +2154,78 @@ export interface FixedIncomeOverviewResponse {
   treasuries: FiTreasurySection;
   bond_etfs: FiBondEtf[];
 }
+
+// ── Unified search (command palette) ─────────────────────────────────────────
+export interface SearchResult {
+  type: "ticker" | "series";
+  key: string;
+  label: string;
+  sublabel: string | null;
+}
+
+export interface SearchResponse {
+  results: SearchResult[];
+}
+
+// ── Single-ticker dossier ────────────────────────────────────────────────────
+export interface DossierProfile {
+  name: string;
+  sector: string | null;
+  industry: string | null;
+  exchange: string | null;
+  currency: string | null;
+  market_cap: number | null;
+  pe_ratio: number | null;
+  forward_pe: number | null;
+  dividend_yield: number | null;
+  beta: number | null;
+  current_price: number | null;
+  prev_close: number | null;
+  day_change: number | null;
+  day_change_pct: number | null;
+  summary: string | null;
+}
+
+export interface DossierPrice {
+  last: number;
+  prior: number;
+  change: number;
+  change_pct: number;
+  high_52w: number;
+  low_52w: number;
+  pct_from_high: number | null;
+  pct_from_low: number | null;
+  avg_365d: number;
+  points: SeriesPoint[];
+}
+
+export interface DossierTechnicals {
+  indicator: string;
+  score: number | null;
+  bucket: string;
+  votes: Record<string, number>;
+}
+
+export interface DossierFiling {
+  ticker: string;
+  cik: string;
+  accession: string;
+  form: string;
+  filing_date: string;
+  report_date: string;
+  description: string;
+  items: string;
+  url: string;
+  form_label: string;
+}
+
+export interface DossierResponse {
+  symbol: string;
+  profile: DossierProfile | null;
+  price: DossierPrice | null;
+  fundamentals: Record<string, number | string | null> | null;
+  technicals: DossierTechnicals | null;
+  news: NewsItem[];
+  filings: DossierFiling[];
+  options: ChainSummary | null;
+}

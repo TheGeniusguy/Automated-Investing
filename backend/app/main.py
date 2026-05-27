@@ -38,6 +38,7 @@ from .data import (
     real_estate_detail,
     recession as recession_mod,
     screener as screener_mod,
+    search as search_mod,
     sec_edgar,
     sector_detail,
     sector_breadth as sector_breadth_mod,
@@ -56,6 +57,7 @@ from .data import (
     sector_rotation,
     series_stats as series_stats_mod,
     shipping as shipping_mod,
+    ticker_dossier as ticker_dossier_mod,
     watchlist,
     watchlists_db,
     yield_curve as yield_curve_mod,
@@ -1229,6 +1231,23 @@ def run_screener(req: ScreenerRequest) -> dict:
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Unified search + single-ticker dossier (command palette + fused panel)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/search")
+def get_search(q: str = "", limit: int = 20) -> dict:
+    """Merged ticker + FRED-series search. Powers the command palette."""
+    return search_mod.search(q, limit=limit)
+
+
+@app.get("/api/ticker/{symbol}/dossier")
+def get_ticker_dossier(symbol: str) -> dict:
+    """Single-ticker dossier — price + profile + fundamentals + technicals +
+    news + filings + options fused into one payload."""
+    return ticker_dossier_mod.build_dossier(symbol.upper())
 
 
 # ──────────────────────────────────────────────────────────────────────────

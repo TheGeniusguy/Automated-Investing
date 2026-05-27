@@ -13,6 +13,8 @@ import type {
   ChainSummaries,
   CryptoCompareResponse,
   CryptoOverviewResponse,
+  DossierResponse,
+  SearchResponse,
   DailyBriefingCached,
   EarningsOverview,
   FixedIncomeOverviewResponse,
@@ -433,6 +435,12 @@ export const api = {
     fetch(`${API_BASE}/api/macro/boards/${id}`, { method: "DELETE" }).then(_jsonOrThrow),
   macroBoardSnapshot: (id: number) =>
     getJSON<import("./types").MacroBoardSnapshot>(`/api/macro/boards/${id}/snapshot`),
+
+  // ── Unified search (command palette) + single-ticker dossier
+  search: (q: string, limit = 20) =>
+    getJSON<SearchResponse>(`/api/search?q=${encodeURIComponent(q)}&limit=${limit}`),
+  tickerDossier: (symbol: string) =>
+    getJSON<DossierResponse>(`/api/ticker/${encodeURIComponent(symbol)}/dossier`),
 };
 
 async function _jsonOrThrow(r: Response): Promise<unknown> {

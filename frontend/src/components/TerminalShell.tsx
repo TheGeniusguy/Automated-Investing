@@ -4,6 +4,7 @@ import GridLayout, { type Layout } from "react-grid-layout";
 import { api } from "../api/client";
 import type { HealthResponse } from "../api/types";
 import { ChatPanel } from "./ChatPanel";
+import { CommandPalette } from "./CommandPalette";
 import { ComparePanel } from "./ComparePanel";
 import { CorrelationsPanel } from "./CorrelationsPanel";
 import { CryptoPanel } from "./CryptoPanel";
@@ -37,6 +38,7 @@ import { SectorRotationPanel } from "./SectorRotationPanel";
 import { ShippingPanel } from "./ShippingPanel";
 import { Sidebar } from "./Sidebar";
 import { TechnicalIndicatorsPanel } from "./TechnicalIndicatorsPanel";
+import { TickerDossierPanel } from "./TickerDossierPanel";
 import { WatchlistsPanel } from "./WatchlistsPanel";
 import { YieldCurvePanel } from "./YieldCurvePanel";
 
@@ -76,6 +78,7 @@ const LAYOUT: Layout[] = [
   { i: "crypto",          x: 0, y: 682, w: 12, h: 22, minW: 6, minH: 14 },
   { i: "fx",              x: 0, y: 706, w: 12, h: 22, minW: 6, minH: 14 },
   { i: "fixed-income",    x: 0, y: 730, w: 12, h: 22, minW: 6, minH: 14 },
+  { i: "ticker-dossier",  x: 0, y: 758, w: 12, h: 30, minW: 6, minH: 16 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -87,6 +90,7 @@ export function TerminalShell() {
   const [now, setNow] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeSector, setActiveSector] = useState<string | null>(null);
+  const [dossierSymbol, setDossierSymbol] = useState<string | null>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const [gridWidth, setGridWidth] = useState<number>(
     typeof window !== "undefined"
@@ -263,10 +267,18 @@ export function TerminalShell() {
               <div key="fixed-income" data-panel-key="fixed-income">
                 <FixedIncomePanel />
               </div>
+              <div key="ticker-dossier" data-panel-key="ticker-dossier">
+                <TickerDossierPanel symbol={dossierSymbol} />
+              </div>
             </GridLayout>
           </div>
         )}
       </div>
+
+      <CommandPalette
+        onPickTicker={(s) => setDossierSymbol(s)}
+        onScrollTo={handleScrollTo}
+      />
 
       <StatusBar health={health} now={now} />
     </div>
