@@ -18,15 +18,20 @@ from .data import (
     allocation_optimizer as allocation_mod,
     bond_analytics as bond_analytics_mod,
     calendar as calendar_mod,
+    central_bank_rates as central_bank_rates_mod,
     compare as compare_mod,
+    comps_grid as comps_grid_mod,
     cot_positioning as cot_mod,
     deals_monitor as deals_mod,
     dividends_tracker as dividends_tracker_mod,
     economic_calendar as econ_calendar_mod,
+    net_liquidity as net_liquidity_mod,
+    news_sentiment as news_sentiment_mod,
     options_strategy as options_strategy_mod,
     pairs_trading as pairs_mod,
     portfolio_risk as portfolio_risk_mod,
     rrg as rrg_mod,
+    treasury_auctions as treasury_auctions_mod,
     vol_dashboard as vol_dashboard_mod,
     world_indices as world_indices_mod,
     commodities_curve as commodities_mod,
@@ -2449,3 +2454,48 @@ def portfolio_risk(symbols: str | None = None, weights: str | None = None) -> di
 @app.get("/api/dividends-tracker")
 def dividends_tracker() -> dict:
     return dividends_tracker_mod.dividends_tracker()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave H: Relative Valuation Comps Grid (RV)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/comps/{symbol}")
+def comps(symbol: str) -> dict:
+    return comps_grid_mod.comps_grid(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave H: Global Central-Bank Policy-Rate Monitor (WIRP)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/central-bank-rates")
+def central_bank_rates() -> dict:
+    return central_bank_rates_mod.central_bank_rates()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave H: Treasury Auction Calendar & Results
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/treasury-auctions")
+def treasury_auctions() -> dict:
+    return treasury_auctions_mod.treasury_auctions()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave H: Fed Net-Liquidity Monitor (FARBAST)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/net-liquidity")
+def net_liquidity() -> dict:
+    return net_liquidity_mod.net_liquidity()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave H: Per-Ticker NLP News Sentiment (NSTM)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/news-sentiment/{symbol}")
+def news_sentiment(symbol: str) -> dict:
+    return news_sentiment_mod.news_sentiment(symbol)

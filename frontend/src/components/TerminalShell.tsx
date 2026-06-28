@@ -77,6 +77,11 @@ import { VolDashboardPanel } from "./VolDashboardPanel";
 import { WorldIndicesPanel } from "./WorldIndicesPanel";
 import { PortfolioRiskPanel } from "./PortfolioRiskPanel";
 import { DividendTrackerPanel } from "./DividendTrackerPanel";
+import { CompsGridPanel } from "./CompsGridPanel";
+import { CentralBankRatesPanel } from "./CentralBankRatesPanel";
+import { TreasuryAuctionsPanel } from "./TreasuryAuctionsPanel";
+import { NetLiquidityPanel } from "./NetLiquidityPanel";
+import { NewsSentimentPanel } from "./NewsSentimentPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -153,6 +158,12 @@ const LAYOUT: Layout[] = [
   { i: "world-indices",   x: 0, y: 1716, w: 12, h: 34, minW: 6, minH: 18 },
   { i: "portfolio-risk",  x: 0, y: 1750, w: 12, h: 34, minW: 6, minH: 18 },
   { i: "dividend-tracker", x: 0, y: 1784, w: 12, h: 34, minW: 6, minH: 18 },
+  // Bloomberg Wave H (appended at the bottom, non-overlapping)
+  { i: "comps",             x: 0, y: 1818, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "central-bank-rates", x: 0, y: 1852, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "treasury-auctions", x: 0, y: 1886, w: 12, h: 32, minW: 6, minH: 18 },
+  { i: "net-liquidity",     x: 0, y: 1918, w: 12, h: 32, minW: 6, minH: 18 },
+  { i: "news-sentiment",    x: 0, y: 1950, w: 12, h: 32, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -447,6 +458,21 @@ export function TerminalShell() {
               </div>
               <div key="dividend-tracker" data-panel-key="dividend-tracker">
                 <ErrorBoundary label="Dividend & Buyback Tracker"><DividendTrackerPanel /></ErrorBoundary>
+              </div>
+              <div key="comps" data-panel-key="comps">
+                <ErrorBoundary label="Relative Valuation (Comps)"><CompsGridPanel /></ErrorBoundary>
+              </div>
+              <div key="central-bank-rates" data-panel-key="central-bank-rates">
+                <ErrorBoundary label="Global Central-Bank Rates"><CentralBankRatesPanel /></ErrorBoundary>
+              </div>
+              <div key="treasury-auctions" data-panel-key="treasury-auctions">
+                <ErrorBoundary label="Treasury Auctions"><TreasuryAuctionsPanel /></ErrorBoundary>
+              </div>
+              <div key="net-liquidity" data-panel-key="net-liquidity">
+                <ErrorBoundary label="Fed Net Liquidity"><NetLiquidityPanel /></ErrorBoundary>
+              </div>
+              <div key="news-sentiment" data-panel-key="news-sentiment">
+                <ErrorBoundary label="News Sentiment"><NewsSentimentPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>

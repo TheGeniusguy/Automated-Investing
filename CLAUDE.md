@@ -84,6 +84,20 @@ fetch directly, same graceful-degradation + sample-data policy. This brings the
 total to 25 Bloomberg parity features across Waves C/D/E/F/G (33 new feature
 surfaces overall).
 
+**Bloomberg Wave H** (shipped, ranks 1-5 of the gap backlog in TODO.md section
+12): relative valuation comps grid (`data/comps_grid.py`, `/api/comps/{symbol}`),
+global central-bank policy-rate monitor (`data/central_bank_rates.py`,
+`/api/central-bank-rates`), Treasury auction calendar & results pulling the live
+free TreasuryDirect fiscal-data API (`data/treasury_auctions.py`,
+`/api/treasury-auctions`), Fed net-liquidity monitor WALCL-TGA-RRP
+(`data/net_liquidity.py`, `/api/net-liquidity`), and per-ticker NLP news
+sentiment with an inline finance lexicon (`data/news_sentiment.py`,
+`/api/news-sentiment/{symbol}`). One panel each, panels fetch directly, same
+graceful-degradation + sample-data policy. This brings the total to 30 Bloomberg
+parity features across Waves C/D/E/F/G/H (38 new feature surfaces overall). The
+remaining ranked gap backlog lives in TODO.md sections 12 (top 40) and 13 (full
+125).
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
