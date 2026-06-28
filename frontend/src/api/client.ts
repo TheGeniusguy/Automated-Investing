@@ -27,6 +27,8 @@ import type {
   InstrumentSearchResult,
   MacroCatalog,
   MacroSnapshot,
+  MarketInsidersResponse,
+  MarketNewsResponse,
   MultiIndicatorRequest,
   MultiIndicatorResponse,
   NewsFeed,
@@ -104,6 +106,19 @@ export const api = {
     getJSON<NewsFeed>(
       `/api/news/feed?tickers=${encodeURIComponent(tickers.join(","))}&per_ticker=${perTicker}&overall=${overall}`,
     ),
+
+  // ── Unusual Whales: Market News + Market Insiders
+  marketNews: (limit = 60, sources?: string) =>
+    getJSON<MarketNewsResponse>(
+      `/api/news/market?limit=${limit}${sources ? `&sources=${encodeURIComponent(sources)}` : ""}`),
+  marketInsiders: (opts: { limit?: number; direction?: string; minValue?: number; ticker?: string } = {}) => {
+    const p = new URLSearchParams();
+    p.set("limit", String(opts.limit ?? 100));
+    p.set("direction", opts.direction ?? "all");
+    p.set("min_value", String(opts.minValue ?? 0));
+    if (opts.ticker) p.set("ticker", opts.ticker);
+    return getJSON<MarketInsidersResponse>(`/api/insiders/market?${p.toString()}`);
+  },
 
   // Options
   vixTerm:        () => getJSON<VixTerm>("/api/options/vix-term"),

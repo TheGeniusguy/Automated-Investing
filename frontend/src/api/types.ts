@@ -53,7 +53,41 @@ export interface HealthResponse {
   status: string;
   fred_configured: boolean;
   anthropic_configured: boolean;
+  uw_configured: boolean;
   claude_model: string;
+}
+
+// ---------- Unusual Whales: Market News + Market Insiders ----------
+
+export interface MarketNewsItem {
+  id: string; title: string; url: string; source: string;
+  published: string | null; tickers: string[];
+  sentiment: string | null; is_major: boolean; tags: string[]; summary: string;
+}
+export interface MarketNewsResponse {
+  items: MarketNewsItem[]; count: number;
+  configured: boolean; degraded: boolean; error: string | null;
+  fetched_at: string; source: string;
+}
+export interface MarketInsiderTransaction {
+  ticker: string; company: string | null;
+  insider_name: string; insider_title: string | null;
+  is_director: boolean; is_officer: boolean; is_ten_pct: boolean;
+  txn_date: string | null; filing_date: string | null;
+  txn_code: string; direction: "buy" | "sell" | "other";
+  shares: number | null; price: number | null; value: number | null;
+  shares_after: number | null; source_url: string | null;
+}
+export interface MarketInsiderSummary {
+  total: number; buy_count: number; sell_count: number;
+  buy_value: number; sell_value: number; net_value: number;
+  unique_tickers: number; unique_insiders: number; buy_sell_ratio: number;
+}
+export interface MarketInsidersResponse {
+  transactions: MarketInsiderTransaction[]; summary: MarketInsiderSummary;
+  count: number; configured: boolean; degraded: boolean; error: string | null;
+  fetched_at: string; filters: { direction: string; min_value: number; ticker: string | null };
+  source: string;
 }
 
 // ---------- Panel 2: Regime Journal ----------

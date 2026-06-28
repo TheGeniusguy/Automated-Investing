@@ -26,6 +26,8 @@ import { InvestmentComparePanel } from "./InvestmentComparePanel";
 import { PortfolioPanel } from "./PortfolioPanel";
 import { MacroExplorer } from "./MacroExplorer";
 import { MacroHeatmap } from "./MacroHeatmap";
+import { MarketInsidersPanel } from "./MarketInsidersPanel";
+import { MarketNewsPanel } from "./MarketNewsPanel";
 import { MacroPinboard } from "./MacroPinboard";
 import { MacroRegimeTracker } from "./MacroRegimeTracker";
 import { NewsPanel } from "./NewsPanel";
@@ -82,6 +84,8 @@ const LAYOUT: Layout[] = [
   { i: "fixed-income",    x: 0, y: 730, w: 12, h: 22, minW: 6, minH: 14 },
   { i: "ticker-dossier",  x: 0, y: 758, w: 12, h: 30, minW: 6, minH: 16 },
   { i: "investment-compare", x: 0, y: 788, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "market-news",     x: 0, y: 822, w: 12, h: 20, minW: 6, minH: 12 },
+  { i: "market-insiders", x: 0, y: 842, w: 12, h: 24, minW: 6, minH: 14 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -278,6 +282,12 @@ export function TerminalShell() {
               <div key="investment-compare" data-panel-key="investment-compare">
                 <ErrorBoundary label="Investment Compare"><InvestmentComparePanel /></ErrorBoundary>
               </div>
+              <div key="market-news" data-panel-key="market-news">
+                <ErrorBoundary label="Market News"><MarketNewsPanel /></ErrorBoundary>
+              </div>
+              <div key="market-insiders" data-panel-key="market-insiders">
+                <ErrorBoundary label="Market Insiders"><MarketInsidersPanel /></ErrorBoundary>
+              </div>
             </GridLayout>
           </div>
         )}
@@ -333,11 +343,13 @@ function Topbar({
 function StatusBar({ health, now }: { health: HealthResponse | null; now: Date }) {
   const fred = health?.fred_configured;
   const claude = health?.anthropic_configured;
+  const uw = health?.uw_configured;
   return (
     <footer className="flex items-center justify-between px-3 py-1.5 border-t border-terminal-border bg-terminal-panel text-2xs text-terminal-muted">
       <div className="flex items-center gap-4">
         <KeyStatus name="FRED" ok={fred} />
         <KeyStatus name="ANTHROPIC" ok={claude} />
+        <KeyStatus name="UW" ok={uw} />
       </div>
       <div className="flex items-center gap-3">
         <span>{now.toLocaleDateString()}</span>

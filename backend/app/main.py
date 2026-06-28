@@ -59,6 +59,7 @@ from .data import (
     series_stats as series_stats_mod,
     shipping as shipping_mod,
     ticker_dossier as ticker_dossier_mod,
+    unusual_whales as uw_mod,
     watchlist,
     watchlists_db,
     yield_curve as yield_curve_mod,
@@ -120,6 +121,7 @@ def health() -> dict:
         "status": "ok",
         "fred_configured": settings.has_fred,
         "anthropic_configured": settings.has_anthropic,
+        "uw_configured": settings.has_unusual_whales,
         "claude_model": settings.claude_model,
     }
 
@@ -531,6 +533,12 @@ def get_news_feed(tickers: str = "", per_ticker: int = 8, overall: int = 60) -> 
 def get_news_ticker(symbol: str, limit: int = 25) -> dict:
     items = news_mod.fetch_news_for_ticker(symbol.upper(), limit=limit)
     return {"symbol": symbol.upper(), "items": items, "count": len(items)}
+
+
+@app.get("/api/news/market")
+def get_market_news(limit: int = 60, sources: str = "") -> dict:
+    """Market-wide news feed from Unusual Whales. Degrades gracefully without a key."""
+    return uw_mod.fetch_market_news(limit=limit, sources=sources or None)
 
 
 # ---------- Options (Panel 8) ----------
@@ -1600,6 +1608,22 @@ def get_insider_multi(tickers: str = "", days: int = 180) -> dict:
         from . data.watchlist import DEFAULT_EQUITIES_WATCHLIST
         sym_list = DEFAULT_EQUITIES_WATCHLIST
     return insider_mod.multi_ticker_summary(sym_list, days=days)
+
+
+@app.get("/api/insiders/market")
+def get_market_insiders(
+    limit: int = 100,
+    direction: str = "all",
+    min_value: float = 0.0,
+    ticker: str = "",
+) -> dict:
+    """Market-wide insider buying/selling from Unusual Whales. Degrades gracefully without a key."""
+    return uw_mod.fetch_market_insiders(
+        limit=limit,
+        direction=direction,
+        min_value=min_value,
+        ticker=ticker or None,
+    )
 
 
 # ──────────────────────────────────────────────────────────────────────────
