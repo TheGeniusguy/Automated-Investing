@@ -19,16 +19,22 @@ from .data import (
     calendar as calendar_mod,
     compare as compare_mod,
     cot_positioning as cot_mod,
+    commodities_curve as commodities_mod,
+    credit_curves as credit_mod,
     crypto as crypto_mod,
     data_health as data_health_mod,
     drawings as drawings_mod,
     earnings as earnings_mod,
     econ_deep as econ_deep_mod,
+    econ_surprise as econ_surprise_mod,
     eia_energy,
+    estimates as estimates_mod,
     etf_tracking as etf_tracking_mod,
+    factor_analysis as factor_mod,
     fixed_income as fixed_income_mod,
     fred_catalog,
     fx as fx_mod,
+    fx_analytics as fx_analytics_mod,
     indicators as indicators_mod,
     insider_transactions as insider_mod,
     inflation as inflation_mod,
@@ -37,6 +43,7 @@ from .data import (
     macro_data,
     macro_pins as macro_pins_mod,
     macro_snapshot,
+    montecarlo as montecarlo_mod,
     news as news_mod,
     nowcast as nowcast_mod,
     options as options_mod,
@@ -46,6 +53,7 @@ from .data import (
     recession as recession_mod,
     screener as screener_mod,
     search as search_mod,
+    seasonality as seasonality_mod,
     sec_edgar,
     sector_detail,
     sector_breadth as sector_breadth_mod,
@@ -64,12 +72,14 @@ from .data import (
     sector_rotation,
     series_stats as series_stats_mod,
     shipping as shipping_mod,
+    short_interest as short_interest_mod,
     ticker_dossier as ticker_dossier_mod,
     unusual_whales as uw_mod,
     watchlist,
     watchlists_db,
     yield_curve as yield_curve_mod,
 )
+from .alerts import engine as alerts_mod
 from .db import engine as db_engine
 from .ingest import fundamentals as ingest_fundamentals
 from .ingest import instruments as ingest_instruments
@@ -2204,3 +2214,128 @@ def cot_markets() -> dict:
 @app.get("/api/cot/{market}")
 def cot_market_series(market: str) -> dict:
     return cot_mod.cot_series(market)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave D: FX carry, forwards & vol
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/fx/carry")
+def fx_carry() -> dict:
+    return fx_analytics_mod.fx_carry_table()
+
+
+@app.get("/api/fx/vol/{pair}")
+def fx_vol(pair: str) -> dict:
+    return fx_analytics_mod.fx_vol_cone(pair)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave D: Commodities term structure
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/commodities/curves")
+def commodities_curves() -> dict:
+    return commodities_mod.commodity_curves()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave D: Analyst estimates & revisions
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/estimates/{symbol}")
+def estimates(symbol: str) -> dict:
+    return estimates_mod.estimates(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave D: Credit & CDS curves
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/credit/curves")
+def credit_curves() -> dict:
+    return credit_mod.credit_curves()
+
+
+@app.get("/api/credit/{issuer}")
+def issuer_credit(issuer: str) -> dict:
+    return credit_mod.issuer_credit(issuer)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave D: Alerts engine
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/alerts/rules")
+def alerts_rules() -> dict:
+    return alerts_mod.list_rules()
+
+
+@app.post("/api/alerts/rules")
+def alerts_create_rule(body: dict) -> dict:
+    return alerts_mod.create_rule(body)
+
+
+@app.delete("/api/alerts/rules/{rid}")
+def alerts_delete_rule(rid: int) -> dict:
+    return alerts_mod.delete_rule(rid)
+
+
+@app.post("/api/alerts/evaluate")
+def alerts_evaluate() -> dict:
+    return alerts_mod.evaluate_rules()
+
+
+@app.get("/api/alerts/events")
+def alerts_events() -> dict:
+    return alerts_mod.list_events()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave E: Economic surprise index
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/econ-surprise")
+def econ_surprise() -> dict:
+    return econ_surprise_mod.surprise_index()
+
+
+@app.get("/api/econ-surprise/{region}")
+def econ_surprise_region(region: str) -> dict:
+    return econ_surprise_mod.surprise_index(region)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave E: Seasonality
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/seasonality/{symbol}")
+def seasonality(symbol: str) -> dict:
+    return seasonality_mod.seasonality(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave E: Factor / style analysis
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/factors/{symbol}")
+def factor_exposures(symbol: str) -> dict:
+    return factor_mod.factor_exposures(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave E: Monte Carlo risk simulation
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/montecarlo/{symbol}")
+def montecarlo(symbol: str) -> dict:
+    return montecarlo_mod.monte_carlo(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave E: Short interest & squeeze
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/short-interest/{symbol}")
+def short_interest(symbol: str) -> dict:
+    return short_interest_mod.short_interest(symbol)
