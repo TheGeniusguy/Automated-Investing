@@ -46,9 +46,18 @@ firehose. `GET /api/news/market`, `/api/insiders/market`. Panels: `MarketNewsPan
 - `data/bond_analytics.py` - bond price/duration/convexity/DV01. `GET /api/bonds/universe`, `POST /analyze`.
 - `data/cot_positioning.py` - CFTC COT net positioning + index. `GET /api/cot/{markets,{market}}`.
 
-> Waves D and E (10 more parity features: FX carry/forwards, commodities curves,
-> analyst estimates, credit/CDS, alerts, surprise index, seasonality, factor
-> analysis, Monte Carlo, short interest) are specced and queued.
+**Bloomberg Waves D + E** (shipped): FX carry/forwards/vol (`data/fx_analytics.py`,
+`/api/fx/*`), commodities term structure (`data/commodities_curve.py`,
+`/api/commodities/curves`), analyst estimates/revisions (`data/estimates.py`,
+`/api/estimates/{symbol}`), credit & CDS curves (`data/credit_curves.py`,
+`/api/credit/*`), alerts engine (`alerts/`, `/api/alerts/*`), economic surprise
+index (`data/econ_surprise.py`, `/api/econ-surprise`), seasonality
+(`data/seasonality.py`, `/api/seasonality/{symbol}`), factor/style analysis
+(`data/factor_analysis.py`, `/api/factors/{symbol}`), Monte Carlo risk
+(`data/montecarlo.py`, `/api/montecarlo/{symbol}`), short interest/squeeze
+(`data/short_interest.py`, `/api/short-interest/{symbol}`). One panel each, same
+sample-data policy. This brings the total to 15 Bloomberg parity features across
+Waves C/D/E (23 new feature surfaces overall).
 
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
