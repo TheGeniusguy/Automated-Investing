@@ -110,6 +110,18 @@ and the Taylor Rule / policy-rule estimator (`data/taylor_rule.py`,
 graceful-degradation + sample-data policy. This brings the total to 35 Bloomberg
 parity features across Waves C/D/E/F/G/H/I (43 new feature surfaces overall).
 
+**Bloomberg Wave J** (shipped, ranks 11-15 of the gap backlog): corporate OAS
+term-structure by rating AAA-CCC + IG/HY (`data/oas_curves.py`, `/api/oas-curves`),
+breakeven inflation & TIPS real-yield curve with 5y5y forward (`data/breakevens.py`,
+`/api/breakevens`), REER & PPP fair-value monitor rich/cheap by currency
+(`data/reer.py`, `/api/reer`), single-name CDS pricer via the ISDA credit-triangle
+(`data/cds_pricer.py`, `/api/cds-pricer`), and a news-heat / abnormal-volume
+detector (`data/news_heat.py`, `/api/news-heat`). One panel each, panels fetch
+directly, same graceful-degradation + sample-data policy. This brings the total to
+40 Bloomberg parity features across Waves C/D/E/F/G/H/I/J (48 new feature surfaces
+overall). The full ranked gap backlog (40 top + 125 total) lives in TODO.md
+sections 12 and 13; ranks 1-15 are now shipped.
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
