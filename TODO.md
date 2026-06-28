@@ -461,15 +461,15 @@ waves of five down the list.
 
 ### Wave H - next up (ranks 1-5)
 
-- [ ] **1. Relative Valuation Comps Grid (RV) `RV`** [HIGH / medium effort] - Ticker-centric peer table auto-selecting a comp set, lining up P/E, fwd P/E, EV/EBITDA, EV/Sales, P/B, FCF yield, margins and growth vs peer-median with premium/discount columns, computed from yfinance .info multiples.
+- [x] **1. Relative Valuation Comps Grid (RV) `RV`** [HIGH / medium effort] - Ticker-centric peer table auto-selecting a comp set, lining up P/E, fwd P/E, EV/EBITDA, EV/Sales, P/B, FCF yield, margins and growth vs peer-median with premium/discount columns, computed from yfinance .info multiples.
       _Why this rank:_ The single most iconic Bloomberg screen; instantly recognizable, demos in seconds, fully buildable from free multiples.
-- [ ] **2. Global Central-Bank Policy-Rate Monitor (merged WIRP/CBQ) `WIRP`** [HIGH / medium effort] - Board of every major policy rate (Fed/ECB/BoE/BoJ/SNB/BoC/RBA/PBOC plus EM: Banxico/BCB/RBI) with current level, last move, days since change, real (inflation-adjusted) rate, next-meeting date and market-implied bias; from FRED/BIS series with sample fallback. Merges the duplicate FX-EM and Economics requests.
+- [x] **2. Global Central-Bank Policy-Rate Monitor (merged WIRP/CBQ) `WIRP`** [HIGH / medium effort] - Board of every major policy rate (Fed/ECB/BoE/BoJ/SNB/BoC/RBA/PBOC plus EM: Banxico/BCB/RBI) with current level, last move, days since change, real (inflation-adjusted) rate, next-meeting date and market-implied bias; from FRED/BIS series with sample fallback. Merges the duplicate FX-EM and Economics requests.
       _Why this rank:_ Visually striking world board, one of the most-shared macro views; merges two domain requests into one high-WOW panel.
-- [ ] **3. Treasury Auction Calendar & Results** [HIGH / low effort] - Upcoming and historical bill/note/bond/TIPS/FRN auctions with bid-to-cover, high yield, tail vs WI, and indirect/direct/dealer allotment, pulled live from the free TreasuryDirect Auctions API.
+- [x] **3. Treasury Auction Calendar & Results** [HIGH / low effort] - Upcoming and historical bill/note/bond/TIPS/FRN auctions with bid-to-cover, high yield, tail vs WI, and indirect/direct/dealer allotment, pulled live from the free TreasuryDirect Auctions API.
       _Why this rank:_ Live free API, low effort, and 'real auction data updating' is a credibility-establishing WOW for a terminal.
-- [ ] **4. Central-Bank Balance Sheet & Net-Liquidity Monitor `FARBAST`** [HIGH / low effort] - Fed total assets (WALCL) minus TGA minus RRP = the closely-watched 'net liquidity', plus QT runoff pace and reserve balances over time; today WALCL is only a raw catalog series with no liquidity calc.
+- [x] **4. Central-Bank Balance Sheet & Net-Liquidity Monitor `FARBAST`** [HIGH / low effort] - Fed total assets (WALCL) minus TGA minus RRP = the closely-watched 'net liquidity', plus QT runoff pace and reserve balances over time; today WALCL is only a raw catalog series with no liquidity calc.
       _Why this rank:_ Famous macro chart traders obsess over; trivial FRED arithmetic on series we already have, big perceived sophistication.
-- [ ] **5. Per-Ticker NLP News Sentiment Scoring `NSTM`** [HIGH / low effort] - Score every yfinance headline+summary with a financial lexicon (Loughran-McDonald + VADER) for a per-ticker bull/bear score, rolling sentiment trend, and most-positive/negative articles; today we only echo a third-party tag and compute nothing.
+- [x] **5. Per-Ticker NLP News Sentiment Scoring `NSTM`** [HIGH / low effort] - Score every yfinance headline+summary with a financial lexicon (Loughran-McDonald + VADER) for a per-ticker bull/bear score, rolling sentiment trend, and most-positive/negative articles; today we only echo a third-party tag and compute nothing.
       _Why this rank:_ Turns an existing news feed into proprietary analytics at low cost; sentiment color-coding reads as advanced AI.
 
 ### Wave I (ranks 6-10)
