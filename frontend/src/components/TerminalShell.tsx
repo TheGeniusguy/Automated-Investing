@@ -72,6 +72,11 @@ import { OptionsStrategyPanel } from "./OptionsStrategyPanel";
 import { EconCalendarPanel } from "./EconCalendarPanel";
 import { PairsTradingPanel } from "./PairsTradingPanel";
 import { AllocationOptimizerPanel } from "./AllocationOptimizerPanel";
+import { RRGPanel } from "./RRGPanel";
+import { VolDashboardPanel } from "./VolDashboardPanel";
+import { WorldIndicesPanel } from "./WorldIndicesPanel";
+import { PortfolioRiskPanel } from "./PortfolioRiskPanel";
+import { DividendTrackerPanel } from "./DividendTrackerPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -142,6 +147,12 @@ const LAYOUT: Layout[] = [
   { i: "econ-calendar",        x: 0, y: 1548, w: 12, h: 32, minW: 6, minH: 18 },
   { i: "pairs",                x: 0, y: 1580, w: 12, h: 34, minW: 6, minH: 18 },
   { i: "allocation-optimizer", x: 0, y: 1614, w: 12, h: 34, minW: 6, minH: 18 },
+  // Bloomberg Wave G (appended at the bottom, non-overlapping)
+  { i: "rrg",             x: 0, y: 1648, w: 12, h: 36, minW: 6, minH: 20 },
+  { i: "vol-dashboard",   x: 0, y: 1684, w: 12, h: 32, minW: 6, minH: 18 },
+  { i: "world-indices",   x: 0, y: 1716, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "portfolio-risk",  x: 0, y: 1750, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "dividend-tracker", x: 0, y: 1784, w: 12, h: 34, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -421,6 +432,21 @@ export function TerminalShell() {
               </div>
               <div key="allocation-optimizer" data-panel-key="allocation-optimizer">
                 <ErrorBoundary label="Allocation Optimizer"><AllocationOptimizerPanel /></ErrorBoundary>
+              </div>
+              <div key="rrg" data-panel-key="rrg">
+                <ErrorBoundary label="Relative Rotation Graph"><RRGPanel /></ErrorBoundary>
+              </div>
+              <div key="vol-dashboard" data-panel-key="vol-dashboard">
+                <ErrorBoundary label="Volatility Dashboard"><VolDashboardPanel /></ErrorBoundary>
+              </div>
+              <div key="world-indices" data-panel-key="world-indices">
+                <ErrorBoundary label="World Equity Indices"><WorldIndicesPanel /></ErrorBoundary>
+              </div>
+              <div key="portfolio-risk" data-panel-key="portfolio-risk">
+                <ErrorBoundary label="Portfolio Risk / VaR"><PortfolioRiskPanel /></ErrorBoundary>
+              </div>
+              <div key="dividend-tracker" data-panel-key="dividend-tracker">
+                <ErrorBoundary label="Dividend & Buyback Tracker"><DividendTrackerPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>

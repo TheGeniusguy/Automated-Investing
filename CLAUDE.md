@@ -72,6 +72,18 @@ One panel each (panels fetch their routes directly; same graceful-degradation +
 sample-data policy). This brings the total to 20 Bloomberg parity features across
 Waves C/D/E/F (28 new feature surfaces overall).
 
+**Bloomberg Wave G** (shipped): relative rotation graph / sector rotation quadrant
+(`data/rrg.py`, `/api/rrg`), volatility & risk dashboard with VIX term structure +
+MOVE/SKEW/put-call + regime (`data/vol_dashboard.py`, `/api/vol-dashboard`), world
+equity indices monitor across Americas/EMEA/Asia-Pacific (`data/world_indices.py`,
+`/api/world-indices`), portfolio risk / VaR & stress with historical+parametric
+VaR, CVaR, stress scenarios, and risk contributions (`data/portfolio_risk.py`,
+`/api/portfolio-risk`), and a dividend & buyback / shareholder-yield tracker
+(`data/dividends_tracker.py`, `/api/dividends-tracker`). One panel each, panels
+fetch directly, same graceful-degradation + sample-data policy. This brings the
+total to 25 Bloomberg parity features across Waves C/D/E/F/G (33 new feature
+surfaces overall).
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen

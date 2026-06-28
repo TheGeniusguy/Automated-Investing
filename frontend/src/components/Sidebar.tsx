@@ -43,12 +43,15 @@ export const NAV_SECTIONS = [
       { key: "etf-tracking", label: "ETF Tracking" },
       { key: "montecarlo", label: "Monte Carlo" },
       { key: "allocation-optimizer", label: "Allocation Optimizer" },
+      { key: "portfolio-risk", label: "Portfolio Risk / VaR" },
     ],
   },
   {
     label: "Markets",
     items: [
       { key: "sector-rotation", label: "Sector Rotation" },
+      { key: "rrg", label: "Rotation Graph (RRG)" },
+      { key: "world-indices", label: "World Indices" },
       { key: "real-estate", label: "Real Estate" },
       { key: "commodities-curve", label: "Commodities Curve" },
       { key: "energy", label: "Energy" },
@@ -75,6 +78,7 @@ export const NAV_SECTIONS = [
       { key: "factor-analysis", label: "Factor Analysis" },
       { key: "short-interest", label: "Short Interest" },
       { key: "pairs", label: "Pairs / Rel Value" },
+      { key: "dividend-tracker", label: "Dividends & Buybacks" },
     ],
   },
   {
@@ -94,6 +98,7 @@ export const NAV_SECTIONS = [
       { key: "journal", label: "Regime Journal" },
       { key: "correlations", label: "Correlations" },
       { key: "options", label: "Options" },
+      { key: "vol-dashboard", label: "Volatility Dashboard" },
       { key: "earnings", label: "Earnings" },
       { key: "news", label: "News" },
       { key: "market-news", label: "Market News" },
