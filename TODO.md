@@ -444,3 +444,106 @@ FRED catalog.
 6. [ ] **Per-feature depth**: options greeks/max-pain/GEX (DONE, Wave C), crypto
        on-chain, multi-source news + sentiment, real-estate tax modeling,
        rebalancing optimizer, real dividend calendars.
+
+---
+
+## 12. Bloomberg parity gap backlog (2026-06-28, ultracode audit)
+
+Ten domain auditors swept the Bloomberg Terminal for features we have NOT
+shipped; a synthesis pass deduped 125 candidates into the ranked backlog below.
+All 40 are buildable now (free/derivable data or honest sample fallback). Tags:
+`[impact / build-difficulty]`, Bloomberg mnemonic in parens. Rank 1 = build first.
+
+**Synthesis:** The biggest gaps cluster in four themes: (1) signature single-screen "WOW" panels Bloomberg is famous for but we lack — the RV comps grid, a global central-bank rate board, Treasury auction results, and net-liquidity; (2) free-but-derivable analytics that look expensive — crack/inter-commodity spreads, OAS-by-rating, real-yield/breakeven curves, Taylor Rule, and forward-rate matrices; (3) marketing-viral flow/sentiment tools — Fear/Greed gauge, per-ticker NLP sentiment, news-heat, WSB social sentiment, and a clone-the-superinvestor 13F tracker; and (4) institutional depth — portfolio attribution, component VaR, pre-trade what-if, and a CDS pricer. Build first the low-difficulty, high-WOW screens that demo instantly (RV grid, CB rate board, Treasury auctions, net-liquidity, NLP sentiment) before moving to the medium-effort desk analytics.
+
+Build cadence: **Wave H = ranks 1-5, Wave I = ranks 6-10**, then continue in
+waves of five down the list.
+
+### Wave H - next up (ranks 1-5)
+
+- [ ] **1. Relative Valuation Comps Grid (RV) `RV`** [HIGH / medium effort] - Ticker-centric peer table auto-selecting a comp set, lining up P/E, fwd P/E, EV/EBITDA, EV/Sales, P/B, FCF yield, margins and growth vs peer-median with premium/discount columns, computed from yfinance .info multiples.
+      _Why this rank:_ The single most iconic Bloomberg screen; instantly recognizable, demos in seconds, fully buildable from free multiples.
+- [ ] **2. Global Central-Bank Policy-Rate Monitor (merged WIRP/CBQ) `WIRP`** [HIGH / medium effort] - Board of every major policy rate (Fed/ECB/BoE/BoJ/SNB/BoC/RBA/PBOC plus EM: Banxico/BCB/RBI) with current level, last move, days since change, real (inflation-adjusted) rate, next-meeting date and market-implied bias; from FRED/BIS series with sample fallback. Merges the duplicate FX-EM and Economics requests.
+      _Why this rank:_ Visually striking world board, one of the most-shared macro views; merges two domain requests into one high-WOW panel.
+- [ ] **3. Treasury Auction Calendar & Results** [HIGH / low effort] - Upcoming and historical bill/note/bond/TIPS/FRN auctions with bid-to-cover, high yield, tail vs WI, and indirect/direct/dealer allotment, pulled live from the free TreasuryDirect Auctions API.
+      _Why this rank:_ Live free API, low effort, and 'real auction data updating' is a credibility-establishing WOW for a terminal.
+- [ ] **4. Central-Bank Balance Sheet & Net-Liquidity Monitor `FARBAST`** [HIGH / low effort] - Fed total assets (WALCL) minus TGA minus RRP = the closely-watched 'net liquidity', plus QT runoff pace and reserve balances over time; today WALCL is only a raw catalog series with no liquidity calc.
+      _Why this rank:_ Famous macro chart traders obsess over; trivial FRED arithmetic on series we already have, big perceived sophistication.
+- [ ] **5. Per-Ticker NLP News Sentiment Scoring `NSTM`** [HIGH / low effort] - Score every yfinance headline+summary with a financial lexicon (Loughran-McDonald + VADER) for a per-ticker bull/bear score, rolling sentiment trend, and most-positive/negative articles; today we only echo a third-party tag and compute nothing.
+      _Why this rank:_ Turns an existing news feed into proprietary analytics at low cost; sentiment color-coding reads as advanced AI.
+
+### Wave I (ranks 6-10)
+
+- [ ] **6. Earnings-Quality Scorecard (F/Z/M-Score)** [HIGH / medium effort] - Piotroski F-Score, Altman Z-Score, Beneish M-Score, and an accruals ratio from EDGAR financials to flag accounting red flags, distress, and earnings-manipulation likelihood per ticker.
+      _Why this rank:_ Distinctive forensic-accounting differentiator; a single 'red flag' verdict screen is highly demo-able.
+- [ ] **7. Market-Wide Fear/Greed Sentiment Index `NSTM`** [med / low effort] - Aggregate per-headline sentiment across the watchlist/index universe into a single -100..+100 market-mood gauge with history and breadth (% of tickers net-positive), reusing the lexicon scoring from the per-ticker engine.
+      _Why this rank:_ Extremely shareable, marketing-friendly gauge; near-free once the per-ticker sentiment engine (rank 5) exists.
+- [ ] **8. Crack Spreads & Refining Margins (3-2-1) `CRK`** [HIGH / low effort] - 3-2-1 / 5-3-2 crack spread and gasoline/distillate refining margins computed live from CL/RB/HO front-month futures (2*RB + 1*HO - 3*CL per bbl) with historical band and seasonality context.
+      _Why this rank:_ Pure arithmetic on futures we already pull; a recognizable energy-desk staple with high signal.
+- [ ] **9. Inter-Commodity Spreads & Ratios** [HIGH / low effort] - Gold/silver, gold/oil, WTI-Brent, gas/oil BTU ratio and soybean board crush, each derived arithmetically from yfinance front-month futures with percentile/z-score history.
+      _Why this rank:_ Several classic desk spreads from data on hand; cheap breadth across the commodity complex.
+- [ ] **10. Taylor Rule / Policy-Rule Estimator `TAYL`** [HIGH / low effort] - Taylor, balanced-approach and inertial rule-implied fed funds from the inflation gap and unemployment/output gap, overlaid on the actual rate with restrictive/accommodative labeling; fully from FRED (PCEPILFE, UNRATE, NROU).
+      _Why this rank:_ Low-effort, high-IQ macro screen that visibly 'judges' the Fed; great talking-point in demos.
+
+### Further backlog (ranks 11-40)
+
+- [ ] **11. Corporate OAS Term-Structure by Rating `SPRD`** [HIGH / low effort] - Option-adjusted spread surface across AAA-CCC and IG-vs-HY with historical percentile/z-score and spread-per-turn-of-duration, from ICE BofA OAS series on FRED (BAMLC0A*, BAMLH0A*).
+      _Why this rank:_ Core credit-RV view, free FRED data, low lift; deepens the existing credit/CDS curves meaningfully.
+- [ ] **12. Breakeven Inflation & TIPS Real-Yield Curve `BEI`** [HIGH / low effort] - Full term structure of breakevens (5Y/10Y/30Y, 5y5y fwd) and TIPS real yields (DFII5/10/30, T5YIE/T10YIE/T5YIFR from FRED) with real-vs-nominal curve and carry decomposition, deeper than the headline inflation dashboard.
+      _Why this rank:_ High-value rates screen, all free FRED series, minimal build on top of existing inflation work.
+- [ ] **13. REER & PPP Fair-Value Monitor `REER`** [HIGH / low effort] - Trade-weighted REER per currency from FRED BIS series with z-score vs its 10y mean plus a PPP fair-value band, flagging rich/cheap currencies in real terms.
+      _Why this rank:_ Low effort, distinct from spot FX already shipped; 'which currency is cheap' is an instant hook.
+- [ ] **14. Single-Name CDS Pricer (CDSW) `CDSW`** [HIGH / low effort] - Marks a CDS to market: par-spread to/from upfront points off the existing credit-triangle survival curve, with CS01/DV01, accrued and PnL for a chosen notional and coupon (100/500).
+      _Why this rank:_ Reuses the shipped survival curve; a working pricer signals derivatives credibility at low cost.
+- [ ] **15. News-Heat / Abnormal News-Volume Detector `NH`** [HIGH / low effort] - Rolling article counts per ticker with z-score spike flags so an unusual coverage burst surfaces before the price moves; pure count statistics over the existing news feed.
+      _Why this rank:_ Cheap statistic over data we already cache; a leading 'something is happening' alert reads as predictive.
+- [ ] **16. Superinvestor / Smart-Money Clone Tracker** [HIGH / medium effort] - Tracks famous managers (Berkshire, Pershing, Scion, etc.) by CIK from 13F filings, showing top positions, latest-quarter moves and a cloneable model portfolio weighted by reported market values.
+      _Why this rank:_ Huge marketing pull ('clone Buffett'); free EDGAR data, instantly viral demo content.
+- [ ] **17. Volume Profile (VPVR / Volume-at-Price) `GP`** [HIGH / medium effort] - Horizontal volume-by-price histogram over a visible/fixed range surfacing Point of Control and Value Area High/Low (70%) and HVN/LVN, approximated by distributing each bar's volume across its high-low span from free OHLCV.
+      _Why this rank:_ Visually striking pro-charting feature retail tools charge for; strong screenshot WOW from free data.
+- [ ] **18. Social / Retail Sentiment (WSB + StockTwits)** [HIGH / medium effort] - StockTwits public stream and Reddit r/wallstreetbets/r/stocks mention counts for mention-velocity and bull/bear ratio per ticker, with deterministic sample fallback when endpoints rate-limit.
+      _Why this rank:_ Meme-stock zeitgeist appeal; highly marketable even though feeds are rate-limited (honest sample fallback).
+- [ ] **19. Implied Forward-Rate Matrix (FWCM) `FWCM`** [HIGH / medium effort] - Bootstraps the spot Treasury curve into a forward-rate grid (1y1y, 2y1y, 5y5y, 1y9y) so users see priced future short rates and compare forwards to spot for curve trades.
+      _Why this rank:_ Derived analytically from the curve we already ship; a serious rates-desk tool with little new data.
+- [ ] **20. Carry & Rolldown Curve RV Analyzer (CARRY) `CARRY`** [HIGH / medium effort] - Expected carry, rolldown and 3m/6m/12m horizon return for each curve point and common spread/butterfly trades, ranking the richest carry+roll opportunities, derived analytically from the shipped spot curve.
+      _Why this rank:_ High-value trade-idea generator built purely on the existing curve; pairs naturally with the forward matrix.
+- [ ] **21. Global Sovereign Bond Monitor (WB) `WB`** [HIGH / medium effort] - Grid of 10Y (and 2Y/30Y) government yields across major economies with daily bp moves and spreads-to-Treasury/Bund, from FRED OECD long-term rate series (IRLTLT01*) with sample fallback.
+      _Why this rank:_ Another high-impact world board complementing the rate monitor; free FRED data, broad appeal.
+- [ ] **22. Financial Conditions Index Monitor `BFCIUS`** [HIGH / medium effort] - Composite tracker combining Chicago Fed NFCI/ANFCI and St. Louis STLFSI with a homemade index of credit spreads, equity vol, USD and real rates to flag tight vs loose regimes, all from FRED.
+      _Why this rank:_ Single 'are conditions tight?' gauge is a powerful macro narrative tool; all free series.
+- [ ] **23. PMI / Business-Survey Diffusion Aggregator** [HIGH / medium effort] - Aggregates ISM mfg & services and regional Fed surveys (Empire, Philly, Dallas, KC, Richmond) plus S&P Global PMI into a diffusion heatmap with the 50 threshold and a composite forward-activity read from FRED.
+      _Why this rank:_ Color-coded expansion/contraction heatmap is a clean WOW; consolidates many FRED series into one view.
+- [ ] **24. Unusual Options Activity Scanner (OMON) `OMON`** [HIGH / medium effort] - Structured scanner over the live yfinance option chain flagging volume-to-OI spikes, large premium prints, and call/put premium skew per strike, ranking the day's most unusual contracts.
+      _Why this rank:_ 'Smart-money options' angle is highly marketable; builds on the options chain we already have.
+- [ ] **25. ETF Net-Flow Dashboard** [HIGH / medium effort] - Estimates daily/weekly net dollar flow per ETF as delta-shares-outstanding times NAV (vs current ETF panel showing only AUM/perf/holdings), ranked by sector and asset class to show where money is rotating.
+      _Why this rank:_ 'Where is money flowing' is a compelling rotation story; extends the existing ETF tracker.
+- [ ] **26. Dark-Pool & Off-Exchange Short Volume** [HIGH / medium effort] - Daily off-exchange short-sale volume ratio and ATS/dark-pool participation per symbol and aggregate from FINRA's free daily short-volume and weekly OTC/ATS files, flagging hidden accumulation/distribution.
+      _Why this rank:_ 'Dark pool' framing is intriguing to retail; genuinely useful signal from free FINRA data.
+- [ ] **27. 13F Change-Tracking & Hedge-Fund Clustering (HDS) `HDS`** [HIGH / medium effort] - Quarter-over-quarter delta engine on EDGAR 13F filings (new buys, sold-out, add/trim %) plus a crowding view clustering which managers concentrate in the same names, extending the static 13F holdings panel.
+      _Why this rank:_ Turns the static 13F panel into change/crowding signal; reuses data and feeds the superinvestor tracker.
+- [ ] **28. Brinson-Fachler Performance Attribution (PORT) `PORT`** [HIGH / medium effort] - Decomposes active return vs benchmark into allocation, selection and interaction effects per GICS sector, using portfolio vs benchmark sector weights and sector-ETF returns as the benchmark proxy.
+      _Why this rank:_ Institutional table-stakes that elevates the portfolio module from retail to pro; buildable from sector ETFs.
+- [ ] **29. Pre-Trade What-If Portfolio Analytics (PORT) `PORT`** [HIGH / medium effort] - Simulates a proposed buy/sell/rebalance and shows before/after deltas in volatility, VaR, tracking error, factor exposures and concentration so the user sees a trade's risk impact before execution.
+      _Why this rank:_ Interactive 'what does this trade do to my risk' is a satisfying live demo; reuses existing risk engines.
+- [ ] **30. Marginal & Component VaR per Holding (PORT) `PORT`** [HIGH / medium effort] - Attributes total portfolio VaR/CVaR to each position via marginal VaR and component VaR (summing to total), exposing which names actually drive tail risk beyond the existing concentration HHI.
+      _Why this rank:_ Sharpens the shipped VaR with per-name tail-risk attribution; modest extension, strong institutional credibility.
+- [ ] **31. IRS Swap Curve & Vanilla Swap Pricer (merged IRSB/SWPM) `IRSB`** [HIGH / medium effort] - Bootstraps a SOFR/swap curve from FRED, prices a fixed-for-floating swap (par rate, PV, DV01) and charts swap spreads vs the Treasury curve; deterministic sample where discontinued USD swap series are unavailable. Merges the Fixed-Income and Credit requests.
+      _Why this rank:_ Foundational rates product appearing in two domains; one build serves both, swap spreads add RV depth.
+- [ ] **32. Hedging & Overlay Designer (HEDG) `HEDG`** [HIGH / medium effort] - Computes optimal hedge ratios to neutralize portfolio beta/duration/FX with futures/ETFs (min-variance cross-hedge) and prices a protective-put or zero-cost collar overlay with cost and residual-risk impact via the existing Black-Scholes engine.
+      _Why this rank:_ Actionable 'how do I hedge this' tool reusing the shipped options engine; high utility, moderate build.
+- [ ] **33. EM Sovereign Risk & Reserves Dashboard (EMBI) `EMBI`** [HIGH / medium effort] - Per-country panel of FX reserves (and import-cover adequacy), hard-currency EMBI-style spread, 5y sovereign CDS proxy and external-debt ratios to rank EM crisis vulnerability.
+      _Why this rank:_ Crisis-ranking heatmap is a strong narrative panel; broadens coverage beyond DM into EM.
+- [ ] **34. Natural-Gas Storage vs 5-Year Band** [med / low effort] - EIA weekly working-gas-in-storage with injection/withdrawal deltas plotted against the 5-year average and min/max seasonal envelope, plus surplus/deficit-to-normal.
+      _Why this rank:_ Headline gas-balance chart, free EIA data, low effort; the seasonal-band visual is instantly readable.
+- [ ] **35. Heating & Cooling Degree Days (HDD/CDD)** [HIGH / medium effort] - Population-weighted national HDD/CDD from NOAA/FRED with deviation-from-normal, the core weather-demand driver for natural gas and power; seasonally realistic sample fallback.
+      _Why this rank:_ Weather-driven energy demand is a unique angle few competitors show; pairs with the gas-storage panel.
+- [ ] **36. Country / Global Macro Scorecard (ECST) `ECST`** [HIGH / medium effort] - Cross-country G20/OECD heatmap of GDP growth, CPI, unemployment, policy rate, PMI and current-account balance, color-coded vs history, from FRED international and OECD CLI series with sample fallback.
+      _Why this rank:_ A full-world macro heatmap is a flagship 'terminal' visual; complements the rate and PMI boards.
+- [ ] **37. Custom Study / Formula Builder (CIXB) `CIXB`** [HIGH / high effort] - A formula language letting users compose synthetic series and custom indicators from price/volume/other tickers (e.g. close(SPY)/close(TLT)*100, ema(rsi(AAPL),5)), evaluated server-side and rendered as a study.
+      _Why this rank:_ Power-user differentiator that mirrors Bloomberg's custom-index editor; higher effort but a standout capability.
+- [ ] **38. Filing Diff & Redline (10-K/10-Q YoY) (DOC) `DOC`** [HIGH / high effort] - Pulls two consecutive 10-K/10-Q full texts from EDGAR, section-aligns Risk Factors and MD&A, and renders an added/removed redline so material language changes (new risks, dropped disclosures) are visible at a glance.
+      _Why this rank:_ 'See exactly what changed in the 10-K' is a memorable demo; higher build effort but free EDGAR data.
+- [ ] **39. FX Volatility Surface (RR/BF/Skew) `OVDV`** [HIGH / medium effort] - Full delta-strike vol surface per pair: ATM term structure, 25-delta and 10-delta risk reversals and butterflies, and smile interpolation, extending the existing realized-vol cone into an options-desk skew/sentiment view.
+      _Why this rank:_ Options-desk-grade FX view deepening shipped FX analytics; surface visuals impress, sample-backed where quotes are absent.
+- [ ] **40. Black-Litterman Allocation with Views (PORT) `PORT`** [HIGH / high effort] - Blends market-implied equilibrium returns (reverse-optimized from cap weights) with user absolute/relative views and confidences for posterior expected returns and constrained optimal weights, far more stable than raw mean-variance.
+      _Why this rank:_ Premium optimizer that fixes the brittleness of the shipped mean-variance solver; high effort, placed last among high-impact items.
