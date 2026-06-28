@@ -19,18 +19,23 @@ from .data import (
     bond_analytics as bond_analytics_mod,
     calendar as calendar_mod,
     central_bank_rates as central_bank_rates_mod,
+    commodity_spreads as commodity_spreads_mod,
     compare as compare_mod,
     comps_grid as comps_grid_mod,
     cot_positioning as cot_mod,
+    crack_spreads as crack_spreads_mod,
     deals_monitor as deals_mod,
     dividends_tracker as dividends_tracker_mod,
+    earnings_quality as earnings_quality_mod,
     economic_calendar as econ_calendar_mod,
+    fear_greed as fear_greed_mod,
     net_liquidity as net_liquidity_mod,
     news_sentiment as news_sentiment_mod,
     options_strategy as options_strategy_mod,
     pairs_trading as pairs_mod,
     portfolio_risk as portfolio_risk_mod,
     rrg as rrg_mod,
+    taylor_rule as taylor_rule_mod,
     treasury_auctions as treasury_auctions_mod,
     vol_dashboard as vol_dashboard_mod,
     world_indices as world_indices_mod,
@@ -2499,3 +2504,48 @@ def net_liquidity() -> dict:
 @app.get("/api/news-sentiment/{symbol}")
 def news_sentiment(symbol: str) -> dict:
     return news_sentiment_mod.news_sentiment(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave I: Earnings-Quality Scorecard (Piotroski/Altman/Beneish)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/earnings-quality/{symbol}")
+def earnings_quality(symbol: str) -> dict:
+    return earnings_quality_mod.earnings_quality(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave I: Market-Wide Fear & Greed Index
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/fear-greed")
+def fear_greed() -> dict:
+    return fear_greed_mod.fear_greed()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave I: Crack Spreads & Refining Margins (CRK)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/crack-spreads")
+def crack_spreads() -> dict:
+    return crack_spreads_mod.crack_spreads()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave I: Inter-Commodity Spreads & Ratios
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/commodity-spreads")
+def commodity_spreads() -> dict:
+    return commodity_spreads_mod.commodity_spreads()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave I: Taylor Rule / Policy-Rule Estimator (TAYL)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/taylor-rule")
+def taylor_rule() -> dict:
+    return taylor_rule_mod.taylor_rule()

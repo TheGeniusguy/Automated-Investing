@@ -474,15 +474,15 @@ waves of five down the list.
 
 ### Wave I (ranks 6-10)
 
-- [ ] **6. Earnings-Quality Scorecard (F/Z/M-Score)** [HIGH / medium effort] - Piotroski F-Score, Altman Z-Score, Beneish M-Score, and an accruals ratio from EDGAR financials to flag accounting red flags, distress, and earnings-manipulation likelihood per ticker.
+- [x] **6. Earnings-Quality Scorecard (F/Z/M-Score)** [HIGH / medium effort] - Piotroski F-Score, Altman Z-Score, Beneish M-Score, and an accruals ratio from EDGAR financials to flag accounting red flags, distress, and earnings-manipulation likelihood per ticker.
       _Why this rank:_ Distinctive forensic-accounting differentiator; a single 'red flag' verdict screen is highly demo-able.
-- [ ] **7. Market-Wide Fear/Greed Sentiment Index `NSTM`** [med / low effort] - Aggregate per-headline sentiment across the watchlist/index universe into a single -100..+100 market-mood gauge with history and breadth (% of tickers net-positive), reusing the lexicon scoring from the per-ticker engine.
+- [x] **7. Market-Wide Fear/Greed Sentiment Index `NSTM`** [med / low effort] - Aggregate per-headline sentiment across the watchlist/index universe into a single -100..+100 market-mood gauge with history and breadth (% of tickers net-positive), reusing the lexicon scoring from the per-ticker engine.
       _Why this rank:_ Extremely shareable, marketing-friendly gauge; near-free once the per-ticker sentiment engine (rank 5) exists.
-- [ ] **8. Crack Spreads & Refining Margins (3-2-1) `CRK`** [HIGH / low effort] - 3-2-1 / 5-3-2 crack spread and gasoline/distillate refining margins computed live from CL/RB/HO front-month futures (2*RB + 1*HO - 3*CL per bbl) with historical band and seasonality context.
+- [x] **8. Crack Spreads & Refining Margins (3-2-1) `CRK`** [HIGH / low effort] - 3-2-1 / 5-3-2 crack spread and gasoline/distillate refining margins computed live from CL/RB/HO front-month futures (2*RB + 1*HO - 3*CL per bbl) with historical band and seasonality context.
       _Why this rank:_ Pure arithmetic on futures we already pull; a recognizable energy-desk staple with high signal.
-- [ ] **9. Inter-Commodity Spreads & Ratios** [HIGH / low effort] - Gold/silver, gold/oil, WTI-Brent, gas/oil BTU ratio and soybean board crush, each derived arithmetically from yfinance front-month futures with percentile/z-score history.
+- [x] **9. Inter-Commodity Spreads & Ratios** [HIGH / low effort] - Gold/silver, gold/oil, WTI-Brent, gas/oil BTU ratio and soybean board crush, each derived arithmetically from yfinance front-month futures with percentile/z-score history.
       _Why this rank:_ Several classic desk spreads from data on hand; cheap breadth across the commodity complex.
-- [ ] **10. Taylor Rule / Policy-Rule Estimator `TAYL`** [HIGH / low effort] - Taylor, balanced-approach and inertial rule-implied fed funds from the inflation gap and unemployment/output gap, overlaid on the actual rate with restrictive/accommodative labeling; fully from FRED (PCEPILFE, UNRATE, NROU).
+- [x] **10. Taylor Rule / Policy-Rule Estimator `TAYL`** [HIGH / low effort] - Taylor, balanced-approach and inertial rule-implied fed funds from the inflation gap and unemployment/output gap, overlaid on the actual rate with restrictive/accommodative labeling; fully from FRED (PCEPILFE, UNRATE, NROU).
       _Why this rank:_ Low-effort, high-IQ macro screen that visibly 'judges' the Fed; great talking-point in demos.
 
 ### Further backlog (ranks 11-40)
