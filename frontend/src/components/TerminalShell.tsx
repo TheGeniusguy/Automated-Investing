@@ -56,6 +56,17 @@ import { TickerDossierPanel } from "./TickerDossierPanel";
 import { WatchlistsPanel } from "./WatchlistsPanel";
 import { WeightedPortfolioPanel } from "./WeightedPortfolioPanel";
 import { YieldCurvePanel } from "./YieldCurvePanel";
+// Bloomberg Waves D + E
+import { FXAnalyticsPanel } from "./FXAnalyticsPanel";
+import { CommoditiesCurvePanel } from "./CommoditiesCurvePanel";
+import { EstimatesPanel } from "./EstimatesPanel";
+import { CreditCurvesPanel } from "./CreditCurvesPanel";
+import { AlertsPanel } from "./AlertsPanel";
+import { EconSurprisePanel } from "./EconSurprisePanel";
+import { SeasonalityPanel } from "./SeasonalityPanel";
+import { FactorAnalysisPanel } from "./FactorAnalysisPanel";
+import { MonteCarloPanel } from "./MonteCarloPanel";
+import { ShortInterestPanel } from "./ShortInterestPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -109,6 +120,17 @@ const LAYOUT: Layout[] = [
   { i: "backtest",           x: 0, y: 1102, w: 12, h: 32, minW: 6, minH: 18 },
   { i: "bond-analytics",     x: 0, y: 1134, w: 12, h: 30, minW: 6, minH: 16 },
   { i: "cot",                x: 0, y: 1164, w: 12, h: 30, minW: 6, minH: 16 },
+  // Bloomberg Waves D + E (appended at the bottom, non-overlapping)
+  { i: "fx-analytics",       x: 0, y: 1194, w: 12, h: 28, minW: 6, minH: 16 },
+  { i: "commodities-curve",  x: 0, y: 1222, w: 12, h: 30, minW: 6, minH: 16 },
+  { i: "estimates",          x: 0, y: 1252, w: 12, h: 30, minW: 6, minH: 16 },
+  { i: "credit-curves",      x: 0, y: 1282, w: 12, h: 28, minW: 6, minH: 16 },
+  { i: "alerts",             x: 0, y: 1310, w: 12, h: 28, minW: 6, minH: 16 },
+  { i: "econ-surprise",      x: 0, y: 1338, w: 12, h: 26, minW: 6, minH: 14 },
+  { i: "seasonality",        x: 0, y: 1364, w: 12, h: 30, minW: 6, minH: 16 },
+  { i: "factor-analysis",    x: 0, y: 1394, w: 12, h: 28, minW: 6, minH: 16 },
+  { i: "montecarlo",         x: 0, y: 1422, w: 12, h: 32, minW: 6, minH: 18 },
+  { i: "short-interest",     x: 0, y: 1454, w: 12, h: 28, minW: 6, minH: 16 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -343,6 +365,36 @@ export function TerminalShell() {
               </div>
               <div key="cot" data-panel-key="cot">
                 <ErrorBoundary label="Positioning (COT)"><COTPositioningPanel /></ErrorBoundary>
+              </div>
+              <div key="fx-analytics" data-panel-key="fx-analytics">
+                <ErrorBoundary label="FX Analytics"><FXAnalyticsPanel /></ErrorBoundary>
+              </div>
+              <div key="commodities-curve" data-panel-key="commodities-curve">
+                <ErrorBoundary label="Commodities Curve"><CommoditiesCurvePanel /></ErrorBoundary>
+              </div>
+              <div key="estimates" data-panel-key="estimates">
+                <ErrorBoundary label="Analyst Estimates"><EstimatesPanel /></ErrorBoundary>
+              </div>
+              <div key="credit-curves" data-panel-key="credit-curves">
+                <ErrorBoundary label="Credit & CDS"><CreditCurvesPanel /></ErrorBoundary>
+              </div>
+              <div key="alerts" data-panel-key="alerts">
+                <ErrorBoundary label="Alerts"><AlertsPanel /></ErrorBoundary>
+              </div>
+              <div key="econ-surprise" data-panel-key="econ-surprise">
+                <ErrorBoundary label="Econ Surprise"><EconSurprisePanel /></ErrorBoundary>
+              </div>
+              <div key="seasonality" data-panel-key="seasonality">
+                <ErrorBoundary label="Seasonality"><SeasonalityPanel /></ErrorBoundary>
+              </div>
+              <div key="factor-analysis" data-panel-key="factor-analysis">
+                <ErrorBoundary label="Factor Analysis"><FactorAnalysisPanel /></ErrorBoundary>
+              </div>
+              <div key="montecarlo" data-panel-key="montecarlo">
+                <ErrorBoundary label="Monte Carlo"><MonteCarloPanel /></ErrorBoundary>
+              </div>
+              <div key="short-interest" data-panel-key="short-interest">
+                <ErrorBoundary label="Short Interest"><ShortInterestPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>
