@@ -21,7 +21,9 @@ from .data import (
     data_health as data_health_mod,
     drawings as drawings_mod,
     earnings as earnings_mod,
+    econ_deep as econ_deep_mod,
     eia_energy,
+    etf_tracking as etf_tracking_mod,
     fixed_income as fixed_income_mod,
     fred_catalog,
     fx as fx_mod,
@@ -79,6 +81,10 @@ from .portfolio.comparison import compare_portfolios
 from .portfolio import tax as ptax
 from .portfolio import rebalancing as prebal
 from .portfolio import csv_import as pcsv
+from .portfolio import weighted as weighted_mod
+from .portfolio import metrics_ext as metrics_ext_mod
+from .paper import engine as paper_mod
+from .proforma import model as proforma_mod
 from .etf.compare import compare_tickers
 from .compare import engine as compare_engine
 from .regime import regime_model, regime_model_v2, stress_test as stress_test_mod
@@ -1505,6 +1511,18 @@ def nowcast_composite() -> dict:
     return nowcast_mod.composite()
 
 
+# ---- Deep economic data (v2 Feature F) ----
+
+@app.get("/api/economy/deep")
+def economy_deep() -> dict:
+    return econ_deep_mod.deep_economy()
+
+
+@app.get("/api/economy/category/{cat}")
+def economy_category(cat: str) -> dict:
+    return econ_deep_mod.econ_category(cat)
+
+
 # ---- Series stats + transforms ----
 
 @app.get("/api/macro/series-detail/{series_id}")
@@ -1818,6 +1836,125 @@ def etf_compare(symbols: str, days: int = 252, benchmark: str = "SPY"):
     if not syms:
         raise HTTPException(400, "Provide at least one symbol")
     return compare_tickers(syms, lookback_days=days, benchmark=benchmark)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# v2 Feature A: Advanced analytics metrics
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/analytics/advanced")
+def analytics_advanced(symbol: str = "SPY", benchmark: str = "SPY", days: int = 756) -> dict:
+    from datetime import datetime, timezone
+
+    def _simple_returns(sym: str) -> list[float]:
+        pts = macro_data.fetch_arbitrary_ticker(sym, days=days)
+        vals = [p["value"] for p in pts if p.get("value") is not None]
+        rets: list[float] = []
+        for i in range(1, len(vals)):
+            prev = vals[i - 1]
+            if prev:
+                rets.append(vals[i] / prev - 1.0)
+        return rets
+
+    sym_returns = _simple_returns(symbol)
+    bench_returns = _simple_returns(benchmark)
+    metrics = metrics_ext_mod.compute_extended_metrics(sym_returns, bench_returns)
+    rolling_sharpe = metrics.get("rolling_sharpe", []) if isinstance(metrics, dict) else []
+    return {
+        "symbol": symbol,
+        "benchmark": benchmark,
+        "days": days,
+        "metrics": metrics,
+        "rolling_sharpe": rolling_sharpe,
+        "data_mode": "live" if sym_returns else "sample",
+        "as_of": datetime.now(timezone.utc).isoformat(),
+        "source": "yfinance",
+    }
+
+
+@app.get("/api/analytics/catalog")
+def analytics_catalog() -> dict:
+    return {"metrics": metrics_ext_mod.validate_available_metrics()}
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# v2 Feature B: Paper trading portfolio
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/paper/portfolios")
+def paper_portfolios() -> list:
+    return paper_mod.list_paper_portfolios()
+
+
+@app.post("/api/paper/portfolios")
+def paper_create(body: dict) -> dict:
+    # body: {name, starting_cash?}
+    return paper_mod.create_paper_portfolio(
+        name=body["name"],
+        starting_cash=float(body.get("starting_cash", 100000)),
+    )
+
+
+@app.get("/api/paper/portfolios/{pid}")
+def paper_overview(pid: int) -> dict:
+    return paper_mod.get_paper_overview(pid)
+
+
+@app.post("/api/paper/portfolios/{pid}/orders")
+def paper_order(pid: int, body: dict) -> dict:
+    # body: {symbol, side, quantity, order_type?, limit_price?}
+    return paper_mod.place_paper_order(
+        pid,
+        symbol=body["symbol"],
+        side=body["side"],
+        quantity=float(body["quantity"]),
+        order_type=body.get("order_type", "market"),
+        limit_price=body.get("limit_price"),
+    )
+
+
+@app.post("/api/paper/portfolios/{pid}/reset")
+def paper_reset(pid: int) -> dict:
+    return paper_mod.reset_paper_portfolio(pid)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# v2 Feature C: Weighted / model portfolio tracking
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.post("/api/weighted/analyze")
+def weighted_analyze(body: dict) -> dict:
+    # body: {holdings, days?, benchmark?, notional?}
+    return weighted_mod.analyze_weighted_portfolio(
+        body["holdings"],
+        days=int(body.get("days", 365)),
+        benchmark=body.get("benchmark", "SPY"),
+        notional=float(body.get("notional", 100000)),
+    )
+
+
+@app.get("/api/weighted/sample")
+def weighted_sample(days: int = 365) -> dict:
+    return weighted_mod.analyze_weighted_portfolio(weighted_mod.SAMPLE_MODEL_BOOK, days=days)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# v2 Feature D: ETF tracking dashboard
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/etf/track")
+def etf_track(symbols: str = "SPY,QQQ,IWM,DIA", days: int = 365) -> dict:
+    syms = [s.strip().upper() for s in symbols.split(",") if s.strip()]
+    return etf_tracking_mod.track_etfs(syms, days=days)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# v2 Feature E: IB-level Pro Forma modeling
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/proforma")
+def proforma(ticker: str = "AAPL") -> dict:
+    return proforma_mod.proforma_overview(ticker)
 
 
 # ── Cross-Asset: Crypto / FX / Fixed Income ──────────────────────────────────

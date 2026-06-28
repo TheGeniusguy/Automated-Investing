@@ -3,6 +3,7 @@ import GridLayout, { type Layout } from "react-grid-layout";
 
 import { api } from "../api/client";
 import type { HealthResponse } from "../api/types";
+import { AdvancedAnalyticsPanel } from "./AdvancedAnalyticsPanel";
 import { ChatPanel } from "./ChatPanel";
 import { CommandPalette } from "./CommandPalette";
 import { ComparePanel } from "./ComparePanel";
@@ -12,10 +13,12 @@ import { FixedIncomePanel } from "./FixedIncomePanel";
 import { FXPanel } from "./FXPanel";
 import { DailyBriefingPanel } from "./DailyBriefingPanel";
 import { DataInfraPanel } from "./DataInfraPanel";
+import { DeepEconomyPanel } from "./DeepEconomyPanel";
 import { EarningsPanel } from "./EarningsPanel";
 import { EnergyPanel } from "./EnergyPanel";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { ETFComparePanel } from "./ETFComparePanel";
+import { ETFTrackingPanel } from "./ETFTrackingPanel";
 import { EventsCalendarPanel } from "./EventsCalendarPanel";
 import { FilingsPanel } from "./FilingsPanel";
 import { FundamentalsBrowser } from "./FundamentalsBrowser";
@@ -32,6 +35,8 @@ import { MacroPinboard } from "./MacroPinboard";
 import { MacroRegimeTracker } from "./MacroRegimeTracker";
 import { NewsPanel } from "./NewsPanel";
 import { OptionsPanel } from "./OptionsPanel";
+import { PaperTradingPanel } from "./PaperTradingPanel";
+import { ProFormaPanel } from "./ProFormaPanel";
 import { RealEstatePanel } from "./RealEstatePanel";
 import { RecessionDashboard } from "./RecessionDashboard";
 import { RegimeJournal } from "./RegimeJournal";
@@ -44,6 +49,7 @@ import { Sidebar } from "./Sidebar";
 import { TechnicalIndicatorsPanel } from "./TechnicalIndicatorsPanel";
 import { TickerDossierPanel } from "./TickerDossierPanel";
 import { WatchlistsPanel } from "./WatchlistsPanel";
+import { WeightedPortfolioPanel } from "./WeightedPortfolioPanel";
 import { YieldCurvePanel } from "./YieldCurvePanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
@@ -86,6 +92,13 @@ const LAYOUT: Layout[] = [
   { i: "investment-compare", x: 0, y: 788, w: 12, h: 34, minW: 6, minH: 18 },
   { i: "market-news",     x: 0, y: 822, w: 12, h: 20, minW: 6, minH: 12 },
   { i: "market-insiders", x: 0, y: 842, w: 12, h: 24, minW: 6, minH: 14 },
+  // v2 wave: Analytics + Modeling + Deep Economy (appended at the bottom)
+  { i: "advanced-analytics", x: 0, y: 866,  w: 12, h: 26, minW: 6, minH: 16 },
+  { i: "proforma",           x: 0, y: 892,  w: 12, h: 36, minW: 6, minH: 20 },
+  { i: "weighted-portfolio", x: 0, y: 928,  w: 12, h: 28, minW: 6, minH: 16 },
+  { i: "paper-trading",      x: 0, y: 956,  w: 12, h: 28, minW: 6, minH: 16 },
+  { i: "etf-tracking",       x: 0, y: 984,  w: 12, h: 28, minW: 6, minH: 16 },
+  { i: "deep-economy",       x: 0, y: 1012, w: 12, h: 30, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -287,6 +300,24 @@ export function TerminalShell() {
               </div>
               <div key="market-insiders" data-panel-key="market-insiders">
                 <ErrorBoundary label="Market Insiders"><MarketInsidersPanel /></ErrorBoundary>
+              </div>
+              <div key="advanced-analytics" data-panel-key="advanced-analytics">
+                <ErrorBoundary label="Advanced Analytics"><AdvancedAnalyticsPanel /></ErrorBoundary>
+              </div>
+              <div key="proforma" data-panel-key="proforma">
+                <ErrorBoundary label="Pro Forma Modeling"><ProFormaPanel /></ErrorBoundary>
+              </div>
+              <div key="weighted-portfolio" data-panel-key="weighted-portfolio">
+                <ErrorBoundary label="Weighted Portfolio"><WeightedPortfolioPanel /></ErrorBoundary>
+              </div>
+              <div key="paper-trading" data-panel-key="paper-trading">
+                <ErrorBoundary label="Paper Trading"><PaperTradingPanel /></ErrorBoundary>
+              </div>
+              <div key="etf-tracking" data-panel-key="etf-tracking">
+                <ErrorBoundary label="ETF Tracking"><ETFTrackingPanel /></ErrorBoundary>
+              </div>
+              <div key="deep-economy" data-panel-key="deep-economy">
+                <ErrorBoundary label="Deep Economy"><DeepEconomyPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>

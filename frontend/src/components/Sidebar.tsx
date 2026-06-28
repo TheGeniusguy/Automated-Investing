@@ -28,6 +28,17 @@ export const NAV_SECTIONS = [
       { key: "macro-heatmap", label: "Heatmap" },
       { key: "pinboard", label: "Pinboard" },
       { key: "macro-explorer", label: "Explorer" },
+      { key: "deep-economy", label: "Deep Economy" },
+    ],
+  },
+  {
+    label: "Analytics",
+    items: [
+      { key: "advanced-analytics", label: "Advanced Analytics" },
+      { key: "proforma", label: "Pro Forma Modeling" },
+      { key: "weighted-portfolio", label: "Weighted Portfolio" },
+      { key: "paper-trading", label: "Paper Trading" },
+      { key: "etf-tracking", label: "ETF Tracking" },
     ],
   },
   {
