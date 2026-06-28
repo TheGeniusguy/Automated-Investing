@@ -53,7 +53,41 @@ export interface HealthResponse {
   status: string;
   fred_configured: boolean;
   anthropic_configured: boolean;
+  uw_configured: boolean;
   claude_model: string;
+}
+
+// ---------- Unusual Whales: Market News + Market Insiders ----------
+
+export interface MarketNewsItem {
+  id: string; title: string; url: string; source: string;
+  published: string | null; tickers: string[];
+  sentiment: string | null; is_major: boolean; tags: string[]; summary: string;
+}
+export interface MarketNewsResponse {
+  items: MarketNewsItem[]; count: number;
+  configured: boolean; degraded: boolean; error: string | null;
+  fetched_at: string; source: string;
+}
+export interface MarketInsiderTransaction {
+  ticker: string; company: string | null;
+  insider_name: string; insider_title: string | null;
+  is_director: boolean; is_officer: boolean; is_ten_pct: boolean;
+  txn_date: string | null; filing_date: string | null;
+  txn_code: string; direction: "buy" | "sell" | "other";
+  shares: number | null; price: number | null; value: number | null;
+  shares_after: number | null; source_url: string | null;
+}
+export interface MarketInsiderSummary {
+  total: number; buy_count: number; sell_count: number;
+  buy_value: number; sell_value: number; net_value: number;
+  unique_tickers: number; unique_insiders: number; buy_sell_ratio: number;
+}
+export interface MarketInsidersResponse {
+  transactions: MarketInsiderTransaction[]; summary: MarketInsiderSummary;
+  count: number; configured: boolean; degraded: boolean; error: string | null;
+  fetched_at: string; filters: { direction: string; min_value: number; ticker: string | null };
+  source: string;
 }
 
 // ---------- Panel 2: Regime Journal ----------
@@ -2433,4 +2467,431 @@ export interface DossierResponse {
   news: NewsItem[];
   filings: DossierFiling[];
   options: ChainSummary | null;
+}
+
+// ── v2 Feature A: Advanced analytics metrics ─────────────────────────────────
+// Mirrors backend/app/portfolio/metrics_ext.py (compute_extended_metrics +
+// validate_available_metrics) and the GET /api/analytics/advanced route.
+export interface ExtendedMetrics {
+  information_ratio: number | null;
+  treynor_ratio: number | null;
+  omega_ratio: number | null;
+  ulcer_index: number | null;
+  martin_ratio: number | null;
+  tail_ratio: number | null;
+  gain_to_pain: number | null;
+  common_sense_ratio: number | null;
+  kelly_fraction: number | null;
+  skew: number | null;
+  kurtosis: number | null;
+  downside_deviation: number | null;
+  upside_capture: number | null;
+  downside_capture: number | null;
+  cagr: number | null;
+  ann_vol: number | null;
+  max_drawdown: number | null;
+  max_drawdown_duration_days: number | null;
+  recovery_days: number | null;
+  // compute_extended_metrics also nests the rolling series under this key.
+  rolling_sharpe?: number[];
+}
+
+export interface AdvancedAnalyticsResponse {
+  symbol: string;
+  benchmark: string;
+  days: number;
+  metrics: ExtendedMetrics;
+  rolling_sharpe: number[];
+  data_mode: "live" | "sample";
+  as_of: string;
+  source: string;
+}
+
+// One catalog entry from validate_available_metrics() / GET /api/analytics/catalog.
+export interface MetricCatalogItem {
+  key: string;
+  name: string;
+  formula: string;
+  inputs: string[];
+  category: string;
+}
+
+export interface AnalyticsCatalogResponse {
+  metrics: MetricCatalogItem[];
+}
+
+// ── v2 Feature B: Paper trading portfolio ────────────────────────────────────
+// Mirrors backend/app/paper/engine.py.
+export interface PaperPortfolio {
+  id: number;
+  name: string;
+  starting_cash: number;
+  created_at: string | null;
+  // create_paper_portfolio tags the payload; absent on plain list rows.
+  data_mode?: "live" | "sample";
+  as_of?: string;
+  source?: string;
+}
+
+export interface PaperPosition {
+  symbol: string;
+  shares: number;
+  avg_cost: number;
+  total_cost: number;
+  current_price: number;
+  market_value: number;
+  unrealized_pl: number;
+  unrealized_pl_pct: number;
+  realized_pl: number;
+  total_pl: number;
+  weight: number;
+}
+
+export interface PaperOrder {
+  id: number;
+  portfolio_id: number;
+  symbol: string;
+  side: string;
+  quantity: number;
+  order_type: string;
+  limit_price: number | null;
+  base_price: number | null;
+  fill_price: number | null;
+  commission: number;
+  slippage_cost: number;
+  status: string;
+  trade_date: string | null;
+  filled_at: string | null;
+  // place_paper_order tags the fill; absent on orders inside an overview.
+  data_mode?: "live" | "sample";
+  as_of?: string;
+  source?: string;
+}
+
+export interface PaperExecution {
+  buying_power: number;
+  margin_used: number;
+  gross_exposure: number;
+  commissions_paid: number;
+  est_slippage_cost: number;
+  fill_count: number;
+  win_rate: number;
+  closed_trades: number;
+}
+
+export interface PaperOverview {
+  portfolio: PaperPortfolio;
+  positions: PaperPosition[];
+  orders: PaperOrder[];
+  starting_cash: number;
+  cash: number;
+  market_value: number;
+  equity: number;
+  total_pl: number;
+  total_pl_pct: number;
+  realized_pl: number;
+  unrealized_pl: number;
+  position_count: number;
+  execution: PaperExecution;
+  data_mode: "live" | "sample";
+  as_of: string;
+  source: string;
+}
+
+// ── v2 Feature C: Weighted / model portfolio tracking ────────────────────────
+// Mirrors backend/app/portfolio/weighted.py (analyze_weighted_portfolio).
+export interface WeightedHolding {
+  symbol: string;
+  target_weight: number;
+}
+
+export interface WeightedContribution {
+  symbol: string;
+  target_weight: number;
+  return_pct: number;
+  contribution_pct: number;
+}
+
+export interface WeightedDrift {
+  symbol: string;
+  target_weight: number;
+  current_weight: number;
+  drift_pct: number;
+}
+
+export interface WeightedRebalance {
+  symbol: string;
+  target_weight: number;
+  current_weight: number;
+  delta_pct: number;
+  suggested_dollars: number;
+  action: string;
+}
+
+export interface WeightedRisk {
+  weighted_vol_pct: number | null;
+  benchmark_vol_pct: number | null;
+  correlation_to_benchmark: number | null;
+  tracking_error_pct: number | null;
+}
+
+export interface WeightedCurves {
+  dates: string[];
+  book: number[];
+  benchmark: number[];
+}
+
+export interface WeightedAnalysis {
+  holdings: WeightedHolding[];
+  benchmark: string;
+  days: number;
+  notional: number;
+  curves: WeightedCurves;
+  weighted_total_return_pct: number | null;
+  benchmark_total_return_pct: number | null;
+  contributions: WeightedContribution[];
+  drift: WeightedDrift[];
+  risk: WeightedRisk;
+  rebalance: WeightedRebalance[];
+  data_mode: "live" | "sample";
+  as_of: string;
+  source: string;
+}
+
+// ── v2 Feature D: ETF tracking dashboard ─────────────────────────────────────
+// Mirrors backend/app/data/etf_tracking.py (track_etfs).
+export interface ETFSectorExposure {
+  sector: string;
+  weight: number;
+}
+
+export interface ETFHolding {
+  symbol: string;
+  name: string;
+  weight: number | null;
+}
+
+export interface ETFPerf {
+  "1M": number | null;
+  "3M": number | null;
+  "6M": number | null;
+  "1Y": number | null;
+  YTD: number | null;
+  ALL: number | null;
+  // perf is indexed by dynamic window keys in the panel.
+  [window: string]: number | null;
+}
+
+export interface ETFTrackingItem {
+  symbol: string;
+  name: string;
+  perf: ETFPerf;
+  expense_ratio: number | null;
+  expense_ratio_pct: number | null;
+  aum: number | null;
+  aum_display: string | null;
+  yield: number | null;
+  yield_pct: number | null;
+  sectors: ETFSectorExposure[];
+  holdings: ETFHolding[];
+  tracking_error: number | null;
+  beta: number | null;
+  data_mode: "live" | "sample";
+}
+
+// Alias consumed by ETFTrackingPanel for a single tracked ETF entry.
+export type ETFTrackEntry = ETFTrackingItem;
+
+export interface ETFTrackingResponse {
+  symbols: string[];
+  benchmark: string;
+  days: number;
+  data_points: number;
+  etfs: Record<string, ETFTrackingItem>;
+  curves: {
+    dates: string[];
+    series: Record<string, number[]>;
+  };
+  overlap_matrix: {
+    labels: string[];
+    matrix: number[][];
+  };
+  data_mode: "live" | "sample";
+  as_of: string;
+  source: string;
+}
+
+// ── v2 Feature E: IB-level Pro Forma modeling ────────────────────────────────
+// Mirrors backend/app/proforma/model.py (proforma_overview). The statement rows
+// and several sub-blocks are intentionally dynamic; documented top-level keys
+// are typed, deeply nested shapes use index signatures.
+export type ProFormaRow = Record<string, number | string | null>;
+
+export interface ProFormaThreeStatement {
+  company_name: string | null;
+  ticker: string | null;
+  currency: string;
+  units: string;
+  projection_years: number;
+  income_statement: ProFormaRow[];
+  balance_sheet: ProFormaRow[];
+  cash_flow: ProFormaRow[];
+  drivers: Record<string, unknown>;
+  ties: { balanced: boolean; detail?: ProFormaRow[] };
+}
+
+export interface ProFormaStatBlock {
+  min: number | null;
+  median: number | null;
+  mean: number | null;
+  max: number | null;
+}
+
+export interface ProFormaSensitivity {
+  metric: string;
+  method: string;
+  wacc_axis: (number | null)[];
+  growth_axis: (number | null)[];
+  rows: { wacc: number | null; prices: (number | null)[] }[];
+}
+
+export interface ProFormaDcf {
+  wacc: Record<string, number | null>;
+  fcf: ProFormaRow[];
+  pv_fcf: ProFormaRow[];
+  pv_fcf_sum: number | null;
+  terminal_value: {
+    gordon_growth: Record<string, number | null>;
+    exit_multiple: Record<string, number | null>;
+  };
+  net_debt: number | null;
+  shares_outstanding: number | null;
+  enterprise_value: number | null;
+  equity_value: number | null;
+  implied_share_price: number | null;
+  implied_price_gordon: number | null;
+  implied_price_exit: number | null;
+  sensitivity: ProFormaSensitivity;
+}
+
+export interface ProFormaComps {
+  peers: ProFormaRow[];
+  target: ProFormaRow | null;
+  multiples: string[];
+  stats: Record<string, ProFormaStatBlock>;
+  implied: Record<string, unknown>;
+}
+
+export interface ProFormaScenarioCase {
+  case: string;
+  label: string;
+  implied_price: number | null;
+  assumptions: Record<string, number | null>;
+  upside_vs_base?: number | null;
+}
+
+export interface ProFormaTornadoItem {
+  driver: string;
+  label: string;
+  low_input: number | null;
+  high_input: number | null;
+  low_price: number | null;
+  high_price: number | null;
+  swing: number | null;
+}
+
+export interface ProFormaScenario {
+  base_price: number | null;
+  cases: ProFormaScenarioCase[];
+  tornado: ProFormaTornadoItem[];
+}
+
+export interface ProFormaResponse {
+  ticker: string | null;
+  company_name: string | null;
+  inputs: Record<string, unknown>;
+  three_statement: ProFormaThreeStatement;
+  dcf: ProFormaDcf;
+  comps: ProFormaComps;
+  scenario: ProFormaScenario;
+  data_mode: "live" | "sample";
+  as_of: string;
+  source: string;
+}
+
+// ── v2 Feature F: Deep economic data ─────────────────────────────────────────
+// Mirrors backend/app/data/econ_deep.py (deep_economy + econ_category).
+export interface EconSeries {
+  id: string;
+  label: string;
+  latest: number;
+  unit: string;
+  change: number;
+  spark: number[];
+  zscore: number;
+  trend: string;
+  sense: string;
+  signed_z: number;
+  percentile: number;
+  // Present only on the econ_category drill-down.
+  history?: { date: string; value: number }[];
+  stats?: {
+    min: number;
+    max: number;
+    mean: number;
+    std: number;
+    percentile: number;
+  };
+}
+
+export interface EconCategory {
+  name: string;
+  series: EconSeries[];
+  heat: number;
+  diffusion: string;
+  diffusion_read: string;
+  improving: number;
+  total: number;
+  avg_signed_z: number;
+  // Present only on the econ_category drill-down payload.
+  history_points?: number;
+  data_mode?: "live" | "sample";
+  as_of?: string;
+  source?: string;
+}
+
+export interface DeepEconomyResponse {
+  categories: EconCategory[];
+  composite_z: number;
+  regime_read: string;
+  category_signed_z: Record<string, number>;
+  category_count: number;
+  series_count: number;
+  data_mode: "live" | "sample";
+  as_of: string;
+  source: string;
+}
+
+// ── Bloomberg Wave C: Fed rate path (WIRP)
+export interface RatePathMeeting {
+  date: string;
+  implied_rate: number;
+  cut: number;
+  hold: number;
+  hike: number;
+}
+export interface RatePath {
+  implied_path: RatePathMeeting[];
+  terminal_rate: number;
+  cuts_priced: number;
+  current_target: number;
+  data_mode: string;
+  as_of: string;
+  source: string;
+}
+export interface RateProbabilities {
+  meetings: RatePathMeeting[];
+  data_mode: string;
+  as_of: string;
+  source: string;
 }

@@ -88,7 +88,7 @@ export function DailyBriefingPanel() {
               onClick={generate}
               disabled={status === "streaming"}
               className={
-                "text-2xs uppercase tracking-wider transition normal-case tracking-normal " +
+                "text-2xs normal-case tracking-normal transition " +
                 (status === "streaming"
                   ? "text-accent-amber opacity-60 cursor-wait"
                   : "text-terminal-muted hover:text-accent-amber")
@@ -101,7 +101,7 @@ export function DailyBriefingPanel() {
                   : "generate briefing"}
             </button>
           </div>
-          <div ref={bodyRef} className="panel-body whitespace-pre-wrap leading-relaxed">
+          <div ref={bodyRef} className="panel-body whitespace-pre-wrap font-sans text-[15px] leading-relaxed">
             {err && <div className="text-accent-red mb-2">⚠ {err}</div>}
             {!err && !text && status === "idle" && (
               <div className="text-terminal-dim">
@@ -179,7 +179,7 @@ function ContextSidebar({ context }: { context: DailyBriefingContext | null }) {
                   {b.a} <span className="text-terminal-dim">↔</span> {b.b}
                   {b.flipped && <span className="ml-1 text-accent-red">FLIP</span>}
                 </span>
-                <span className="text-accent-amber tabular-nums">
+                <span className="text-accent-amber font-mono tabular-nums">
                   {b.delta !== null ? (b.delta >= 0 ? "+" : "") + (b.delta ?? 0).toFixed(2) : "—"}
                 </span>
               </li>
@@ -193,7 +193,7 @@ function ContextSidebar({ context }: { context: DailyBriefingContext | null }) {
               {context.upcoming_earnings.map((e) => (
                 <li key={e.symbol} className="flex justify-between">
                   <span className="text-accent-amber">{e.symbol}</span>
-                  <span className="text-terminal-muted tabular-nums">{e.date} ({e.in_days}d)</span>
+                  <span className="text-terminal-muted font-mono tabular-nums">{e.date} ({e.in_days}d)</span>
                 </li>
               ))}
             </ul>
@@ -206,7 +206,7 @@ function ContextSidebar({ context }: { context: DailyBriefingContext | null }) {
               {context.recent_8k.slice(0, 6).map((f, i) => (
                 <li key={i} className="flex justify-between gap-2">
                   <span className="text-accent-amber whitespace-nowrap">{f.ticker}</span>
-                  <span className="text-terminal-muted tabular-nums whitespace-nowrap">{f.filing_date}</span>
+                  <span className="text-terminal-muted font-mono tabular-nums whitespace-nowrap">{f.filing_date}</span>
                   <a
                     href={f.url} target="_blank" rel="noreferrer"
                     className="text-terminal-text truncate hover:text-accent-amber"
@@ -239,8 +239,8 @@ function ContextSidebar({ context }: { context: DailyBriefingContext | null }) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="px-3 py-2 border-b border-terminal-divider">
-      <div className="text-2xs uppercase tracking-wider text-terminal-muted mb-1">{title}</div>
+    <div className="px-4 py-2.5 border-b border-terminal-divider">
+      <div className="text-2xs uppercase tracking-wider text-terminal-muted mb-1.5">{title}</div>
       {children}
     </div>
   );
@@ -250,7 +250,7 @@ function Row({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex justify-between">
       <span className="text-terminal-muted">{k}</span>
-      <span className="text-terminal-text tabular-nums">{v}</span>
+      <span className="text-terminal-text font-mono tabular-nums">{v}</span>
     </div>
   );
 }

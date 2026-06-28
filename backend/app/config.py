@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     claude_model: str = "claude-sonnet-4-6"
 
+    unusual_whales_api_key: str = ""
+    unusual_whales_base_url: str = "https://api.unusualwhales.com"
+
     backend_host: str = "127.0.0.1"
     backend_port: int = 8000
     frontend_origin: str = "http://localhost:5173"
@@ -29,6 +32,10 @@ class Settings(BaseSettings):
     @property
     def has_anthropic(self) -> bool:
         return bool(self.anthropic_api_key)
+
+    @property
+    def has_unusual_whales(self) -> bool:
+        return bool(self.unusual_whales_api_key)
 
 
 settings = Settings()

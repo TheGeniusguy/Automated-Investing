@@ -1,4 +1,16 @@
 import type {
+  AdvancedAnalyticsResponse,
+  AnalyticsCatalogResponse,
+  DeepEconomyResponse,
+  RatePath,
+  RateProbabilities,
+  ETFTrackingResponse,
+  EconCategory,
+  PaperOrder,
+  PaperOverview,
+  PaperPortfolio,
+  ProFormaResponse,
+  WeightedAnalysis,
   CalendarUpcomingResponse,
   CalendarWeekResponse,
   ChartEventsResponse,
@@ -27,6 +39,8 @@ import type {
   InstrumentSearchResult,
   MacroCatalog,
   MacroSnapshot,
+  MarketInsidersResponse,
+  MarketNewsResponse,
   MultiIndicatorRequest,
   MultiIndicatorResponse,
   NewsFeed,
@@ -56,6 +70,18 @@ const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
 async function getJSON<T>(path: string): Promise<T> {
   const r = await fetch(`${API_BASE}${path}`);
+  if (!r.ok) {
+    throw new Error(`${r.status} ${r.statusText} — ${path}`);
+  }
+  return r.json() as Promise<T>;
+}
+
+async function postJSON<T>(path: string, body: unknown): Promise<T> {
+  const r = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body ?? {}),
+  });
   if (!r.ok) {
     throw new Error(`${r.status} ${r.statusText} — ${path}`);
   }
@@ -104,6 +130,19 @@ export const api = {
     getJSON<NewsFeed>(
       `/api/news/feed?tickers=${encodeURIComponent(tickers.join(","))}&per_ticker=${perTicker}&overall=${overall}`,
     ),
+
+  // ── Unusual Whales: Market News + Market Insiders
+  marketNews: (limit = 60, sources?: string) =>
+    getJSON<MarketNewsResponse>(
+      `/api/news/market?limit=${limit}${sources ? `&sources=${encodeURIComponent(sources)}` : ""}`),
+  marketInsiders: (opts: { limit?: number; direction?: string; minValue?: number; ticker?: string } = {}) => {
+    const p = new URLSearchParams();
+    p.set("limit", String(opts.limit ?? 100));
+    p.set("direction", opts.direction ?? "all");
+    p.set("min_value", String(opts.minValue ?? 0));
+    if (opts.ticker) p.set("ticker", opts.ticker);
+    return getJSON<MarketInsidersResponse>(`/api/insiders/market?${p.toString()}`);
+  },
 
   // Options
   vixTerm:        () => getJSON<VixTerm>("/api/options/vix-term"),
@@ -443,6 +482,70 @@ export const api = {
     getJSON<SearchResponse>(`/api/search?q=${encodeURIComponent(q)}&limit=${limit}`),
   tickerDossier: (symbol: string) =>
     getJSON<DossierResponse>(`/api/ticker/${encodeURIComponent(symbol)}/dossier`),
+
+  // ── v2 Feature A: Advanced analytics metrics
+  advancedAnalytics: (symbol = "SPY", benchmark = "SPY", days = 756) =>
+    getJSON<AdvancedAnalyticsResponse>(
+      `/api/analytics/advanced?symbol=${encodeURIComponent(symbol)}&benchmark=${encodeURIComponent(benchmark)}&days=${days}`,
+    ),
+  analyticsCatalog: () =>
+    getJSON<AnalyticsCatalogResponse>("/api/analytics/catalog"),
+
+  // ── v2 Feature B: Paper trading portfolio
+  paperList: () => getJSON<PaperPortfolio[]>("/api/paper/portfolios"),
+  paperCreate: (name: string, startingCash = 100000) =>
+    postJSON<PaperPortfolio>("/api/paper/portfolios", { name, starting_cash: startingCash }),
+  paperOverview: (pid: number) =>
+    getJSON<PaperOverview>(`/api/paper/portfolios/${pid}`),
+  paperOrder: (
+    pid: number,
+    body: { symbol: string; side: string; quantity: number; order_type?: string; limit_price?: number | null },
+  ) => postJSON<PaperOrder>(`/api/paper/portfolios/${pid}/orders`, body),
+  paperReset: (pid: number) =>
+    postJSON<PaperOverview>(`/api/paper/portfolios/${pid}/reset`, {}),
+
+  // ── v2 Feature C: Weighted / model portfolio tracking
+  weightedSample: (days = 365) =>
+    getJSON<WeightedAnalysis>(`/api/weighted/sample?days=${days}`),
+  weightedAnalyze: (
+    body: { holdings: { symbol: string; target_weight: number }[]; days?: number; benchmark?: string; notional?: number },
+  ) => postJSON<WeightedAnalysis>("/api/weighted/analyze", body),
+
+  // ── v2 Feature D: ETF tracking dashboard
+  etfTrack: (symbols: string[], days = 365) =>
+    getJSON<ETFTrackingResponse>(
+      `/api/etf/track?symbols=${encodeURIComponent(symbols.join(","))}&days=${days}`,
+    ),
+
+  // ── v2 Feature E: IB-level Pro Forma modeling
+  proforma: (ticker = "AAPL") =>
+    getJSON<ProFormaResponse>(`/api/proforma?ticker=${encodeURIComponent(ticker)}`),
+
+  // ── v2 Feature F: Deep economic data
+  deepEconomy: () => getJSON<DeepEconomyResponse>("/api/economy/deep"),
+  econCategory: (cat: string) =>
+    getJSON<EconCategory>(`/api/economy/category/${encodeURIComponent(cat)}`),
+
+  // ── Bloomberg Wave C (panels mirror these shapes as local interfaces;
+  //    returns are intentionally permissive so each panel binds its own types)
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  optionsGreeks: (symbol: string) =>
+    getJSON<any>(`/api/options/greeks/${encodeURIComponent(symbol)}`),
+  optionsSurface: (symbol: string) =>
+    getJSON<any>(`/api/options/surface/${encodeURIComponent(symbol)}`),
+  optionsGex: (symbol: string) =>
+    getJSON<any>(`/api/options/gex/${encodeURIComponent(symbol)}`),
+  optionsMaxPain: (symbol: string) =>
+    getJSON<any>(`/api/options/max-pain/${encodeURIComponent(symbol)}`),
+  ratePath: () => getJSON<RatePath>("/api/rates/path"),
+  rateProbabilities: () => getJSON<RateProbabilities>("/api/rates/probabilities"),
+  backtestStrategies: () => getJSON<any[]>("/api/backtest/strategies"),
+  backtestRun: (body: unknown) => postJSON<any>("/api/backtest/run", body),
+  bondUniverse: () => getJSON<any>("/api/bonds/universe"),
+  bondAnalyze: (body: unknown) => postJSON<any>("/api/bonds/analyze", body),
+  cotMarkets: () => getJSON<any>("/api/cot/markets"),
+  cotSeries: (market: string) => getJSON<any>(`/api/cot/${encodeURIComponent(market)}`),
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 };
 
 async function _jsonOrThrow(r: Response): Promise<unknown> {

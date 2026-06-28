@@ -3,6 +3,7 @@ import GridLayout, { type Layout } from "react-grid-layout";
 
 import { api } from "../api/client";
 import type { HealthResponse } from "../api/types";
+import { AdvancedAnalyticsPanel } from "./AdvancedAnalyticsPanel";
 import { ChatPanel } from "./ChatPanel";
 import { CommandPalette } from "./CommandPalette";
 import { ComparePanel } from "./ComparePanel";
@@ -12,10 +13,17 @@ import { FixedIncomePanel } from "./FixedIncomePanel";
 import { FXPanel } from "./FXPanel";
 import { DailyBriefingPanel } from "./DailyBriefingPanel";
 import { DataInfraPanel } from "./DataInfraPanel";
+import { DeepEconomyPanel } from "./DeepEconomyPanel";
+import { OptionsAnalyticsPanel } from "./OptionsAnalyticsPanel";
+import { RatePathPanel } from "./RatePathPanel";
+import { BacktestPanel } from "./BacktestPanel";
+import { BondAnalyticsPanel } from "./BondAnalyticsPanel";
+import { COTPositioningPanel } from "./COTPositioningPanel";
 import { EarningsPanel } from "./EarningsPanel";
 import { EnergyPanel } from "./EnergyPanel";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { ETFComparePanel } from "./ETFComparePanel";
+import { ETFTrackingPanel } from "./ETFTrackingPanel";
 import { EventsCalendarPanel } from "./EventsCalendarPanel";
 import { FilingsPanel } from "./FilingsPanel";
 import { FundamentalsBrowser } from "./FundamentalsBrowser";
@@ -26,10 +34,14 @@ import { InvestmentComparePanel } from "./InvestmentComparePanel";
 import { PortfolioPanel } from "./PortfolioPanel";
 import { MacroExplorer } from "./MacroExplorer";
 import { MacroHeatmap } from "./MacroHeatmap";
+import { MarketInsidersPanel } from "./MarketInsidersPanel";
+import { MarketNewsPanel } from "./MarketNewsPanel";
 import { MacroPinboard } from "./MacroPinboard";
 import { MacroRegimeTracker } from "./MacroRegimeTracker";
 import { NewsPanel } from "./NewsPanel";
 import { OptionsPanel } from "./OptionsPanel";
+import { PaperTradingPanel } from "./PaperTradingPanel";
+import { ProFormaPanel } from "./ProFormaPanel";
 import { RealEstatePanel } from "./RealEstatePanel";
 import { RecessionDashboard } from "./RecessionDashboard";
 import { RegimeJournal } from "./RegimeJournal";
@@ -42,6 +54,7 @@ import { Sidebar } from "./Sidebar";
 import { TechnicalIndicatorsPanel } from "./TechnicalIndicatorsPanel";
 import { TickerDossierPanel } from "./TickerDossierPanel";
 import { WatchlistsPanel } from "./WatchlistsPanel";
+import { WeightedPortfolioPanel } from "./WeightedPortfolioPanel";
 import { YieldCurvePanel } from "./YieldCurvePanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
@@ -82,6 +95,20 @@ const LAYOUT: Layout[] = [
   { i: "fixed-income",    x: 0, y: 730, w: 12, h: 22, minW: 6, minH: 14 },
   { i: "ticker-dossier",  x: 0, y: 758, w: 12, h: 30, minW: 6, minH: 16 },
   { i: "investment-compare", x: 0, y: 788, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "market-news",     x: 0, y: 822, w: 12, h: 20, minW: 6, minH: 12 },
+  { i: "market-insiders", x: 0, y: 842, w: 12, h: 24, minW: 6, minH: 14 },
+  // v2 wave: Analytics + Modeling + Deep Economy (appended at the bottom)
+  { i: "advanced-analytics", x: 0, y: 866,  w: 12, h: 26, minW: 6, minH: 16 },
+  { i: "proforma",           x: 0, y: 892,  w: 12, h: 36, minW: 6, minH: 20 },
+  { i: "weighted-portfolio", x: 0, y: 928,  w: 12, h: 28, minW: 6, minH: 16 },
+  { i: "paper-trading",      x: 0, y: 956,  w: 12, h: 28, minW: 6, minH: 16 },
+  { i: "etf-tracking",       x: 0, y: 984,  w: 12, h: 28, minW: 6, minH: 16 },
+  { i: "deep-economy",       x: 0, y: 1012, w: 12, h: 30, minW: 6, minH: 18 },
+  { i: "options-analytics",  x: 0, y: 1042, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "rate-path",          x: 0, y: 1076, w: 12, h: 26, minW: 6, minH: 14 },
+  { i: "backtest",           x: 0, y: 1102, w: 12, h: 32, minW: 6, minH: 18 },
+  { i: "bond-analytics",     x: 0, y: 1134, w: 12, h: 30, minW: 6, minH: 16 },
+  { i: "cot",                x: 0, y: 1164, w: 12, h: 30, minW: 6, minH: 16 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -278,6 +305,45 @@ export function TerminalShell() {
               <div key="investment-compare" data-panel-key="investment-compare">
                 <ErrorBoundary label="Investment Compare"><InvestmentComparePanel /></ErrorBoundary>
               </div>
+              <div key="market-news" data-panel-key="market-news">
+                <ErrorBoundary label="Market News"><MarketNewsPanel /></ErrorBoundary>
+              </div>
+              <div key="market-insiders" data-panel-key="market-insiders">
+                <ErrorBoundary label="Market Insiders"><MarketInsidersPanel /></ErrorBoundary>
+              </div>
+              <div key="advanced-analytics" data-panel-key="advanced-analytics">
+                <ErrorBoundary label="Advanced Analytics"><AdvancedAnalyticsPanel /></ErrorBoundary>
+              </div>
+              <div key="proforma" data-panel-key="proforma">
+                <ErrorBoundary label="Pro Forma Modeling"><ProFormaPanel /></ErrorBoundary>
+              </div>
+              <div key="weighted-portfolio" data-panel-key="weighted-portfolio">
+                <ErrorBoundary label="Weighted Portfolio"><WeightedPortfolioPanel /></ErrorBoundary>
+              </div>
+              <div key="paper-trading" data-panel-key="paper-trading">
+                <ErrorBoundary label="Paper Trading"><PaperTradingPanel /></ErrorBoundary>
+              </div>
+              <div key="etf-tracking" data-panel-key="etf-tracking">
+                <ErrorBoundary label="ETF Tracking"><ETFTrackingPanel /></ErrorBoundary>
+              </div>
+              <div key="deep-economy" data-panel-key="deep-economy">
+                <ErrorBoundary label="Deep Economy"><DeepEconomyPanel /></ErrorBoundary>
+              </div>
+              <div key="options-analytics" data-panel-key="options-analytics">
+                <ErrorBoundary label="Options Analytics"><OptionsAnalyticsPanel /></ErrorBoundary>
+              </div>
+              <div key="rate-path" data-panel-key="rate-path">
+                <ErrorBoundary label="Fed Rate Path"><RatePathPanel /></ErrorBoundary>
+              </div>
+              <div key="backtest" data-panel-key="backtest">
+                <ErrorBoundary label="Backtester"><BacktestPanel /></ErrorBoundary>
+              </div>
+              <div key="bond-analytics" data-panel-key="bond-analytics">
+                <ErrorBoundary label="Bond Analytics"><BondAnalyticsPanel /></ErrorBoundary>
+              </div>
+              <div key="cot" data-panel-key="cot">
+                <ErrorBoundary label="Positioning (COT)"><COTPositioningPanel /></ErrorBoundary>
+              </div>
             </GridLayout>
           </div>
         )}
@@ -305,26 +371,34 @@ function Topbar({
   onToggleSidebar: () => void;
 }) {
   return (
-    <header className="flex items-center justify-between px-3 py-2 border-b border-terminal-border bg-terminal-panel">
-      <div className="flex items-center gap-3">
+    <header className="flex items-center justify-between px-6 py-2.5 border-b border-terminal-border bg-terminal-panel">
+      <div className="flex items-center gap-4">
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="text-terminal-muted hover:text-accent text-sm px-1"
+          className="text-terminal-muted hover:text-accent text-base leading-none px-1"
           title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
         >
-          {sidebarOpen ? "\u2630" : "\u2630"}
+          {"\u2630"}
         </button>
-        <span className="text-accent-amber font-semibold tracking-widest text-sm">
-          AI &#9656; TERMINAL
-        </span>
-        <span className="text-terminal-muted text-2xs uppercase tracking-wider">
-          Automated-Investing
-        </span>
+        <div className="flex items-baseline gap-2.5">
+          <span className="w-2 h-2 rounded-full bg-accent self-center" aria-hidden="true" />
+          <span className="font-serif text-lg leading-none tracking-tight text-terminal-text">
+            Automated-Investing
+          </span>
+          <span className="text-terminal-muted text-2xs uppercase tracking-[0.18em]">
+            Market Intelligence
+          </span>
+        </div>
       </div>
-      <div className="flex items-center gap-3 text-2xs text-terminal-muted">
-        <span>{health?.claude_model ?? "--"}</span>
-        <span>{now.toISOString().slice(11, 19)} UTC</span>
+      <div className="flex items-center gap-5 text-2xs text-terminal-muted">
+        <span className="uppercase tracking-wider">
+          {health?.claude_model ?? "Model offline"}
+        </span>
+        <span className="font-mono tabular-nums text-terminal-text">
+          {now.toISOString().slice(11, 19)}
+          <span className="text-terminal-dim ml-1">UTC</span>
+        </span>
       </div>
     </header>
   );
@@ -333,15 +407,28 @@ function Topbar({
 function StatusBar({ health, now }: { health: HealthResponse | null; now: Date }) {
   const fred = health?.fred_configured;
   const claude = health?.anthropic_configured;
+  const uw = health?.uw_configured;
+  const online = health !== null;
   return (
-    <footer className="flex items-center justify-between px-3 py-1.5 border-t border-terminal-border bg-terminal-panel text-2xs text-terminal-muted">
-      <div className="flex items-center gap-4">
+    <footer className="flex items-center justify-between px-6 py-2 border-t border-terminal-border bg-terminal-panel text-2xs text-terminal-muted">
+      <div className="flex items-center gap-5">
         <KeyStatus name="FRED" ok={fred} />
         <KeyStatus name="ANTHROPIC" ok={claude} />
+        <KeyStatus name="UW" ok={uw} />
       </div>
-      <div className="flex items-center gap-3">
-        <span>{now.toLocaleDateString()}</span>
-        <span className="text-accent-green">● connected</span>
+      <div className="flex items-center gap-4">
+        <span className="font-mono tabular-nums">{now.toLocaleDateString()}</span>
+        {online ? (
+          <span className="flex items-center gap-1.5 text-accent-green">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-green" aria-hidden="true" />
+            Connected
+          </span>
+        ) : (
+          <span className="flex items-center gap-1.5 text-accent-amber">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-amber" aria-hidden="true" />
+            Connecting
+          </span>
+        )}
       </div>
     </footer>
   );
