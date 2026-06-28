@@ -315,26 +315,34 @@ function Topbar({
   onToggleSidebar: () => void;
 }) {
   return (
-    <header className="flex items-center justify-between px-3 py-2 border-b border-terminal-border bg-terminal-panel">
-      <div className="flex items-center gap-3">
+    <header className="flex items-center justify-between px-6 py-2.5 border-b border-terminal-border bg-terminal-panel">
+      <div className="flex items-center gap-4">
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="text-terminal-muted hover:text-accent text-sm px-1"
+          className="text-terminal-muted hover:text-accent text-base leading-none px-1"
           title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
         >
-          {sidebarOpen ? "\u2630" : "\u2630"}
+          {"\u2630"}
         </button>
-        <span className="text-accent-amber font-semibold tracking-widest text-sm">
-          AI &#9656; TERMINAL
-        </span>
-        <span className="text-terminal-muted text-2xs uppercase tracking-wider">
-          Automated-Investing
-        </span>
+        <div className="flex items-baseline gap-2.5">
+          <span className="w-2 h-2 rounded-full bg-accent self-center" aria-hidden="true" />
+          <span className="font-serif text-lg leading-none tracking-tight text-terminal-text">
+            Automated-Investing
+          </span>
+          <span className="text-terminal-muted text-2xs uppercase tracking-[0.18em]">
+            Market Intelligence
+          </span>
+        </div>
       </div>
-      <div className="flex items-center gap-3 text-2xs text-terminal-muted">
-        <span>{health?.claude_model ?? "--"}</span>
-        <span>{now.toISOString().slice(11, 19)} UTC</span>
+      <div className="flex items-center gap-5 text-2xs text-terminal-muted">
+        <span className="uppercase tracking-wider">
+          {health?.claude_model ?? "Model offline"}
+        </span>
+        <span className="font-mono tabular-nums text-terminal-text">
+          {now.toISOString().slice(11, 19)}
+          <span className="text-terminal-dim ml-1">UTC</span>
+        </span>
       </div>
     </header>
   );
@@ -344,16 +352,27 @@ function StatusBar({ health, now }: { health: HealthResponse | null; now: Date }
   const fred = health?.fred_configured;
   const claude = health?.anthropic_configured;
   const uw = health?.uw_configured;
+  const online = health !== null;
   return (
-    <footer className="flex items-center justify-between px-3 py-1.5 border-t border-terminal-border bg-terminal-panel text-2xs text-terminal-muted">
-      <div className="flex items-center gap-4">
+    <footer className="flex items-center justify-between px-6 py-2 border-t border-terminal-border bg-terminal-panel text-2xs text-terminal-muted">
+      <div className="flex items-center gap-5">
         <KeyStatus name="FRED" ok={fred} />
         <KeyStatus name="ANTHROPIC" ok={claude} />
         <KeyStatus name="UW" ok={uw} />
       </div>
-      <div className="flex items-center gap-3">
-        <span>{now.toLocaleDateString()}</span>
-        <span className="text-accent-green">● connected</span>
+      <div className="flex items-center gap-4">
+        <span className="font-mono tabular-nums">{now.toLocaleDateString()}</span>
+        {online ? (
+          <span className="flex items-center gap-1.5 text-accent-green">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-green" aria-hidden="true" />
+            Connected
+          </span>
+        ) : (
+          <span className="flex items-center gap-1.5 text-accent-amber">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-amber" aria-hidden="true" />
+            Connecting
+          </span>
+        )}
       </div>
     </footer>
   );

@@ -103,20 +103,20 @@ export function Sidebar({ activeSector, onSelectSector, onScrollTo }: SidebarPro
     setCollapsed((prev) => ({ ...prev, [section]: !prev[section] }));
 
   return (
-    <aside className="w-56 flex-shrink-0 bg-terminal-panel border-r border-terminal-border overflow-y-auto flex flex-col">
-      <div className="px-3 py-3 border-b border-terminal-border">
-        <span className="text-accent-amber font-semibold tracking-widest text-xs">
-          NAVIGATION
+    <aside className="w-56 flex-shrink-0 bg-terminal-panel border-r border-terminal-border overflow-y-auto flex flex-col pb-2">
+      <div className="px-5 py-4 border-b border-terminal-divider">
+        <span className="font-serif text-base leading-none tracking-tight text-terminal-text">
+          Navigation
         </span>
       </div>
 
       {/* Panel navigation */}
       {NAV_SECTIONS.map((section) => (
-        <div key={section.label}>
+        <div key={section.label} className="pt-1">
           <button
             type="button"
             onClick={() => toggle(section.label)}
-            className="w-full flex items-center justify-between px-3 py-2 text-xs text-terminal-muted uppercase tracking-wider hover:bg-terminal-border/30"
+            className="w-full flex items-center justify-between px-5 py-1.5 text-2xs text-terminal-muted uppercase tracking-[0.16em] font-semibold hover:text-terminal-text transition-colors"
           >
             <span>{section.label}</span>
             <span className="text-terminal-dim">
@@ -133,7 +133,7 @@ export function Sidebar({ activeSector, onSelectSector, onScrollTo }: SidebarPro
                     onSelectSector(null);
                     onScrollTo(item.key);
                   }}
-                  className="text-left px-5 py-1.5 text-xs text-terminal-fg hover:bg-terminal-border/30 hover:text-accent transition-colors"
+                  className="text-left px-5 py-2 text-xs text-terminal-muted hover:bg-accent/10 hover:text-accent transition-colors"
                 >
                   {item.label}
                 </button>
@@ -144,11 +144,11 @@ export function Sidebar({ activeSector, onSelectSector, onScrollTo }: SidebarPro
       ))}
 
       {/* Sectors */}
-      <div>
+      <div className="pt-1">
         <button
           type="button"
           onClick={() => toggle("Sectors")}
-          className="w-full flex items-center justify-between px-3 py-2 text-xs text-terminal-muted uppercase tracking-wider hover:bg-terminal-border/30"
+          className="w-full flex items-center justify-between px-5 py-1.5 text-2xs text-terminal-muted uppercase tracking-[0.16em] font-semibold hover:text-terminal-text transition-colors"
         >
           <span>Sectors ({sectors.length})</span>
           <span className="text-terminal-dim">
@@ -162,10 +162,10 @@ export function Sidebar({ activeSector, onSelectSector, onScrollTo }: SidebarPro
                 key={sec.id}
                 type="button"
                 onClick={() => onSelectSector(sec.id)}
-                className={`text-left px-5 py-1.5 text-xs transition-colors flex items-center gap-2 ${
+                className={`text-left px-5 py-2 text-xs transition-colors flex items-center gap-2 ${
                   activeSector === sec.id
-                    ? "bg-accent/20 text-accent border-l-2 border-accent"
-                    : "text-terminal-fg hover:bg-terminal-border/30 hover:text-accent"
+                    ? "bg-accent/15 text-accent border-l-2 border-accent"
+                    : "text-terminal-muted hover:bg-accent/10 hover:text-accent"
                 }`}
               >
                 <span className="truncate">{sec.name}</span>

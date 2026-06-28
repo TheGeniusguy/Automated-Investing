@@ -13,48 +13,68 @@
   }
 
   body {
-    @apply bg-terminal-bg text-terminal-text font-mono antialiased;
-    font-feature-settings: "ss01", "cv11";
+    @apply bg-terminal-bg text-terminal-text font-sans antialiased;
+    font-feature-settings: "ss01", "cv05", "liga", "calt";
   }
 
-  /* Subtle scrollbars to match the terminal look. */
-  ::-webkit-scrollbar           { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track     { background: #0a0a0a; }
-  ::-webkit-scrollbar-thumb     { background: #262626; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+  /* Tabular figures everywhere numbers live, so columns line up cleanly. */
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+
+  /* Editorial serif for display headings + large figures (Anthropic-style). */
+  h1, h2, .font-display {
+    @apply font-serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Warm, quiet scrollbars that match the ink palette. */
+  ::-webkit-scrollbar           { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-track     { background: #181613; }
+  ::-webkit-scrollbar-thumb     { background: #3a352d; border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover { background: #4a4339; }
 }
 
 @layer components {
+  /* Softer, slightly elevated surface - firm and professional, not a raw
+     terminal pane. Padding and rounding flow to every panel in the app. */
   .panel {
-    @apply bg-terminal-panel border border-terminal-border overflow-hidden flex flex-col;
+    @apply bg-terminal-panel border border-terminal-border rounded-panel
+           shadow-panel overflow-hidden flex flex-col;
   }
 
+  /* Header reads as an editorial eyebrow: tracked small-caps, generous padding,
+     a hairline divider, and a faint warm wash. */
   .panel-header {
-    @apply flex items-center justify-between px-3 py-2
-           border-b border-terminal-border bg-black/40
-           text-2xs uppercase tracking-wider text-terminal-muted;
+    @apply flex items-center justify-between gap-2 px-4 py-2.5
+           border-b border-terminal-divider bg-white/[0.015]
+           text-2xs uppercase tracking-[0.14em] font-medium text-terminal-muted;
   }
 
   .panel-body {
-    @apply flex-1 overflow-auto p-3 text-sm;
+    @apply flex-1 overflow-auto p-4 text-sm leading-relaxed;
   }
 
   .pill {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-sm
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded
            text-2xs uppercase tracking-wider font-semibold;
+  }
+
+  /* Reusable stat/metric figure: serif, tight, tabular - for the hero numbers
+     panels want to feature without each reinventing it. */
+  .stat-figure {
+    @apply font-serif tabular-nums tracking-tight;
   }
 }
 
 /* React Grid Layout — themed placeholder/handle look. */
 .react-grid-item.react-grid-placeholder {
-  background: #1f1f1f !important;
-  opacity: 0.4;
-  border-radius: 2px;
+  background: #c9785c !important;
+  opacity: 0.18;
+  border-radius: 10px;
 }
 
 .react-grid-item > .react-resizable-handle {
   opacity: 0.4;
 }
 .react-grid-item > .react-resizable-handle::after {
-  border-color: #525252 !important;
+  border-color: #6e665a !important;
 }

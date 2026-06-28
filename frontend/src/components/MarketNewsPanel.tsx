@@ -79,12 +79,12 @@ export function MarketNewsPanel() {
       </div>
 
       <div className="panel-body p-0 flex flex-col">
-        <div className="px-3 py-2 border-b border-terminal-divider text-2xs text-terminal-dim">
+        <div className="px-4 py-2 border-b border-terminal-divider text-2xs text-terminal-dim">
           Live market-moving headlines as they break, across the whole market.
         </div>
 
         {/* Controls */}
-        <div className="px-3 py-2 border-b border-terminal-divider flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="px-4 py-2 border-b border-terminal-divider flex flex-wrap items-center gap-x-4 gap-y-2">
           <div className="flex items-center gap-1">
             <span className="text-2xs uppercase tracking-wider text-terminal-muted mr-1">show</span>
             <button
@@ -121,7 +121,7 @@ export function MarketNewsPanel() {
 
         {/* Source filter strip (derived from loaded items) */}
         {sources.length > 0 && (
-          <div className="px-3 py-2 border-b border-terminal-divider text-2xs">
+          <div className="px-4 py-2 border-b border-terminal-divider text-2xs">
             <div className="uppercase tracking-wider text-terminal-muted mb-1">source</div>
             <button
               onClick={() => setActiveSource(null)}
@@ -154,7 +154,7 @@ export function MarketNewsPanel() {
         {/* Feed / states */}
         <div className="flex-1 overflow-auto">
           {/* Real fetch error -> red banner */}
-          {err && <div className="p-3 text-accent-red text-xs">⚠ {err}</div>}
+          {err && <div className="px-4 py-3 text-accent-red text-xs">⚠ {err}</div>}
 
           {/* Degraded / needs-config -> calm muted card (NOT red) */}
           {!err && !configured && (
@@ -173,7 +173,7 @@ export function MarketNewsPanel() {
 
           {/* Empty */}
           {!err && configured && filtered.length === 0 && !loading && (
-            <div className="p-3 text-terminal-dim text-xs">No headlines.</div>
+            <div className="px-4 py-3 text-terminal-dim text-xs">No headlines.</div>
           )}
 
           {!err && configured && (
@@ -191,33 +191,42 @@ export function MarketNewsPanel() {
 
 function NewsRow({ item }: { item: MarketNewsItem }) {
   return (
-    <li className="px-3 py-2 hover:bg-white/[0.02] text-xs">
-      <div className="flex items-baseline gap-2">
-        <span className="text-terminal-muted tabular-nums w-32 shrink-0">
+    <li className="px-4 py-3 hover:bg-white/[0.02]">
+      {/* Meta line: time leads, source second, chips trail. Tight, no dead gaps. */}
+      <div className="flex items-center gap-2 mb-1.5 min-w-0">
+        <span className="text-2xs text-terminal-muted tabular-nums shrink-0">
           {shortTs(item.published)}
         </span>
-        <span className="text-terminal-dim w-24 shrink-0 truncate" title={item.source}>
+        <span className="text-terminal-dim shrink-0">·</span>
+        <span
+          className="text-2xs text-terminal-dim uppercase tracking-wider truncate min-w-0"
+          title={item.source}
+        >
           {item.source}
         </span>
-        <div className="flex items-baseline gap-2 min-w-0 flex-1">
+        <span className="flex items-center gap-1 ml-auto shrink-0">
           {item.sentiment && <SentimentChip sentiment={item.sentiment} />}
           {item.is_major && (
-            <span className="pill border border-accent-amber/50 text-accent-amber shrink-0">
+            <span className="pill border border-accent-amber/50 bg-accent-amber/5 text-accent-amber">
               MAJOR
             </span>
           )}
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noreferrer"
-            className="text-terminal-text hover:text-accent-amber transition truncate"
-          >
-            {item.title}
-          </a>
-        </div>
+        </span>
       </div>
+
+      {/* Editorial headline: readable serif, wraps instead of truncating. */}
+      <a
+        href={item.url}
+        target="_blank"
+        rel="noreferrer"
+        className="block font-serif text-[15px] leading-snug text-terminal-text
+                   hover:text-accent-amber transition"
+      >
+        {item.title}
+      </a>
+
       {item.tickers.length > 0 && (
-        <div className="mt-1 pl-32 flex items-center gap-1 flex-wrap">
+        <div className="mt-2 flex items-center gap-1 flex-wrap">
           {item.tickers.slice(0, 8).map((t) => (
             <span
               key={t}
@@ -236,9 +245,9 @@ function SentimentChip({ sentiment }: { sentiment: string }) {
   const s = sentiment.toLowerCase();
   let cls = "border-terminal-divider text-terminal-muted";
   if (s.includes("pos") || s.includes("bull")) {
-    cls = "border-accent-green/40 text-accent-green";
+    cls = "border-accent-green/40 bg-accent-green/5 text-accent-green";
   } else if (s.includes("neg") || s.includes("bear")) {
-    cls = "border-accent-red/40 text-accent-red";
+    cls = "border-accent-red/40 bg-accent-red/5 text-accent-red";
   }
   return (
     <span className={"pill border shrink-0 " + cls} title={sentiment}>

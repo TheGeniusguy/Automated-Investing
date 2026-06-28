@@ -94,14 +94,14 @@ export function MarketInsidersPanel() {
 
       <div className="panel-body p-0 flex flex-col">
         {/* Grandpa-test one-liner */}
-        <div className="px-3 py-2 border-b border-terminal-divider text-2xs text-terminal-muted">
+        <div className="px-4 py-2 border-b border-terminal-divider text-2xs text-terminal-muted">
           Who is buying and selling their own company's stock, across the entire
           market - green is an insider buying, red is selling.
         </div>
 
         {/* Real fetch error (not the unconfigured case) */}
         {err && (
-          <div className="px-3 py-2 text-accent-red text-xs border-b border-terminal-divider">
+          <div className="px-4 py-2 text-accent-red text-xs border-b border-terminal-divider">
             ⚠ {err}
           </div>
         )}
@@ -110,26 +110,30 @@ export function MarketInsidersPanel() {
           <NeedsConfig />
         ) : (
           <>
-            {/* Summary cards */}
+            {/* Summary band - flush metric cells separated by hairlines, no dead
+                whitespace. Dollar figures are large serif hero numbers. */}
             {summary && (
-              <div className="grid grid-cols-3 gap-2 p-2 border-b border-terminal-divider sm:grid-cols-6">
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-px bg-terminal-divider border-b border-terminal-divider">
                 <StatCard
                   label="Buy value"
                   value={fmtUsd(summary.buy_value)}
                   sub={`${summary.buy_count} buys`}
                   color="text-accent-green"
+                  hero
                 />
                 <StatCard
                   label="Sell value"
                   value={fmtUsd(summary.sell_value)}
                   sub={`${summary.sell_count} sells`}
                   color="text-accent-red"
+                  hero
                 />
                 <StatCard
                   label="Net value"
                   value={fmtUsd(summary.net_value)}
                   sub={summary.net_value >= 0 ? "net buying" : "net selling"}
                   color={summary.net_value >= 0 ? "text-accent-green" : "text-accent-red"}
+                  hero
                 />
                 <StatCard
                   label="Buy/Sell"
@@ -153,7 +157,7 @@ export function MarketInsidersPanel() {
             )}
 
             {/* Filters */}
-            <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-terminal-divider text-2xs">
+            <div className="flex flex-wrap items-center gap-2 px-4 py-2 border-b border-terminal-divider text-2xs">
               <div className="flex items-center gap-1">
                 {(["all", "buy", "sell"] as const).map((d) => (
                   <button
@@ -249,7 +253,7 @@ function InsiderRow({ t }: { t: MarketInsiderTransaction }) {
     t.direction === "buy" ? "BUY" : t.direction === "sell" ? "SELL" : "OTHER";
 
   return (
-    <tr className="hover:bg-white/[0.02]">
+    <tr className="hover:bg-white/[0.02] leading-tight">
       <td className="py-1 px-2 font-semibold">
         {t.source_url ? (
           <a
@@ -278,10 +282,10 @@ function InsiderRow({ t }: { t: MarketInsiderTransaction }) {
       </td>
       <td className="py-1 px-2 tabular-nums text-terminal-muted">{t.txn_date ?? "-"}</td>
       <td className="py-1 px-2 text-center text-terminal-muted">{t.txn_code || "-"}</td>
-      <td className={`py-1 px-2 font-semibold ${dirCls}`}>{dirLabel}</td>
+      <td className={`py-1 px-2 font-semibold uppercase tracking-wider ${dirCls}`}>{dirLabel}</td>
       <td className="py-1 px-2 text-right tabular-nums">{fmtNum(t.shares)}</td>
       <td className="py-1 px-2 text-right tabular-nums">{fmtPrice(t.price)}</td>
-      <td className={`py-1 px-2 text-right tabular-nums ${dirCls}`}>{fmtUsd(t.value)}</td>
+      <td className={`py-1 px-2 text-right tabular-nums font-semibold ${dirCls}`}>{fmtUsd(t.value)}</td>
     </tr>
   );
 }
@@ -297,7 +301,8 @@ function RoleBadges({ t }: { t: MarketInsiderTransaction }) {
       {badges.map((b) => (
         <span
           key={b}
-          className="px-1 py-0.5 rounded-sm bg-terminal-border/60 text-terminal-muted uppercase tracking-wider"
+          className="px-1.5 py-0.5 rounded border border-accent-amber/20 bg-accent-amber/5
+                     text-accent-amber/90 uppercase tracking-wider text-2xs leading-none"
         >
           {b}
         </span>
@@ -341,19 +346,26 @@ function StatCard({
   value,
   sub,
   color,
+  hero = false,
 }: {
   label: string;
   value: string;
   sub?: string;
   color?: string;
+  hero?: boolean;
 }) {
   return (
-    <div className="bg-black/30 border border-terminal-divider rounded-sm p-2">
-      <div className="text-2xs text-terminal-dim uppercase tracking-wider">{label}</div>
-      <div className={`text-sm font-semibold tabular-nums ${color ?? "text-terminal-text"}`}>
+    <div className="bg-terminal-panel px-3 py-2.5">
+      <div className="text-2xs text-terminal-dim uppercase tracking-[0.12em]">{label}</div>
+      <div
+        className={
+          `stat-figure leading-none mt-1.5 ${hero ? "text-xl" : "text-base"} ` +
+          (color ?? "text-terminal-text")
+        }
+      >
         {value}
       </div>
-      {sub && <div className="text-2xs text-terminal-dim tabular-nums">{sub}</div>}
+      {sub && <div className="text-2xs text-terminal-dim tabular-nums mt-1.5">{sub}</div>}
     </div>
   );
 }
