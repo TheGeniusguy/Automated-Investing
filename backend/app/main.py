@@ -15,8 +15,10 @@ from .chat import terminal_chat
 from .config import settings
 from .correlations import correlation_model
 from .data import (
+    bond_analytics as bond_analytics_mod,
     calendar as calendar_mod,
     compare as compare_mod,
+    cot_positioning as cot_mod,
     crypto as crypto_mod,
     data_health as data_health_mod,
     drawings as drawings_mod,
@@ -38,6 +40,8 @@ from .data import (
     news as news_mod,
     nowcast as nowcast_mod,
     options as options_mod,
+    options_greeks as options_greeks_mod,
+    rate_path as rate_path_mod,
     real_estate_detail,
     recession as recession_mod,
     screener as screener_mod,
@@ -85,6 +89,7 @@ from .portfolio import weighted as weighted_mod
 from .portfolio import metrics_ext as metrics_ext_mod
 from .paper import engine as paper_mod
 from .proforma import model as proforma_mod
+from . import backtest as backtest_mod  # package re-exports run_backtest + list_strategies
 from .etf.compare import compare_tickers
 from .compare import engine as compare_engine
 from .regime import regime_model, regime_model_v2, stress_test as stress_test_mod
@@ -2102,3 +2107,100 @@ def compare_investments_route(body: CompareInvestmentsRequest) -> dict:
     side-by-side on an apples-to-apples basis (IRR, CAGR, total return,
     equity multiple) with a normalized equity-value-over-time overlay."""
     return compare_engine.compare_investments(body.investments)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave C: Options greeks + vol surface + GEX / max-pain
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/options/greeks/{symbol}")
+def options_greeks(symbol: str) -> dict:
+    return options_greeks_mod.greeks_ladder(symbol)
+
+
+@app.get("/api/options/surface/{symbol}")
+def options_surface(symbol: str) -> dict:
+    return options_greeks_mod.build_surface(symbol)
+
+
+@app.get("/api/options/gex/{symbol}")
+def options_gex(symbol: str) -> dict:
+    return options_greeks_mod.gamma_exposure(symbol)
+
+
+@app.get("/api/options/max-pain/{symbol}")
+def options_max_pain(symbol: str) -> dict:
+    return options_greeks_mod.max_pain(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave C: Fed rate path / WIRP
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/rates/path")
+def rates_path() -> dict:
+    return rate_path_mod.rate_path()
+
+
+@app.get("/api/rates/probabilities")
+def rates_probabilities() -> dict:
+    return rate_path_mod.rate_probabilities()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave C: Strategy backtester
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/backtest/strategies")
+def backtest_strategies() -> list:
+    return backtest_mod.list_strategies()
+
+
+@app.post("/api/backtest/run")
+def backtest_run(body: dict) -> dict:
+    # body: {symbol, strategy, params?, start?, end?, capital?}
+    return backtest_mod.run_backtest(
+        body["symbol"],
+        body["strategy"],
+        body.get("params", {}),
+        body.get("start"),
+        body.get("end"),
+        capital=float(body.get("capital", 100000)),
+    )
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave C: Bond analytics / YAS
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/bonds/universe")
+def bonds_universe() -> dict:
+    return bond_analytics_mod.bond_universe()
+
+
+@app.post("/api/bonds/analyze")
+def bonds_analyze(body: dict) -> dict:
+    # body: {face, coupon, maturity, freq?, ytm|price}
+    is_price = "price" in body
+    return bond_analytics_mod.analyze_bond(
+        face=float(body["face"]),
+        coupon=float(body["coupon"]),
+        maturity=float(body["maturity"]),
+        freq=int(body.get("freq", 2)),
+        ytm_or_price=float(body["price"]) if is_price else float(body["ytm"]),
+        is_price=is_price,
+    )
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave C: COT positioning
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/cot/markets")
+def cot_markets() -> dict:
+    return cot_mod.positioning_dashboard()
+
+
+@app.get("/api/cot/{market}")
+def cot_market_series(market: str) -> dict:
+    return cot_mod.cot_series(market)
