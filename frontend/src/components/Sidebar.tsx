@@ -25,6 +25,7 @@ export const NAV_SECTIONS = [
       { key: "yield-curve", label: "Yield Curve" },
       { key: "inflation", label: "Inflation" },
       { key: "recession", label: "Recession" },
+      { key: "econ-surprise", label: "Econ Surprise" },
       { key: "macro-heatmap", label: "Heatmap" },
       { key: "pinboard", label: "Pinboard" },
       { key: "macro-explorer", label: "Explorer" },
@@ -40,6 +41,7 @@ export const NAV_SECTIONS = [
       { key: "weighted-portfolio", label: "Weighted Portfolio" },
       { key: "paper-trading", label: "Paper Trading" },
       { key: "etf-tracking", label: "ETF Tracking" },
+      { key: "montecarlo", label: "Monte Carlo" },
     ],
   },
   {
@@ -47,6 +49,7 @@ export const NAV_SECTIONS = [
     items: [
       { key: "sector-rotation", label: "Sector Rotation" },
       { key: "real-estate", label: "Real Estate" },
+      { key: "commodities-curve", label: "Commodities Curve" },
       { key: "energy", label: "Energy" },
       { key: "shipping", label: "Shipping" },
     ],
@@ -66,6 +69,10 @@ export const NAV_SECTIONS = [
       { key: "market-insiders", label: "Market Insiders" },
       { key: "institutional", label: "13F Holdings" },
       { key: "portfolio", label: "Portfolio Tracker" },
+      { key: "estimates", label: "Analyst Estimates" },
+      { key: "seasonality", label: "Seasonality" },
+      { key: "factor-analysis", label: "Factor Analysis" },
+      { key: "short-interest", label: "Short Interest" },
     ],
   },
   {
@@ -75,6 +82,8 @@ export const NAV_SECTIONS = [
       { key: "fx", label: "FX / Currencies" },
       { key: "fixed-income", label: "Fixed Income" },
       { key: "bond-analytics", label: "Bond Analytics" },
+      { key: "fx-analytics", label: "FX Analytics" },
+      { key: "credit-curves", label: "Credit & CDS" },
     ],
   },
   {
@@ -97,6 +106,7 @@ export const NAV_SECTIONS = [
     items: [
       { key: "data-infra", label: "DB Status" },
       { key: "calendar", label: "Calendar" },
+      { key: "alerts", label: "Alerts" },
     ],
   },
 ];

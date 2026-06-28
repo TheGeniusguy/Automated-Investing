@@ -88,6 +88,14 @@ async function postJSON<T>(path: string, body: unknown): Promise<T> {
   return r.json() as Promise<T>;
 }
 
+async function deleteJSON<T>(path: string): Promise<T> {
+  const r = await fetch(`${API_BASE}${path}`, { method: "DELETE" });
+  if (!r.ok) {
+    throw new Error(`${r.status} ${r.statusText} — ${path}`);
+  }
+  return r.json() as Promise<T>;
+}
+
 export const api = {
   health:        ()                    => getJSON<HealthResponse>("/api/health"),
   allSeries:     (days = 90)           => getJSON<SeriesBundle>(`/api/macro/series?days=${days}`),
@@ -545,6 +553,28 @@ export const api = {
   bondAnalyze: (body: unknown) => postJSON<any>("/api/bonds/analyze", body),
   cotMarkets: () => getJSON<any>("/api/cot/markets"),
   cotSeries: (market: string) => getJSON<any>(`/api/cot/${encodeURIComponent(market)}`),
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  // ── Bloomberg Waves D + E (panels mirror these shapes as local interfaces;
+  //    returns are intentionally permissive so each panel binds its own types)
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  fxCarry: () => getJSON<any>("/api/fx/carry"),
+  fxVol: (pair: string) => getJSON<any>(`/api/fx/vol/${encodeURIComponent(pair)}`),
+  commoditiesCurves: () => getJSON<any>("/api/commodities/curves"),
+  estimates: (symbol: string) => getJSON<any>(`/api/estimates/${encodeURIComponent(symbol)}`),
+  creditCurves: () => getJSON<any>("/api/credit/curves"),
+  creditIssuer: (issuer: string) => getJSON<any>(`/api/credit/${encodeURIComponent(issuer)}`),
+  alertsRules: () => getJSON<any>("/api/alerts/rules"),
+  alertsCreateRule: (body: unknown) => postJSON<any>("/api/alerts/rules", body),
+  alertsDeleteRule: (id: number | string) => deleteJSON<any>(`/api/alerts/rules/${encodeURIComponent(String(id))}`),
+  alertsEvaluate: () => postJSON<any>("/api/alerts/evaluate", {}),
+  alertsEvents: () => getJSON<any>("/api/alerts/events"),
+  econSurprise: (region?: string) =>
+    getJSON<any>(region ? `/api/econ-surprise/${encodeURIComponent(region)}` : "/api/econ-surprise"),
+  seasonality: (symbol: string) => getJSON<any>(`/api/seasonality/${encodeURIComponent(symbol)}`),
+  factors: (symbol: string) => getJSON<any>(`/api/factors/${encodeURIComponent(symbol)}`),
+  monteCarlo: (symbol: string) => getJSON<any>(`/api/montecarlo/${encodeURIComponent(symbol)}`),
+  shortInterest: (symbol: string) => getJSON<any>(`/api/short-interest/${encodeURIComponent(symbol)}`),
   /* eslint-enable @typescript-eslint/no-explicit-any */
 };
 
