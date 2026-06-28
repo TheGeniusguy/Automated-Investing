@@ -291,3 +291,156 @@ Representative high-value items:
 
 Without keys the terminal still runs in degraded mode (yfinance + EDGAR live;
 FRED macro tiles blank; Claude surfaces show a "configure key" message).
+
+---
+
+## 11. Depth audit (2026-06-28) - maximum-depth pass
+
+Six parallel auditors swept ~50 backend modules and ~60 panels against the brief
+"audit what features are thin and lack depth; goal is maximum depth throughout."
+Verdict: the numerical engine room is genuinely deep, but the two headline
+differentiators the README sells hardest (the AI "cross-stream moat" and the
+regime model) are the shallowest things in the repo, and a handful of surfaces
+render fabricated data as analysis. Items below are the depth backlog. Some
+overlap section 1/4/9 above (cross-referenced); the new specifics are the
+fabrication inventory and the structural ceilings.
+
+Depth tiers the audit assigned (for context):
+- DEEP (keep, defend): portfolio analytics/risk/tax, yield curve, inflation,
+  Sahm, indicators, screener, insider/13F/EDGAR, earnings, ETF compare, finance
+  IRR engine, ingest + schema + data-health.
+- SHALLOW (real but one-dimensional): regime v2, correlations, options, crypto,
+  news, real-estate model, market-leg dividends, rebalancing, most macro overlays.
+- THIN (fabricated / placeholder / wrong): the ranked list below.
+
+### 11a. Thinnest features, ranked
+- [ ] **(P0) AI layer is a context dump, not a moat, and the portfolio half is
+      fabricated.** `claude_briefing.py`, `daily_briefing.py`, `terminal_chat.py`
+      assemble one static JSON blob and ask for a single streamed narration: no
+      tool-use, no agentic loop, no DuckDB self-querying. The "every Claude call
+      sees portfolio context" claim is false - `assemble_context` ships
+      `positions or []`, the frontend never sends positions, and the chat system
+      prompt (`terminal_chat.py:38-39`) advertises portfolio awareness the context
+      (`:171-182`) never supplies. Fix: agentic tool-use loop (`query_series`,
+      `get_portfolio_risk`, `run_stress_test`, `compare_tickers` over functions
+      that already exist in `app/portfolio/`), a real `_portfolio_context(id)`
+      injected into all three prompts, and a "what changed since yesterday" delta
+      vs the cached snapshot. Default the reasoning model to Opus 4.8. (See sec 4.)
+- [ ] **(P0) Regime classifier (the marquee feature) is two `if` statements with
+      an invented confidence score.** `regime_model.py:42-96` keys off VIX>25/<15
+      and the 2s10s sign only; "confidence" is `0.6 + 0.4x...` with feel-chosen
+      divisors. v2 (`regime_model_v2.py`) adds breadth but every increment is a
+      hardcoded constant and `_softmax` over arbitrary points is presented as
+      calibrated probabilities. Fix (single highest-leverage upgrade since half
+      the app keys off it): fit a Markov-switching / HMM on the 5+ series, derive
+      posterior state probabilities + a transition matrix, calibrate weights
+      against NBER dates / forward returns.
+- [ ] **(P1) Supply-chain map is 100% hand-typed and admits it.**
+      `sector_supply_chain.py:14` (`SUPPLY_CHAIN`) is editorial dict edges + prose,
+      zero data, docstring says "Purely editorial," yet the frontend renders it as
+      authoritative SVG arrows. Fix: derive adjacency from rolling cross-sector
+      return correlations (helpers exist in `sector_risk`/`sector_credit`) + BEA
+      input-output make-use tables for directional strength; edge thickness =
+      measured linkage, recomputed daily.
+- [ ] **(P1) Legacy events/econ calendar is a fabricated schedule with wrong
+      dates.** `calendar.py:89-289` synthesizes every release from nth-weekday
+      rules, hardcodes FOMC only for 2026-27 (zero events any other year), and has
+      real bugs: JOLTS on "1st Tuesday" (real one lags ~2 months); Consumer
+      Confidence comment says "last Tuesday" but code emits 4th Tuesday. Fix:
+      ingest the real BLS release schedule + Treasury auction calendar + Fed speech
+      feed (all free) into an `econ_events` table with actual/consensus/prior + an
+      event-impact study. NOTE: Wave F shipped a *new* `economic_calendar.py`
+      (`/api/econ-calendar`) ECO panel, but it is also a generated schedule - it
+      does not fix this legacy module's wrong dates; reconcile the two.
+- [x] **(P1) Options panel has no greeks, no max pain, no surface.** `options.py`
+      only averaged yfinance IV over 5 strikes. SHIPPED in Wave C:
+      `data/options_greeks.py` with Black-Scholes delta/gamma/theta/vega per
+      contract, full-chain max-pain, GEX by strike, and the IV surface/skew
+      (`GET /api/options/{greeks,surface,gex,max-pain}/{symbol}`). The original
+      `options.py` panel remains thin - fold it into / replace it with the new
+      Options Analytics surface.
+- [ ] **(P1) Valuation silently fabricates prices.** `valuation.py:70` substitutes
+      `avg_cost` when a quote fails, reporting a fake flat (P&L~0) position with no
+      flag - "the one true price fabrication in the system." Fix: return
+      `None`/`stale` with an "unpriced" badge, or last DuckDB close with its date,
+      never cost basis. (Also tracked in sec 1 / P1.)
+
+Runners-up (named, lower priority):
+- [ ] Recession composite score uses eyeballed scaling constants
+      (`recession.py:276-310`).
+- [ ] Nowcast internal composite is a z-score average mislabeled a GDP nowcast
+      (`nowcast.py:139-157`).
+- [ ] Correlations is a single 30d-vs-365d Pearson with a magic 0.15 gate.
+- [ ] Real-estate model has no depreciation / tax-shield / refi (see sec 6).
+- [ ] Market-leg dividends use flat-yield accrual, not real DRIP (see sec 6).
+- [ ] Rebalancing is naive proportional, no optimizer.
+- [ ] TLH candidates just sorts losers.
+
+### 11b. Fabricated / hardcoded / wrong-metric inventory (renders as real - most reputationally damaging)
+- [ ] Portfolio context in AI prompts: claimed everywhere, always `[]`
+      (`claude_briefing.py:62`, `terminal_chat.py:38`). [= 11a P0]
+- [ ] Supply-chain graph fully hand-typed, no data
+      (`sector_supply_chain.py:14`). [= 11a]
+- [ ] Econ calendar dates synthesized; FOMC only 2026-27; several wrong
+      (`calendar.py:89-289`). [= 11a]
+- [ ] Price on quote failure fabricated from cost basis (`valuation.py:70`).
+- [ ] REIT FFO/share aliased to `trailingEps` (FFO != EPS)
+      (`real_estate_detail.py:195`).
+- [ ] 13F CUSIP->ticker stub returns `None`, falls back to a fragile name `LIKE`
+      (`institutional_holdings.py:68`).
+- [ ] Composite-signal ADX vote: +1 buy on trend *strength* (directional category
+      error, biases bullish) (`indicators.py:948`).
+- [ ] "Rolling 90-day" macro drivers are actually full-sample; `DGS10` mislabeled
+      "10Y Real" (`sector_macro_drivers.py:244`).
+- [ ] 5-state regime playbook but the classifier emits 3 states - 3 rows
+      permanently dead (`sector_regime_playbook.py:38`).
+- [ ] StatusBar "connected" dot hardcoded green regardless of real health
+      (`TerminalShell.tsx:344`).
+
+Explicitly flagged ACCEPTABLE (editorial-but-honest config, not fabrication):
+sector universes, KPI selections, credit series catalogs, fund-manager CIK list,
+FRED catalog.
+
+### 11c. Cross-cutting ceilings (cap depth everywhere)
+- [ ] **Silent failure as a system-wide contract (deepest structural problem).**
+      ~169 except blocks backend-wide, ~42 silently return empty payloads; `data/*`
+      alone has 84 `except Exception`. A throttled yfinance call -> empty result ->
+      recorded `status:"ok"`, indistinguishable from a true zero. No
+      `degraded`/`errors[]` envelope. Fix: standard envelope so nothing renders
+      empty-as-real. NOTE: all NEW Wave C/D/E/F/G modules already carry
+      `data_mode`/`as_of`/`source`; the legacy `data/*` modules still need it.
+      (Also sec 1 / P1.)
+- [ ] **Frontend infra.** All panels statically imported + eagerly mounted
+      (thundering-herd fetch on load); zero `React.lazy`/code-split (single chunk,
+      now ~1.24MB, over the 500KB warning); no `AbortController` on REST
+      (setState-after-unmount risk); the loading/error/data triad hand-rolled ~50
+      times. Fix: shared `useFetch`/TanStack Query hook + IntersectionObserver-gated
+      mounting + `manualChunks`. (Also sec 1 / P1 + sec 9.)
+- [ ] **Zero auth on ~38 mutating routes** (incl. `/api/ingest/*` and every
+      `DELETE`) while CLAUDE.md documents `--host 0.0.0.0`. One
+      `Depends(require_token)` on the mutating group; default-bind localhost.
+      (Also sec 1 / P0.)
+- [ ] **`main.py` monolith** (now ~2400 lines, 150+ routes) with no `APIRouter`
+      split; `/overview` + `/allocation` double the live-price fan-out. (Also sec
+      1 / P2.)
+- [ ] **Cash-flow contamination in portfolio returns.** Deposits/withdrawals enter
+      NAV, so a deposit day registers as a huge "return," distorting
+      Sharpe/Sortino/vol/alpha (`analytics.py:146-152`). Fix: true time-weighted
+      (sub-period chained) + money-weighted (IRR) split.
+
+### 11d. Recommended depth-build sequence (the audit's proposed ordering)
+1. [ ] **Honesty pass** (fast, high trust): `degraded`/`errors[]`/`as_of`/`source`
+       envelope on legacy modules; fix `valuation.py:70`, REIT FFO field, the ADX
+       vote, the macro-driver mislabels, the dead playbook states, the hardcoded
+       StatusBar.
+2. [ ] **Make the moat real**: agentic tool-use chat + portfolio injection + delta
+       briefing.
+3. [ ] **Replace the two fabricated surfaces with data**: real econ-release
+       ingestion (`econ_events` table) and a computed sector-adjacency graph.
+4. [ ] **Deepen the regime model** (HMM / Markov-switching, calibrated
+       probabilities).
+5. [ ] **Frontend infra refactor** (lazy mount + `useFetch` + abort) and **auth on
+       mutations**.
+6. [ ] **Per-feature depth**: options greeks/max-pain/GEX (DONE, Wave C), crypto
+       on-chain, multi-source news + sentiment, real-estate tax modeling,
+       rebalancing optimizer, real dividend calendars.

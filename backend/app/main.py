@@ -21,9 +21,14 @@ from .data import (
     compare as compare_mod,
     cot_positioning as cot_mod,
     deals_monitor as deals_mod,
+    dividends_tracker as dividends_tracker_mod,
     economic_calendar as econ_calendar_mod,
     options_strategy as options_strategy_mod,
     pairs_trading as pairs_mod,
+    portfolio_risk as portfolio_risk_mod,
+    rrg as rrg_mod,
+    vol_dashboard as vol_dashboard_mod,
+    world_indices as world_indices_mod,
     commodities_curve as commodities_mod,
     credit_curves as credit_mod,
     crypto as crypto_mod,
@@ -2399,3 +2404,48 @@ def pairs(sym1: str, sym2: str) -> dict:
 @app.get("/api/allocation-optimizer")
 def allocation_optimizer(symbols: str | None = None, method: str = "risk_parity") -> dict:
     return allocation_mod.optimize(symbols, method)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave G: Relative Rotation Graph (RRG)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/rrg")
+def rrg(benchmark: str = "SPY") -> dict:
+    return rrg_mod.rrg(benchmark)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave G: Volatility & Risk Dashboard (VIX/VOL)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/vol-dashboard")
+def vol_dashboard() -> dict:
+    return vol_dashboard_mod.vol_dashboard()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave G: World Equity Indices Monitor (WEI)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/world-indices")
+def world_indices() -> dict:
+    return world_indices_mod.world_indices()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave G: Portfolio Risk / VaR & Stress (PORT risk)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/portfolio-risk")
+def portfolio_risk(symbols: str | None = None, weights: str | None = None) -> dict:
+    return portfolio_risk_mod.portfolio_risk(symbols, weights)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave G: Dividend & Buyback / Shareholder Yield (DVD)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/dividends-tracker")
+def dividends_tracker() -> dict:
+    return dividends_tracker_mod.dividends_tracker()
