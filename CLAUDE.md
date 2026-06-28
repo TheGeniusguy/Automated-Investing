@@ -98,6 +98,18 @@ parity features across Waves C/D/E/F/G/H (38 new feature surfaces overall). The
 remaining ranked gap backlog lives in TODO.md sections 12 (top 40) and 13 (full
 125).
 
+**Bloomberg Wave I** (shipped, ranks 6-10 of the gap backlog): earnings-quality
+scorecard with Piotroski F / Altman Z / Beneish M (`data/earnings_quality.py`,
+`/api/earnings-quality/{symbol}`), market-wide Fear & Greed index from 7
+market-derived sub-indicators (`data/fear_greed.py`, `/api/fear-greed`), crack
+spreads / refining margins 3-2-1 + 5-3-2 (`data/crack_spreads.py`,
+`/api/crack-spreads`), inter-commodity spreads & ratios gold/silver, gold/oil,
+WTI-Brent, oil/gas etc. (`data/commodity_spreads.py`, `/api/commodity-spreads`),
+and the Taylor Rule / policy-rule estimator (`data/taylor_rule.py`,
+`/api/taylor-rule`). One panel each, panels fetch directly, same
+graceful-degradation + sample-data policy. This brings the total to 35 Bloomberg
+parity features across Waves C/D/E/F/G/H/I (43 new feature surfaces overall).
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen

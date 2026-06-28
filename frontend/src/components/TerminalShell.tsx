@@ -82,6 +82,11 @@ import { CentralBankRatesPanel } from "./CentralBankRatesPanel";
 import { TreasuryAuctionsPanel } from "./TreasuryAuctionsPanel";
 import { NetLiquidityPanel } from "./NetLiquidityPanel";
 import { NewsSentimentPanel } from "./NewsSentimentPanel";
+import { EarningsQualityPanel } from "./EarningsQualityPanel";
+import { FearGreedPanel } from "./FearGreedPanel";
+import { CrackSpreadsPanel } from "./CrackSpreadsPanel";
+import { CommoditySpreadsPanel } from "./CommoditySpreadsPanel";
+import { TaylorRulePanel } from "./TaylorRulePanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -164,6 +169,12 @@ const LAYOUT: Layout[] = [
   { i: "treasury-auctions", x: 0, y: 1886, w: 12, h: 32, minW: 6, minH: 18 },
   { i: "net-liquidity",     x: 0, y: 1918, w: 12, h: 32, minW: 6, minH: 18 },
   { i: "news-sentiment",    x: 0, y: 1950, w: 12, h: 32, minW: 6, minH: 18 },
+  // Bloomberg Wave I (appended at the bottom, non-overlapping)
+  { i: "earnings-quality",  x: 0, y: 1982, w: 12, h: 36, minW: 6, minH: 20 },
+  { i: "fear-greed",        x: 0, y: 2018, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "crack-spreads",     x: 0, y: 2052, w: 12, h: 32, minW: 6, minH: 18 },
+  { i: "commodity-spreads", x: 0, y: 2084, w: 12, h: 32, minW: 6, minH: 18 },
+  { i: "taylor-rule",       x: 0, y: 2116, w: 12, h: 34, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -473,6 +484,21 @@ export function TerminalShell() {
               </div>
               <div key="news-sentiment" data-panel-key="news-sentiment">
                 <ErrorBoundary label="News Sentiment"><NewsSentimentPanel /></ErrorBoundary>
+              </div>
+              <div key="earnings-quality" data-panel-key="earnings-quality">
+                <ErrorBoundary label="Earnings Quality"><EarningsQualityPanel /></ErrorBoundary>
+              </div>
+              <div key="fear-greed" data-panel-key="fear-greed">
+                <ErrorBoundary label="Fear & Greed Index"><FearGreedPanel /></ErrorBoundary>
+              </div>
+              <div key="crack-spreads" data-panel-key="crack-spreads">
+                <ErrorBoundary label="Crack Spreads"><CrackSpreadsPanel /></ErrorBoundary>
+              </div>
+              <div key="commodity-spreads" data-panel-key="commodity-spreads">
+                <ErrorBoundary label="Inter-Commodity Spreads"><CommoditySpreadsPanel /></ErrorBoundary>
+              </div>
+              <div key="taylor-rule" data-panel-key="taylor-rule">
+                <ErrorBoundary label="Taylor Rule"><TaylorRulePanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>
