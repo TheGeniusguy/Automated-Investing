@@ -67,6 +67,11 @@ import { SeasonalityPanel } from "./SeasonalityPanel";
 import { FactorAnalysisPanel } from "./FactorAnalysisPanel";
 import { MonteCarloPanel } from "./MonteCarloPanel";
 import { ShortInterestPanel } from "./ShortInterestPanel";
+import { DealsMonitorPanel } from "./DealsMonitorPanel";
+import { OptionsStrategyPanel } from "./OptionsStrategyPanel";
+import { EconCalendarPanel } from "./EconCalendarPanel";
+import { PairsTradingPanel } from "./PairsTradingPanel";
+import { AllocationOptimizerPanel } from "./AllocationOptimizerPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -131,6 +136,12 @@ const LAYOUT: Layout[] = [
   { i: "factor-analysis",    x: 0, y: 1394, w: 12, h: 28, minW: 6, minH: 16 },
   { i: "montecarlo",         x: 0, y: 1422, w: 12, h: 32, minW: 6, minH: 18 },
   { i: "short-interest",     x: 0, y: 1454, w: 12, h: 28, minW: 6, minH: 16 },
+  // Bloomberg Wave F (appended at the bottom, non-overlapping)
+  { i: "deals",                x: 0, y: 1482, w: 12, h: 30, minW: 6, minH: 16 },
+  { i: "options-strategy",     x: 0, y: 1512, w: 12, h: 36, minW: 6, minH: 20 },
+  { i: "econ-calendar",        x: 0, y: 1548, w: 12, h: 32, minW: 6, minH: 18 },
+  { i: "pairs",                x: 0, y: 1580, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "allocation-optimizer", x: 0, y: 1614, w: 12, h: 34, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -395,6 +406,21 @@ export function TerminalShell() {
               </div>
               <div key="short-interest" data-panel-key="short-interest">
                 <ErrorBoundary label="Short Interest"><ShortInterestPanel /></ErrorBoundary>
+              </div>
+              <div key="deals" data-panel-key="deals">
+                <ErrorBoundary label="M&A / Deals Monitor"><DealsMonitorPanel /></ErrorBoundary>
+              </div>
+              <div key="options-strategy" data-panel-key="options-strategy">
+                <ErrorBoundary label="Options Strategy Builder"><OptionsStrategyPanel /></ErrorBoundary>
+              </div>
+              <div key="econ-calendar" data-panel-key="econ-calendar">
+                <ErrorBoundary label="Economic Calendar"><EconCalendarPanel /></ErrorBoundary>
+              </div>
+              <div key="pairs" data-panel-key="pairs">
+                <ErrorBoundary label="Pairs / Relative Value"><PairsTradingPanel /></ErrorBoundary>
+              </div>
+              <div key="allocation-optimizer" data-panel-key="allocation-optimizer">
+                <ErrorBoundary label="Allocation Optimizer"><AllocationOptimizerPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>

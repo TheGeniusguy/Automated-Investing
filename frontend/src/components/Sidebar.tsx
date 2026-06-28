@@ -42,6 +42,7 @@ export const NAV_SECTIONS = [
       { key: "paper-trading", label: "Paper Trading" },
       { key: "etf-tracking", label: "ETF Tracking" },
       { key: "montecarlo", label: "Monte Carlo" },
+      { key: "allocation-optimizer", label: "Allocation Optimizer" },
     ],
   },
   {
@@ -73,6 +74,7 @@ export const NAV_SECTIONS = [
       { key: "seasonality", label: "Seasonality" },
       { key: "factor-analysis", label: "Factor Analysis" },
       { key: "short-interest", label: "Short Interest" },
+      { key: "pairs", label: "Pairs / Rel Value" },
     ],
   },
   {
@@ -97,8 +99,10 @@ export const NAV_SECTIONS = [
       { key: "market-news", label: "Market News" },
       { key: "filings", label: "SEC Filings" },
       { key: "options-analytics", label: "Options Analytics" },
+      { key: "options-strategy", label: "Strategy Builder" },
       { key: "backtest", label: "Backtester" },
       { key: "cot", label: "Positioning (COT)" },
+      { key: "deals", label: "M&A / Deals" },
     ],
   },
   {
@@ -106,6 +110,7 @@ export const NAV_SECTIONS = [
     items: [
       { key: "data-infra", label: "DB Status" },
       { key: "calendar", label: "Calendar" },
+      { key: "econ-calendar", label: "Economic Calendar" },
       { key: "alerts", label: "Alerts" },
     ],
   },
