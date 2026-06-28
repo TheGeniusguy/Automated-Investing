@@ -2,6 +2,8 @@ import type {
   AdvancedAnalyticsResponse,
   AnalyticsCatalogResponse,
   DeepEconomyResponse,
+  RatePath,
+  RateProbabilities,
   ETFTrackingResponse,
   EconCategory,
   PaperOrder,
@@ -523,6 +525,27 @@ export const api = {
   deepEconomy: () => getJSON<DeepEconomyResponse>("/api/economy/deep"),
   econCategory: (cat: string) =>
     getJSON<EconCategory>(`/api/economy/category/${encodeURIComponent(cat)}`),
+
+  // ── Bloomberg Wave C (panels mirror these shapes as local interfaces;
+  //    returns are intentionally permissive so each panel binds its own types)
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  optionsGreeks: (symbol: string) =>
+    getJSON<any>(`/api/options/greeks/${encodeURIComponent(symbol)}`),
+  optionsSurface: (symbol: string) =>
+    getJSON<any>(`/api/options/surface/${encodeURIComponent(symbol)}`),
+  optionsGex: (symbol: string) =>
+    getJSON<any>(`/api/options/gex/${encodeURIComponent(symbol)}`),
+  optionsMaxPain: (symbol: string) =>
+    getJSON<any>(`/api/options/max-pain/${encodeURIComponent(symbol)}`),
+  ratePath: () => getJSON<RatePath>("/api/rates/path"),
+  rateProbabilities: () => getJSON<RateProbabilities>("/api/rates/probabilities"),
+  backtestStrategies: () => getJSON<any[]>("/api/backtest/strategies"),
+  backtestRun: (body: unknown) => postJSON<any>("/api/backtest/run", body),
+  bondUniverse: () => getJSON<any>("/api/bonds/universe"),
+  bondAnalyze: (body: unknown) => postJSON<any>("/api/bonds/analyze", body),
+  cotMarkets: () => getJSON<any>("/api/cot/markets"),
+  cotSeries: (market: string) => getJSON<any>(`/api/cot/${encodeURIComponent(market)}`),
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 };
 
 async function _jsonOrThrow(r: Response): Promise<unknown> {

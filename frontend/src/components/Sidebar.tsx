@@ -29,6 +29,7 @@ export const NAV_SECTIONS = [
       { key: "pinboard", label: "Pinboard" },
       { key: "macro-explorer", label: "Explorer" },
       { key: "deep-economy", label: "Deep Economy" },
+      { key: "rate-path", label: "Fed Rate Path" },
     ],
   },
   {
@@ -73,6 +74,7 @@ export const NAV_SECTIONS = [
       { key: "crypto", label: "Crypto" },
       { key: "fx", label: "FX / Currencies" },
       { key: "fixed-income", label: "Fixed Income" },
+      { key: "bond-analytics", label: "Bond Analytics" },
     ],
   },
   {
@@ -85,6 +87,9 @@ export const NAV_SECTIONS = [
       { key: "news", label: "News" },
       { key: "market-news", label: "Market News" },
       { key: "filings", label: "SEC Filings" },
+      { key: "options-analytics", label: "Options Analytics" },
+      { key: "backtest", label: "Backtester" },
+      { key: "cot", label: "Positioning (COT)" },
     ],
   },
   {

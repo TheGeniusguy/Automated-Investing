@@ -14,6 +14,11 @@ import { FXPanel } from "./FXPanel";
 import { DailyBriefingPanel } from "./DailyBriefingPanel";
 import { DataInfraPanel } from "./DataInfraPanel";
 import { DeepEconomyPanel } from "./DeepEconomyPanel";
+import { OptionsAnalyticsPanel } from "./OptionsAnalyticsPanel";
+import { RatePathPanel } from "./RatePathPanel";
+import { BacktestPanel } from "./BacktestPanel";
+import { BondAnalyticsPanel } from "./BondAnalyticsPanel";
+import { COTPositioningPanel } from "./COTPositioningPanel";
 import { EarningsPanel } from "./EarningsPanel";
 import { EnergyPanel } from "./EnergyPanel";
 import { ErrorBoundary } from "./ErrorBoundary";
@@ -99,6 +104,11 @@ const LAYOUT: Layout[] = [
   { i: "paper-trading",      x: 0, y: 956,  w: 12, h: 28, minW: 6, minH: 16 },
   { i: "etf-tracking",       x: 0, y: 984,  w: 12, h: 28, minW: 6, minH: 16 },
   { i: "deep-economy",       x: 0, y: 1012, w: 12, h: 30, minW: 6, minH: 18 },
+  { i: "options-analytics",  x: 0, y: 1042, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "rate-path",          x: 0, y: 1076, w: 12, h: 26, minW: 6, minH: 14 },
+  { i: "backtest",           x: 0, y: 1102, w: 12, h: 32, minW: 6, minH: 18 },
+  { i: "bond-analytics",     x: 0, y: 1134, w: 12, h: 30, minW: 6, minH: 16 },
+  { i: "cot",                x: 0, y: 1164, w: 12, h: 30, minW: 6, minH: 16 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -318,6 +328,21 @@ export function TerminalShell() {
               </div>
               <div key="deep-economy" data-panel-key="deep-economy">
                 <ErrorBoundary label="Deep Economy"><DeepEconomyPanel /></ErrorBoundary>
+              </div>
+              <div key="options-analytics" data-panel-key="options-analytics">
+                <ErrorBoundary label="Options Analytics"><OptionsAnalyticsPanel /></ErrorBoundary>
+              </div>
+              <div key="rate-path" data-panel-key="rate-path">
+                <ErrorBoundary label="Fed Rate Path"><RatePathPanel /></ErrorBoundary>
+              </div>
+              <div key="backtest" data-panel-key="backtest">
+                <ErrorBoundary label="Backtester"><BacktestPanel /></ErrorBoundary>
+              </div>
+              <div key="bond-analytics" data-panel-key="bond-analytics">
+                <ErrorBoundary label="Bond Analytics"><BondAnalyticsPanel /></ErrorBoundary>
+              </div>
+              <div key="cot" data-panel-key="cot">
+                <ErrorBoundary label="Positioning (COT)"><COTPositioningPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>

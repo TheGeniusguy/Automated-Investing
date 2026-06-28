@@ -2871,3 +2871,27 @@ export interface DeepEconomyResponse {
   as_of: string;
   source: string;
 }
+
+// ── Bloomberg Wave C: Fed rate path (WIRP)
+export interface RatePathMeeting {
+  date: string;
+  implied_rate: number;
+  cut: number;
+  hold: number;
+  hike: number;
+}
+export interface RatePath {
+  implied_path: RatePathMeeting[];
+  terminal_rate: number;
+  cuts_priced: number;
+  current_target: number;
+  data_mode: string;
+  as_of: string;
+  source: string;
+}
+export interface RateProbabilities {
+  meetings: RatePathMeeting[];
+  data_mode: string;
+  as_of: string;
+  source: string;
+}
