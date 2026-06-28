@@ -17,7 +17,9 @@ from .correlations import correlation_model
 from .data import (
     allocation_optimizer as allocation_mod,
     bond_analytics as bond_analytics_mod,
+    breakevens as breakevens_mod,
     calendar as calendar_mod,
+    cds_pricer as cds_pricer_mod,
     central_bank_rates as central_bank_rates_mod,
     commodity_spreads as commodity_spreads_mod,
     compare as compare_mod,
@@ -30,10 +32,13 @@ from .data import (
     economic_calendar as econ_calendar_mod,
     fear_greed as fear_greed_mod,
     net_liquidity as net_liquidity_mod,
+    news_heat as news_heat_mod,
     news_sentiment as news_sentiment_mod,
+    oas_curves as oas_curves_mod,
     options_strategy as options_strategy_mod,
     pairs_trading as pairs_mod,
     portfolio_risk as portfolio_risk_mod,
+    reer as reer_mod,
     rrg as rrg_mod,
     taylor_rule as taylor_rule_mod,
     treasury_auctions as treasury_auctions_mod,
@@ -2549,3 +2554,54 @@ def commodity_spreads() -> dict:
 @app.get("/api/taylor-rule")
 def taylor_rule() -> dict:
     return taylor_rule_mod.taylor_rule()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave J: Corporate OAS Term-Structure by Rating (SPRD)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/oas-curves")
+def oas_curves() -> dict:
+    return oas_curves_mod.oas_curves()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave J: Breakeven Inflation & Real-Yield Curve (BEI)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/breakevens")
+def breakevens() -> dict:
+    return breakevens_mod.breakevens()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave J: REER & PPP Fair-Value Monitor (REER)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/reer")
+def reer() -> dict:
+    return reer_mod.reer()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave J: Single-Name CDS Pricer (CDSW)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/cds-pricer")
+def cds_pricer(
+    spread_bps: float = 100.0,
+    recovery: float = 0.40,
+    tenor_years: float = 5.0,
+    coupon_bps: float = 100.0,
+    notional: float = 10_000_000.0,
+) -> dict:
+    return cds_pricer_mod.cds_pricer(spread_bps, recovery, tenor_years, coupon_bps, notional)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave J: News-Heat / Abnormal News-Volume Detector (NH)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/news-heat")
+def news_heat() -> dict:
+    return news_heat_mod.news_heat()

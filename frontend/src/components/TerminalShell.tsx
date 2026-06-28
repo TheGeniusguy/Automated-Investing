@@ -87,6 +87,11 @@ import { FearGreedPanel } from "./FearGreedPanel";
 import { CrackSpreadsPanel } from "./CrackSpreadsPanel";
 import { CommoditySpreadsPanel } from "./CommoditySpreadsPanel";
 import { TaylorRulePanel } from "./TaylorRulePanel";
+import { OASCurvesPanel } from "./OASCurvesPanel";
+import { BreakevensPanel } from "./BreakevensPanel";
+import { REERPanel } from "./REERPanel";
+import { CDSPricerPanel } from "./CDSPricerPanel";
+import { NewsHeatPanel } from "./NewsHeatPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -175,6 +180,12 @@ const LAYOUT: Layout[] = [
   { i: "crack-spreads",     x: 0, y: 2052, w: 12, h: 32, minW: 6, minH: 18 },
   { i: "commodity-spreads", x: 0, y: 2084, w: 12, h: 32, minW: 6, minH: 18 },
   { i: "taylor-rule",       x: 0, y: 2116, w: 12, h: 34, minW: 6, minH: 18 },
+  // Bloomberg Wave J (appended at the bottom, non-overlapping)
+  { i: "oas-curves",        x: 0, y: 2150, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "breakevens",        x: 0, y: 2184, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "reer",              x: 0, y: 2218, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "cds-pricer",        x: 0, y: 2252, w: 12, h: 36, minW: 6, minH: 20 },
+  { i: "news-heat",         x: 0, y: 2288, w: 12, h: 34, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -499,6 +510,21 @@ export function TerminalShell() {
               </div>
               <div key="taylor-rule" data-panel-key="taylor-rule">
                 <ErrorBoundary label="Taylor Rule"><TaylorRulePanel /></ErrorBoundary>
+              </div>
+              <div key="oas-curves" data-panel-key="oas-curves">
+                <ErrorBoundary label="Credit Spreads by Rating"><OASCurvesPanel /></ErrorBoundary>
+              </div>
+              <div key="breakevens" data-panel-key="breakevens">
+                <ErrorBoundary label="Breakevens & Real Yields"><BreakevensPanel /></ErrorBoundary>
+              </div>
+              <div key="reer" data-panel-key="reer">
+                <ErrorBoundary label="REER Fair Value"><REERPanel /></ErrorBoundary>
+              </div>
+              <div key="cds-pricer" data-panel-key="cds-pricer">
+                <ErrorBoundary label="CDS Pricer"><CDSPricerPanel /></ErrorBoundary>
+              </div>
+              <div key="news-heat" data-panel-key="news-heat">
+                <ErrorBoundary label="News Heat Monitor"><NewsHeatPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>

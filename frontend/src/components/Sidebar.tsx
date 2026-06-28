@@ -34,6 +34,7 @@ export const NAV_SECTIONS = [
       { key: "central-bank-rates", label: "Central-Bank Rates" },
       { key: "net-liquidity", label: "Fed Net Liquidity" },
       { key: "taylor-rule", label: "Taylor Rule" },
+      { key: "breakevens", label: "Breakevens & Real Yields" },
     ],
   },
   {
@@ -97,7 +98,10 @@ export const NAV_SECTIONS = [
       { key: "treasury-auctions", label: "Treasury Auctions" },
       { key: "bond-analytics", label: "Bond Analytics" },
       { key: "fx-analytics", label: "FX Analytics" },
+      { key: "reer", label: "REER Fair Value" },
       { key: "credit-curves", label: "Credit & CDS" },
+      { key: "oas-curves", label: "Credit Spreads (OAS)" },
+      { key: "cds-pricer", label: "CDS Pricer" },
     ],
   },
   {
@@ -111,6 +115,7 @@ export const NAV_SECTIONS = [
       { key: "news", label: "News" },
       { key: "news-sentiment", label: "News Sentiment" },
       { key: "fear-greed", label: "Fear & Greed" },
+      { key: "news-heat", label: "News Heat" },
       { key: "market-news", label: "Market News" },
       { key: "filings", label: "SEC Filings" },
       { key: "options-analytics", label: "Options Analytics" },

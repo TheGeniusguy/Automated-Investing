@@ -487,15 +487,15 @@ waves of five down the list.
 
 ### Further backlog (ranks 11-40)
 
-- [ ] **11. Corporate OAS Term-Structure by Rating `SPRD`** [HIGH / low effort] - Option-adjusted spread surface across AAA-CCC and IG-vs-HY with historical percentile/z-score and spread-per-turn-of-duration, from ICE BofA OAS series on FRED (BAMLC0A*, BAMLH0A*).
+- [x] **11. Corporate OAS Term-Structure by Rating `SPRD`** [HIGH / low effort] - Option-adjusted spread surface across AAA-CCC and IG-vs-HY with historical percentile/z-score and spread-per-turn-of-duration, from ICE BofA OAS series on FRED (BAMLC0A*, BAMLH0A*).
       _Why this rank:_ Core credit-RV view, free FRED data, low lift; deepens the existing credit/CDS curves meaningfully.
-- [ ] **12. Breakeven Inflation & TIPS Real-Yield Curve `BEI`** [HIGH / low effort] - Full term structure of breakevens (5Y/10Y/30Y, 5y5y fwd) and TIPS real yields (DFII5/10/30, T5YIE/T10YIE/T5YIFR from FRED) with real-vs-nominal curve and carry decomposition, deeper than the headline inflation dashboard.
+- [x] **12. Breakeven Inflation & TIPS Real-Yield Curve `BEI`** [HIGH / low effort] - Full term structure of breakevens (5Y/10Y/30Y, 5y5y fwd) and TIPS real yields (DFII5/10/30, T5YIE/T10YIE/T5YIFR from FRED) with real-vs-nominal curve and carry decomposition, deeper than the headline inflation dashboard.
       _Why this rank:_ High-value rates screen, all free FRED series, minimal build on top of existing inflation work.
-- [ ] **13. REER & PPP Fair-Value Monitor `REER`** [HIGH / low effort] - Trade-weighted REER per currency from FRED BIS series with z-score vs its 10y mean plus a PPP fair-value band, flagging rich/cheap currencies in real terms.
+- [x] **13. REER & PPP Fair-Value Monitor `REER`** [HIGH / low effort] - Trade-weighted REER per currency from FRED BIS series with z-score vs its 10y mean plus a PPP fair-value band, flagging rich/cheap currencies in real terms.
       _Why this rank:_ Low effort, distinct from spot FX already shipped; 'which currency is cheap' is an instant hook.
-- [ ] **14. Single-Name CDS Pricer (CDSW) `CDSW`** [HIGH / low effort] - Marks a CDS to market: par-spread to/from upfront points off the existing credit-triangle survival curve, with CS01/DV01, accrued and PnL for a chosen notional and coupon (100/500).
+- [x] **14. Single-Name CDS Pricer (CDSW) `CDSW`** [HIGH / low effort] - Marks a CDS to market: par-spread to/from upfront points off the existing credit-triangle survival curve, with CS01/DV01, accrued and PnL for a chosen notional and coupon (100/500).
       _Why this rank:_ Reuses the shipped survival curve; a working pricer signals derivatives credibility at low cost.
-- [ ] **15. News-Heat / Abnormal News-Volume Detector `NH`** [HIGH / low effort] - Rolling article counts per ticker with z-score spike flags so an unusual coverage burst surfaces before the price moves; pure count statistics over the existing news feed.
+- [x] **15. News-Heat / Abnormal News-Volume Detector `NH`** [HIGH / low effort] - Rolling article counts per ticker with z-score spike flags so an unusual coverage burst surfaces before the price moves; pure count statistics over the existing news feed.
       _Why this rank:_ Cheap statistic over data we already cache; a leading 'something is happening' alert reads as predictive.
 - [ ] **16. Superinvestor / Smart-Money Clone Tracker** [HIGH / medium effort] - Tracks famous managers (Berkshire, Pershing, Scion, etc.) by CIK from 13F filings, showing top positions, latest-quarter moves and a cloneable model portfolio weighted by reported market values.
       _Why this rank:_ Huge marketing pull ('clone Buffett'); free EDGAR data, instantly viral demo content.
