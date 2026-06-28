@@ -59,6 +59,19 @@ index (`data/econ_surprise.py`, `/api/econ-surprise`), seasonality
 sample-data policy. This brings the total to 15 Bloomberg parity features across
 Waves C/D/E (23 new feature surfaces overall).
 
+**Bloomberg Wave F** (shipped): M&A/deals monitor (`data/deals_monitor.py`,
+`/api/deals`), options strategy builder with multi-leg payoff diagrams + combined
+greeks (`data/options_strategy.py`, `/api/options-strategy/{symbol}`,
+`/api/options-strategy-list`), economic calendar with forward release schedule
+(`data/economic_calendar.py`, `/api/econ-calendar`), pairs / relative-value
+stat-arb with spread z-score + hedge ratio + half-life + cointegration
+(`data/pairs_trading.py`, `/api/pairs/{sym1}/{sym2}`, `/api/pairs-screen`), and an
+allocation optimizer with min-variance / max-sharpe / risk-parity weights +
+efficient frontier (`data/allocation_optimizer.py`, `/api/allocation-optimizer`).
+One panel each (panels fetch their routes directly; same graceful-degradation +
+sample-data policy). This brings the total to 20 Bloomberg parity features across
+Waves C/D/E/F (28 new feature surfaces overall).
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen

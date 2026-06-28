@@ -15,10 +15,15 @@ from .chat import terminal_chat
 from .config import settings
 from .correlations import correlation_model
 from .data import (
+    allocation_optimizer as allocation_mod,
     bond_analytics as bond_analytics_mod,
     calendar as calendar_mod,
     compare as compare_mod,
     cot_positioning as cot_mod,
+    deals_monitor as deals_mod,
+    economic_calendar as econ_calendar_mod,
+    options_strategy as options_strategy_mod,
+    pairs_trading as pairs_mod,
     commodities_curve as commodities_mod,
     credit_curves as credit_mod,
     crypto as crypto_mod,
@@ -2339,3 +2344,58 @@ def montecarlo(symbol: str) -> dict:
 @app.get("/api/short-interest/{symbol}")
 def short_interest(symbol: str) -> dict:
     return short_interest_mod.short_interest(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave F: M&A / Deals Monitor (MA)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/deals")
+def deals() -> dict:
+    return deals_mod.deals_monitor()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave F: Options Strategy Builder (OSA)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/options-strategy-list")
+def options_strategy_list() -> dict:
+    return options_strategy_mod.list_strategies()
+
+
+@app.get("/api/options-strategy/{symbol}")
+def options_strategy(symbol: str, strategy: str = "bull_call_spread") -> dict:
+    return options_strategy_mod.build_strategy(symbol, strategy)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave F: Economic Calendar (ECO)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/econ-calendar")
+def econ_calendar() -> dict:
+    return econ_calendar_mod.economic_calendar()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave F: Pairs / Relative Value
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/pairs-screen")
+def pairs_screen() -> dict:
+    return pairs_mod.pairs_screen()
+
+
+@app.get("/api/pairs/{sym1}/{sym2}")
+def pairs(sym1: str, sym2: str) -> dict:
+    return pairs_mod.pairs_analysis(sym1, sym2)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave F: Allocation Optimizer / Risk Parity (PORT)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/allocation-optimizer")
+def allocation_optimizer(symbols: str | None = None, method: str = "risk_parity") -> dict:
+    return allocation_mod.optimize(symbols, method)
