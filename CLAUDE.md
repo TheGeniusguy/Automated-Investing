@@ -16,6 +16,56 @@ Two app surfaces, one repo:
 - `backend/` — FastAPI service that pulls macro data, classifies the regime, and streams Claude briefings as SSE.
 - `frontend/` — React + Vite terminal UI with draggable/resizable panels.
 
+## Feature surfaces added 2026-06
+
+Three build waves landed on top of the original macro/regime/portfolio core. All
+new surfaces follow the same contract: a self-contained backend module, a route
+in `main.py`, a typed client method, and a panel wired into `TerminalShell` +
+`Sidebar`.
+
+**Unusual Whales feeds** (`data/unusual_whales.py`): market-wide news + insider
+firehose. `GET /api/news/market`, `/api/insiders/market`. Panels: `MarketNewsPanel`,
+`MarketInsidersPanel`. Needs `UNUSUAL_WHALES_API_KEY` (optional; degrades).
+
+**v2 analytics** ("Analytics" sidebar section):
+- `portfolio/metrics_ext.py` - 20 extra performance metrics + a computable-metric
+  catalog. `GET /api/analytics/advanced`, `/catalog`. See `docs/derivable-metrics.md`.
+- `paper/` - paper trading with commission/slippage fills, FIFO-derived positions,
+  execution analytics. Self-seeding "Demo Book". `/api/paper/portfolios[...]`.
+- `portfolio/weighted.py` - model-portfolio attribution + rebalance. `/api/weighted/*`.
+- `data/etf_tracking.py` - ETF expense/AUM/sector/overlap. `GET /api/etf/track`.
+- `proforma/` - IB 3-statement (ties exactly) + DCF/WACC + comps + scenario/tornado.
+  `GET /api/proforma`. Panel `ProFormaPanel` (the showpiece).
+- `data/econ_deep.py` - 9 categories, ~85 FRED series. `GET /api/economy/deep`.
+
+**Bloomberg Wave C** (parity features):
+- `data/options_greeks.py` - Black-Scholes greeks, vol surface, GEX, max-pain.
+  `GET /api/options/{greeks,surface,gex,max-pain}/{symbol}`.
+- `data/rate_path.py` - FedWatch implied rate path. `GET /api/rates/{path,probabilities}`.
+- `backtest/` - rule-based strategy backtester. `GET /api/backtest/strategies`, `POST /run`.
+- `data/bond_analytics.py` - bond price/duration/convexity/DV01. `GET /api/bonds/universe`, `POST /analyze`.
+- `data/cot_positioning.py` - CFTC COT net positioning + index. `GET /api/cot/{markets,{market}}`.
+
+> Waves D and E (10 more parity features: FX carry/forwards, commodities curves,
+> analyst estimates, credit/CDS, alerts, surprise index, seasonality, factor
+> analysis, Monte Carlo, short interest) are specced and queued.
+
+### Sample-data policy (deliberate)
+These surfaces are built for a marketing portfolio and must look fully populated.
+When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
+badge (clean screenshots). Integrity is kept under the hood: sample values live in
+`SAMPLE_*` constants / `sample_data.py` modules, every payload carries an internal
+`data_mode` ("live" | "sample") + `as_of` + `source`, and live data is always
+preferred when available. Do not surface a sample badge in the UI; do not delete
+the `data_mode` field.
+
+### Design system
+The terminal was re-themed to Anthropic's visual language: warm "ink" palette with
+a clay accent (token VALUES changed, names kept), Hanken Grotesk UI + Newsreader
+serif display (free stand-ins for Styrene/Tiempos; swap path in `frontend/index.html`),
+JetBrains Mono for tabular columns, rounded elevated panels via the shared
+`.panel`/`.stat-figure` classes in `index.css`.
+
 ## Commands
 
 ### Backend
