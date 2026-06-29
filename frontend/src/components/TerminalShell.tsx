@@ -95,6 +95,9 @@ import { NewsHeatPanel } from "./NewsHeatPanel";
 import { SuperinvestorsPanel } from "./SuperinvestorsPanel";
 import { VolumeProfilePanel } from "./VolumeProfilePanel";
 import { SocialSentimentPanel } from "./SocialSentimentPanel";
+import { ForwardRatesPanel } from "./ForwardRatesPanel";
+import { CarryRolldownPanel } from "./CarryRolldownPanel";
+import { SovereignBondsPanel } from "./SovereignBondsPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -192,6 +195,9 @@ const LAYOUT: Layout[] = [
   { i: "superinvestors",    x: 0, y: 2322, w: 12, h: 38, minW: 6, minH: 20 },
   { i: "volume-profile",    x: 0, y: 2360, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "social-sentiment",  x: 0, y: 2396, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "forward-rates",     x: 0, y: 2430, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "carry-rolldown",    x: 0, y: 2466, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "sovereign-bonds",   x: 0, y: 2502, w: 12, h: 36, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -540,6 +546,15 @@ export function TerminalShell() {
               </div>
               <div key="social-sentiment" data-panel-key="social-sentiment">
                 <ErrorBoundary label="Social Sentiment"><SocialSentimentPanel /></ErrorBoundary>
+              </div>
+              <div key="forward-rates" data-panel-key="forward-rates">
+                <ErrorBoundary label="Forward-Rate Matrix"><ForwardRatesPanel /></ErrorBoundary>
+              </div>
+              <div key="carry-rolldown" data-panel-key="carry-rolldown">
+                <ErrorBoundary label="Carry & Rolldown"><CarryRolldownPanel /></ErrorBoundary>
+              </div>
+              <div key="sovereign-bonds" data-panel-key="sovereign-bonds">
+                <ErrorBoundary label="Sovereign Bonds"><SovereignBondsPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>
