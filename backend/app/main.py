@@ -106,6 +106,9 @@ from .data import (
     superinvestors as superinvestors_mod,
     volume_profile as volume_profile_mod,
     social_sentiment as social_sentiment_mod,
+    forward_rates as forward_rates_mod,
+    carry_rolldown as carry_rolldown_mod,
+    sovereign_bonds as sovereign_bonds_mod,
 )
 from .alerts import engine as alerts_mod
 from .db import engine as db_engine
@@ -2635,3 +2638,30 @@ def volume_profile(symbol: str, lookback_days: int = 120, bins: int = 24) -> dic
 @app.get("/api/social-sentiment")
 def social_sentiment() -> dict:
     return social_sentiment_mod.social_sentiment()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave L: Implied Forward-Rate Matrix (FWCM)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/forward-rates")
+def forward_rates() -> dict:
+    return forward_rates_mod.forward_rates()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave L: Carry & Rolldown Curve RV Analyzer (CARRY)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/carry-rolldown")
+def carry_rolldown(horizon_months: int = 3) -> dict:
+    return carry_rolldown_mod.carry_rolldown(horizon_months)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave L: Global Sovereign Bond Monitor (WB)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/sovereign-bonds")
+def sovereign_bonds() -> dict:
+    return sovereign_bonds_mod.sovereign_bonds()
