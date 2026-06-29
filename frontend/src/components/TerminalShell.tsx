@@ -98,6 +98,9 @@ import { SocialSentimentPanel } from "./SocialSentimentPanel";
 import { ForwardRatesPanel } from "./ForwardRatesPanel";
 import { CarryRolldownPanel } from "./CarryRolldownPanel";
 import { SovereignBondsPanel } from "./SovereignBondsPanel";
+import { FinancialConditionsPanel } from "./FinancialConditionsPanel";
+import { PmiDiffusionPanel } from "./PmiDiffusionPanel";
+import { UnusualOptionsPanel } from "./UnusualOptionsPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -198,6 +201,9 @@ const LAYOUT: Layout[] = [
   { i: "forward-rates",     x: 0, y: 2430, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "carry-rolldown",    x: 0, y: 2466, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "sovereign-bonds",   x: 0, y: 2502, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "financial-conditions", x: 0, y: 2538, w: 12, h: 38, minW: 6, minH: 20 },
+  { i: "pmi-diffusion",     x: 0, y: 2576, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "unusual-options",   x: 0, y: 2612, w: 12, h: 36, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -555,6 +561,15 @@ export function TerminalShell() {
               </div>
               <div key="sovereign-bonds" data-panel-key="sovereign-bonds">
                 <ErrorBoundary label="Sovereign Bonds"><SovereignBondsPanel /></ErrorBoundary>
+              </div>
+              <div key="financial-conditions" data-panel-key="financial-conditions">
+                <ErrorBoundary label="Financial Conditions"><FinancialConditionsPanel /></ErrorBoundary>
+              </div>
+              <div key="pmi-diffusion" data-panel-key="pmi-diffusion">
+                <ErrorBoundary label="PMI Diffusion"><PmiDiffusionPanel /></ErrorBoundary>
+              </div>
+              <div key="unusual-options" data-panel-key="unusual-options">
+                <ErrorBoundary label="Unusual Options"><UnusualOptionsPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>
