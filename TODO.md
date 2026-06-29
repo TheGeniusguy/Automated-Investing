@@ -509,11 +509,11 @@ waves of five down the list.
       _Why this rank:_ High-value trade-idea generator built purely on the existing curve; pairs naturally with the forward matrix.
 - [x] **21. Global Sovereign Bond Monitor (WB) `WB`** [HIGH / medium effort] - Grid of 10Y (and 2Y/30Y) government yields across major economies with daily bp moves and spreads-to-Treasury/Bund, from FRED OECD long-term rate series (IRLTLT01*) with sample fallback.
       _Why this rank:_ Another high-impact world board complementing the rate monitor; free FRED data, broad appeal.
-- [ ] **22. Financial Conditions Index Monitor `BFCIUS`** [HIGH / medium effort] - Composite tracker combining Chicago Fed NFCI/ANFCI and St. Louis STLFSI with a homemade index of credit spreads, equity vol, USD and real rates to flag tight vs loose regimes, all from FRED.
+- [x] **22. Financial Conditions Index Monitor `BFCIUS`** [HIGH / medium effort] - Composite tracker combining Chicago Fed NFCI/ANFCI and St. Louis STLFSI with a homemade index of credit spreads, equity vol, USD and real rates to flag tight vs loose regimes, all from FRED.
       _Why this rank:_ Single 'are conditions tight?' gauge is a powerful macro narrative tool; all free series.
-- [ ] **23. PMI / Business-Survey Diffusion Aggregator** [HIGH / medium effort] - Aggregates ISM mfg & services and regional Fed surveys (Empire, Philly, Dallas, KC, Richmond) plus S&P Global PMI into a diffusion heatmap with the 50 threshold and a composite forward-activity read from FRED.
+- [x] **23. PMI / Business-Survey Diffusion Aggregator** [HIGH / medium effort] - Aggregates ISM mfg & services and regional Fed surveys (Empire, Philly, Dallas, KC, Richmond) plus S&P Global PMI into a diffusion heatmap with the 50 threshold and a composite forward-activity read from FRED.
       _Why this rank:_ Color-coded expansion/contraction heatmap is a clean WOW; consolidates many FRED series into one view.
-- [ ] **24. Unusual Options Activity Scanner (OMON) `OMON`** [HIGH / medium effort] - Structured scanner over the live yfinance option chain flagging volume-to-OI spikes, large premium prints, and call/put premium skew per strike, ranking the day's most unusual contracts.
+- [x] **24. Unusual Options Activity Scanner (OMON) `OMON`** [HIGH / medium effort] - Structured scanner over the live yfinance option chain flagging volume-to-OI spikes, large premium prints, and call/put premium skew per strike, ranking the day's most unusual contracts.
       _Why this rank:_ 'Smart-money options' angle is highly marketable; builds on the options chain we already have.
 - [ ] **25. ETF Net-Flow Dashboard** [HIGH / medium effort] - Estimates daily/weekly net dollar flow per ETF as delta-shares-outstanding times NAV (vs current ETF panel showing only AUM/perf/holdings), ranked by sector and asset class to show where money is rotating.
       _Why this rank:_ 'Where is money flowing' is a compelling rotation story; extends the existing ETF tracker.
