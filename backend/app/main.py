@@ -103,6 +103,9 @@ from .data import (
     watchlist,
     watchlists_db,
     yield_curve as yield_curve_mod,
+    superinvestors as superinvestors_mod,
+    volume_profile as volume_profile_mod,
+    social_sentiment as social_sentiment_mod,
 )
 from .alerts import engine as alerts_mod
 from .db import engine as db_engine
@@ -2605,3 +2608,30 @@ def cds_pricer(
 @app.get("/api/news-heat")
 def news_heat() -> dict:
     return news_heat_mod.news_heat()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave K: Superinvestor / Smart-Money Clone Tracker (13F)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/superinvestors")
+def superinvestors() -> dict:
+    return superinvestors_mod.superinvestors()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave K: Volume Profile / Volume-at-Price (VPVR)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/volume-profile/{symbol}")
+def volume_profile(symbol: str, lookback_days: int = 120, bins: int = 24) -> dict:
+    return volume_profile_mod.volume_profile(symbol, lookback_days, bins)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave K: Social / Retail Sentiment (WSB + StockTwits)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/social-sentiment")
+def social_sentiment() -> dict:
+    return social_sentiment_mod.social_sentiment()
