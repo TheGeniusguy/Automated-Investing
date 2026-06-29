@@ -149,6 +149,22 @@ policy. This brings the total to 46 Bloomberg parity features across
 Waves C/D/E/F/G/H/I/J/K/L (54 new feature surfaces overall). The remaining ranked gap
 backlog continues at rank 22 in TODO.md section 12.
 
+**Bloomberg Wave M** (shipped, ranks 22-24 of the gap backlog): financial conditions
+index monitor blending Chicago Fed NFCI/ANFCI + St. Louis STLFSI with a homemade
+composite of credit spreads / equity vol / USD / real rates into a 0-100 tightness
+gauge + Tight/Neutral/Loose verdict (`data/financial_conditions.py`,
+`/api/financial-conditions`), PMI / business-survey diffusion aggregator normalizing
+ISM + regional Fed surveys (Empire/Philly/Dallas/KC/Richmond) + S&P Global into one
+expansion/contraction heatmap with a composite forward-activity read
+(`data/pmi_diffusion.py`, `/api/pmi-diffusion`), and an unusual options activity scanner
+over the live yfinance chain flagging vol/OI spikes + large premium prints + call/put
+skew, ranked by unusualness (`data/unusual_options.py`, `/api/unusual-options`). FCI and
+PMI reuse the shipped FRED fetch path; the scanner reuses the shipped options-chain
+access. One panel each, panels fetch directly, same graceful-degradation + sample-data
+policy. This brings the total to 49 Bloomberg parity features across
+Waves C/D/E/F/G/H/I/J/K/L/M (57 new feature surfaces overall). The remaining ranked gap
+backlog continues at rank 25 in TODO.md section 12.
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
