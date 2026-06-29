@@ -122,6 +122,19 @@ directly, same graceful-degradation + sample-data policy. This brings the total 
 overall). The full ranked gap backlog (40 top + 125 total) lives in TODO.md
 sections 12 and 13; ranks 1-15 are now shipped.
 
+**Bloomberg Wave K** (shipped, ranks 16-18 of the gap backlog): superinvestor /
+smart-money clone tracker pulling live 13F holdings by CIK with a CUSIP→ticker map
++ quarter-over-quarter move tags + a smart-money consensus board
+(`data/superinvestors.py`, `/api/superinvestors`), volume profile / volume-at-price
+with POC, 70% value area (VAH/VAL) and HVN/LVN nodes from OHLCV
+(`data/volume_profile.py`, `/api/volume-profile/{symbol}`), and a social / retail
+sentiment monitor over the live StockTwits public stream with mention-velocity +
+bull/bear ratio and a deterministic sample fallback (`data/social_sentiment.py`,
+`/api/social-sentiment`). One panel each, panels fetch directly, same
+graceful-degradation + sample-data policy. This brings the total to 43 Bloomberg
+parity features across Waves C/D/E/F/G/H/I/J/K (51 new feature surfaces overall).
+The remaining ranked gap backlog continues at rank 19 in TODO.md section 12.
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
