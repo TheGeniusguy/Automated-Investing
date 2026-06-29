@@ -109,6 +109,9 @@ from .data import (
     forward_rates as forward_rates_mod,
     carry_rolldown as carry_rolldown_mod,
     sovereign_bonds as sovereign_bonds_mod,
+    financial_conditions as financial_conditions_mod,
+    pmi_diffusion as pmi_diffusion_mod,
+    unusual_options as unusual_options_mod,
 )
 from .alerts import engine as alerts_mod
 from .db import engine as db_engine
@@ -2665,3 +2668,30 @@ def carry_rolldown(horizon_months: int = 3) -> dict:
 @app.get("/api/sovereign-bonds")
 def sovereign_bonds() -> dict:
     return sovereign_bonds_mod.sovereign_bonds()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave M: Financial Conditions Index Monitor (BFCIUS)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/financial-conditions")
+def financial_conditions() -> dict:
+    return financial_conditions_mod.financial_conditions()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave M: PMI / Business-Survey Diffusion Aggregator
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/pmi-diffusion")
+def pmi_diffusion() -> dict:
+    return pmi_diffusion_mod.pmi_diffusion()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave M: Unusual Options Activity Scanner (OMON)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/unusual-options")
+def unusual_options() -> dict:
+    return unusual_options_mod.unusual_options()
