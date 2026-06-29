@@ -92,6 +92,9 @@ import { BreakevensPanel } from "./BreakevensPanel";
 import { REERPanel } from "./REERPanel";
 import { CDSPricerPanel } from "./CDSPricerPanel";
 import { NewsHeatPanel } from "./NewsHeatPanel";
+import { SuperinvestorsPanel } from "./SuperinvestorsPanel";
+import { VolumeProfilePanel } from "./VolumeProfilePanel";
+import { SocialSentimentPanel } from "./SocialSentimentPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -186,6 +189,9 @@ const LAYOUT: Layout[] = [
   { i: "reer",              x: 0, y: 2218, w: 12, h: 34, minW: 6, minH: 18 },
   { i: "cds-pricer",        x: 0, y: 2252, w: 12, h: 36, minW: 6, minH: 20 },
   { i: "news-heat",         x: 0, y: 2288, w: 12, h: 34, minW: 6, minH: 18 },
+  { i: "superinvestors",    x: 0, y: 2322, w: 12, h: 38, minW: 6, minH: 20 },
+  { i: "volume-profile",    x: 0, y: 2360, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "social-sentiment",  x: 0, y: 2396, w: 12, h: 34, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -525,6 +531,15 @@ export function TerminalShell() {
               </div>
               <div key="news-heat" data-panel-key="news-heat">
                 <ErrorBoundary label="News Heat Monitor"><NewsHeatPanel /></ErrorBoundary>
+              </div>
+              <div key="superinvestors" data-panel-key="superinvestors">
+                <ErrorBoundary label="Superinvestor Tracker"><SuperinvestorsPanel /></ErrorBoundary>
+              </div>
+              <div key="volume-profile" data-panel-key="volume-profile">
+                <ErrorBoundary label="Volume Profile"><VolumeProfilePanel /></ErrorBoundary>
+              </div>
+              <div key="social-sentiment" data-panel-key="social-sentiment">
+                <ErrorBoundary label="Social Sentiment"><SocialSentimentPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>
