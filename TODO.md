@@ -503,11 +503,11 @@ waves of five down the list.
       _Why this rank:_ Visually striking pro-charting feature retail tools charge for; strong screenshot WOW from free data.
 - [x] **18. Social / Retail Sentiment (WSB + StockTwits)** [HIGH / medium effort] - StockTwits public stream and Reddit r/wallstreetbets/r/stocks mention counts for mention-velocity and bull/bear ratio per ticker, with deterministic sample fallback when endpoints rate-limit.
       _Why this rank:_ Meme-stock zeitgeist appeal; highly marketable even though feeds are rate-limited (honest sample fallback).
-- [ ] **19. Implied Forward-Rate Matrix (FWCM) `FWCM`** [HIGH / medium effort] - Bootstraps the spot Treasury curve into a forward-rate grid (1y1y, 2y1y, 5y5y, 1y9y) so users see priced future short rates and compare forwards to spot for curve trades.
+- [x] **19. Implied Forward-Rate Matrix (FWCM) `FWCM`** [HIGH / medium effort] - Bootstraps the spot Treasury curve into a forward-rate grid (1y1y, 2y1y, 5y5y, 1y9y) so users see priced future short rates and compare forwards to spot for curve trades.
       _Why this rank:_ Derived analytically from the curve we already ship; a serious rates-desk tool with little new data.
-- [ ] **20. Carry & Rolldown Curve RV Analyzer (CARRY) `CARRY`** [HIGH / medium effort] - Expected carry, rolldown and 3m/6m/12m horizon return for each curve point and common spread/butterfly trades, ranking the richest carry+roll opportunities, derived analytically from the shipped spot curve.
+- [x] **20. Carry & Rolldown Curve RV Analyzer (CARRY) `CARRY`** [HIGH / medium effort] - Expected carry, rolldown and 3m/6m/12m horizon return for each curve point and common spread/butterfly trades, ranking the richest carry+roll opportunities, derived analytically from the shipped spot curve.
       _Why this rank:_ High-value trade-idea generator built purely on the existing curve; pairs naturally with the forward matrix.
-- [ ] **21. Global Sovereign Bond Monitor (WB) `WB`** [HIGH / medium effort] - Grid of 10Y (and 2Y/30Y) government yields across major economies with daily bp moves and spreads-to-Treasury/Bund, from FRED OECD long-term rate series (IRLTLT01*) with sample fallback.
+- [x] **21. Global Sovereign Bond Monitor (WB) `WB`** [HIGH / medium effort] - Grid of 10Y (and 2Y/30Y) government yields across major economies with daily bp moves and spreads-to-Treasury/Bund, from FRED OECD long-term rate series (IRLTLT01*) with sample fallback.
       _Why this rank:_ Another high-impact world board complementing the rate monitor; free FRED data, broad appeal.
 - [ ] **22. Financial Conditions Index Monitor `BFCIUS`** [HIGH / medium effort] - Composite tracker combining Chicago Fed NFCI/ANFCI and St. Louis STLFSI with a homemade index of credit spreads, equity vol, USD and real rates to flag tight vs loose regimes, all from FRED.
       _Why this rank:_ Single 'are conditions tight?' gauge is a powerful macro narrative tool; all free series.

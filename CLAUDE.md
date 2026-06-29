@@ -135,6 +135,20 @@ graceful-degradation + sample-data policy. This brings the total to 43 Bloomberg
 parity features across Waves C/D/E/F/G/H/I/J/K (51 new feature surfaces overall).
 The remaining ranked gap backlog continues at rank 19 in TODO.md section 12.
 
+**Bloomberg Wave L** (shipped, ranks 19-21 of the gap backlog): implied forward-rate
+matrix bootstrapping the spot Treasury curve into a forward grid (1y1y/2y1y/5y5y/1y9y)
+with forward-vs-spot signals (`data/forward_rates.py`, `/api/forward-rates`), carry &
+rolldown curve RV analyzer with per-point carry/rolldown/total over 3m/6m/12m horizons
+plus 2s10s / 5s30s / 2s5s10s RV trades ranked by richest carry+roll
+(`data/carry_rolldown.py`, `/api/carry-rolldown`), and a global sovereign bond monitor
+of 10Y (and 2Y/30Y) government yields across major economies with daily bp moves and
+spreads-to-Treasury/Bund from FRED OECD series (`data/sovereign_bonds.py`,
+`/api/sovereign-bonds`). All three derive from the shipped yield-curve / FRED fetch
+paths. One panel each, panels fetch directly, same graceful-degradation + sample-data
+policy. This brings the total to 46 Bloomberg parity features across
+Waves C/D/E/F/G/H/I/J/K/L (54 new feature surfaces overall). The remaining ranked gap
+backlog continues at rank 22 in TODO.md section 12.
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
