@@ -165,6 +165,20 @@ policy. This brings the total to 49 Bloomberg parity features across
 Waves C/D/E/F/G/H/I/J/K/L/M (57 new feature surfaces overall). The remaining ranked gap
 backlog continues at rank 25 in TODO.md section 12.
 
+**Bloomberg Wave N** (shipped, ranks 25-27 of the gap backlog): ETF net-flow dashboard
+estimating per-ETF daily/weekly net dollar flow (honest method field: live =
+volume/money-flow proxy, never claimed as exact creation/redemption) ranked by asset
+class + sector (`data/etf_flows.py`, `/api/etf-flows`), dark-pool / off-exchange short
+volume from FINRA's free RegSHO daily files with per-symbol short-volume ratio + market
+aggregate, labeled as a routing proxy not net-short (`data/dark_pool.py`,
+`/api/dark-pool`), and a 13F change-tracking + hedge-fund clustering engine computing
+q/q new-buys / sold-out / add / trim plus a crowding view, reusing the Wave K
+superinvestor EDGAR fetch + CUSIP-to-ticker map (`data/holdings_changes.py`,
+`/api/holdings-changes`). One panel each, panels fetch directly, same
+graceful-degradation + sample-data policy. This brings the total to 52 Bloomberg parity
+features across Waves C/D/E/F/G/H/I/J/K/L/M/N (60 new feature surfaces overall). The
+remaining ranked gap backlog continues at rank 28 in TODO.md section 12.
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
