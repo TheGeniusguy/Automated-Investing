@@ -112,6 +112,9 @@ from .data import (
     financial_conditions as financial_conditions_mod,
     pmi_diffusion as pmi_diffusion_mod,
     unusual_options as unusual_options_mod,
+    etf_flows as etf_flows_mod,
+    dark_pool as dark_pool_mod,
+    holdings_changes as holdings_changes_mod,
 )
 from .alerts import engine as alerts_mod
 from .db import engine as db_engine
@@ -2695,3 +2698,30 @@ def pmi_diffusion() -> dict:
 @app.get("/api/unusual-options")
 def unusual_options() -> dict:
     return unusual_options_mod.unusual_options()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave N: ETF Net-Flow Dashboard
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/etf-flows")
+def etf_flows() -> dict:
+    return etf_flows_mod.etf_flows()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave N: Dark-Pool / Off-Exchange Short Volume
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/dark-pool")
+def dark_pool() -> dict:
+    return dark_pool_mod.dark_pool()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave N: 13F Change-Tracking & Hedge-Fund Clustering (HDS)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/holdings-changes")
+def holdings_changes() -> dict:
+    return holdings_changes_mod.holdings_changes()
