@@ -101,6 +101,9 @@ import { SovereignBondsPanel } from "./SovereignBondsPanel";
 import { FinancialConditionsPanel } from "./FinancialConditionsPanel";
 import { PmiDiffusionPanel } from "./PmiDiffusionPanel";
 import { UnusualOptionsPanel } from "./UnusualOptionsPanel";
+import { EtfFlowsPanel } from "./EtfFlowsPanel";
+import { DarkPoolPanel } from "./DarkPoolPanel";
+import { HoldingsChangesPanel } from "./HoldingsChangesPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -204,6 +207,9 @@ const LAYOUT: Layout[] = [
   { i: "financial-conditions", x: 0, y: 2538, w: 12, h: 38, minW: 6, minH: 20 },
   { i: "pmi-diffusion",     x: 0, y: 2576, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "unusual-options",   x: 0, y: 2612, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "etf-flows",         x: 0, y: 2648, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "dark-pool",         x: 0, y: 2684, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "holdings-changes",  x: 0, y: 2720, w: 12, h: 38, minW: 6, minH: 20 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -570,6 +576,15 @@ export function TerminalShell() {
               </div>
               <div key="unusual-options" data-panel-key="unusual-options">
                 <ErrorBoundary label="Unusual Options"><UnusualOptionsPanel /></ErrorBoundary>
+              </div>
+              <div key="etf-flows" data-panel-key="etf-flows">
+                <ErrorBoundary label="ETF Net-Flow"><EtfFlowsPanel /></ErrorBoundary>
+              </div>
+              <div key="dark-pool" data-panel-key="dark-pool">
+                <ErrorBoundary label="Dark-Pool Short Volume"><DarkPoolPanel /></ErrorBoundary>
+              </div>
+              <div key="holdings-changes" data-panel-key="holdings-changes">
+                <ErrorBoundary label="13F Change Tracking"><HoldingsChangesPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>
