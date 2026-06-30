@@ -117,6 +117,21 @@ from .data import (
     holdings_changes as holdings_changes_mod,
     swap_curve as swap_curve_mod,
     em_sovereign as em_sovereign_mod,
+    natgas_storage as natgas_storage_mod,
+    degree_days as degree_days_mod,
+    macro_scorecard as macro_scorecard_mod,
+    repo_funding as repo_funding_mod,
+    rating_changes as rating_changes_mod,
+    dupont_roe as dupont_roe_mod,
+    candlestick as candlestick_mod,
+    money_supply as money_supply_mod,
+    esg_dashboard as esg_dashboard_mod,
+    edgar_search as edgar_search_mod,
+    insider_clusters as insider_clusters_mod,
+    fx_seasonality as fx_seasonality_mod,
+    carbon_markets as carbon_markets_mod,
+    renko_kagi as renko_kagi_mod,
+    fx_correlation as fx_correlation_mod,
 )
 from .alerts import engine as alerts_mod
 from .db import engine as db_engine
@@ -139,6 +154,7 @@ from .portfolio import metrics_ext as metrics_ext_mod
 from .portfolio import attribution as attribution_mod
 from .portfolio import whatif as whatif_mod
 from .portfolio import component_var as component_var_mod
+from .portfolio import capture_ratios as capture_ratios_mod
 from .portfolio import hedging as hedging_mod
 from .paper import engine as paper_mod
 from .proforma import model as proforma_mod
@@ -2785,3 +2801,147 @@ def portfolio_hedging(portfolio_id: int | None = None) -> dict:
 @app.get("/api/em-sovereign")
 def em_sovereign() -> dict:
     return em_sovereign_mod.em_sovereign()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave Q: Natural-Gas Storage vs 5-Year Band
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/natgas-storage")
+def natgas_storage() -> dict:
+    return natgas_storage_mod.natgas_storage()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave Q: Heating & Cooling Degree Days (HDD/CDD)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/degree-days")
+def degree_days() -> dict:
+    return degree_days_mod.degree_days()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave Q: Country / Global Macro Scorecard (ECST)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/macro-scorecard")
+def macro_scorecard() -> dict:
+    return macro_scorecard_mod.macro_scorecard()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Repo & Money-Market Funding Monitor (RRP)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/repo-funding")
+def repo_funding() -> dict:
+    return repo_funding_mod.repo_funding()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Analyst Rating-Change / Upgrade-Downgrade Feed (RATD)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/rating-changes/{symbol}")
+def rating_changes(symbol: str) -> dict:
+    return rating_changes_mod.rating_changes(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: DuPont ROE Decomposition
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/dupont-roe/{symbol}")
+def dupont_roe(symbol: str) -> dict:
+    return dupont_roe_mod.dupont_roe(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Candlestick Pattern Recognition (CNDL)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/candlestick/{symbol}")
+def candlestick(symbol: str) -> dict:
+    return candlestick_mod.candlestick(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Money Supply & Bank-Credit Monitor
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/money-supply")
+def money_supply() -> dict:
+    return money_supply_mod.money_supply()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: ESG & Controversy Dashboard (ESG)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/esg/{symbol}")
+def esg(symbol: str) -> dict:
+    return esg_dashboard_mod.esg_dashboard(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: EDGAR Full-Text Filing Search
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/edgar-search")
+def edgar_search(q: str = "going concern", forms: str | None = None) -> dict:
+    return edgar_search_mod.edgar_search(q, forms)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Insider Cluster-Buy Signal (INSI)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/insider-clusters")
+def insider_clusters() -> dict:
+    return insider_clusters_mod.insider_clusters()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: FX Seasonality (SEAG)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/fx-seasonality/{pair}")
+def fx_seasonality(pair: str) -> dict:
+    return fx_seasonality_mod.fx_seasonality(pair)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Benchmark-Relative Ratios & Up/Down Capture (PORT)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/capture-ratios")
+def capture_ratios(portfolio_id: int | None = None) -> dict:
+    return capture_ratios_mod.capture_ratios(portfolio_id)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Carbon & Emissions Markets
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/carbon-markets")
+def carbon_markets() -> dict:
+    return carbon_markets_mod.carbon_markets()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Renko & Kagi Charts
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/renko-kagi/{symbol}")
+def renko_kagi(symbol: str) -> dict:
+    return renko_kagi_mod.renko_kagi(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: FX Correlation Matrix & Rolling Regime (CORR)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/fx-correlation")
+def fx_correlation(window: int = 60) -> dict:
+    return fx_correlation_mod.fx_correlation(window)

@@ -215,6 +215,76 @@ graceful-degradation + sample-data policy. This brings the total to 58 Bloomberg
 features across Waves C/D/E/F/G/H/I/J/K/L/M/N/O/P (66 new feature surfaces overall). The
 remaining ranked gap backlog continues at rank 34 in TODO.md section 12.
 
+**Bloomberg Wave Q** (shipped, ranks 34-36 of the gap backlog; built + adversarially
+verified via an ultracode workflow with consistency + data-integrity skeptics and a
+self-repair stage): a natural-gas storage vs 5-year band tracker computing
+surplus/deficit-to-normal (current minus the prior-5-year average for the same
+week-of-year, with the min<=avg<=max seasonal envelope and injection/withdrawal deltas)
+(`data/natgas_storage.py`, `/api/natgas-storage`), population-weighted national heating &
+cooling degree days with deviation-from-normal where the national figure is the
+pop-weighted sum of regions and HDD/CDD are mutually damped via a seasonal dead-band so a
+region is never simultaneously large on both (`data/degree_days.py`, `/api/degree-days`),
+and a cross-country global macro scorecard heatmap of GDP / CPI / unemployment / policy
+rate / PMI / current-account color-coded vs history with a per-country composite that is
+the mean of its cell heats (`data/macro_scorecard.py`, `/api/macro-scorecard`). Integrity
+notes from the self-repair stage: the degree-days live path now rescales the unscaled
+climatology to the genuine FRED national anchor (no md5 noise tagged live), the nat-gas
+footer gates its EIA source claim on data_mode==="live", and sample paths stay honestly
+tagged. One panel each, same graceful-degradation + sample-data policy. This brings the
+total to 61 Bloomberg parity features across Waves C/D/E/F/G/H/I/J/K/L/M/N/O/P/Q (69 new
+feature surfaces overall). The remaining ranked gap backlog continues at rank 37 in
+TODO.md section 12.
+
+**Bloomberg Wave R** (shipped, low-effort batch from the section-13 inventory): a
+repo & money-market funding monitor tracking SOFR / EFFR / OBFR / IORB / ON-RRP rate
++ take-up volume + reserve balances with the key funding spreads (SOFR-EFFR,
+SOFR-IORB, EFFR-IORB) in bp and a SOFR-IORB-keyed stress read, all from cached FRED
+daily series via the shared `macro_data.fetch_series` path (`data/repo_funding.py`,
+`/api/repo-funding`), a per-ticker analyst rating-change / upgrade-downgrade feed
+from yfinance `upgrades_downgrades` with a 90-day net-rating momentum read +
+bull/hold/bear consensus (`data/rating_changes.py`, `/api/rating-changes/{symbol}`),
+and a per-ticker DuPont ROE decomposition computing the 3-step (net margin x asset
+turnover x equity multiplier) and 5-step (tax burden x interest burden x operating
+margin x turnover x multiplier) breakdowns across fiscal years with a multiplicative
+identity invariant (components tie to NI/Equity in both live and sample) plus a
+margin-/efficiency-/leverage-driven driver verdict (`data/dupont_roe.py`,
+`/api/dupont-roe/{symbol}`). One panel each, panels fetch directly, same
+graceful-degradation + sample-data policy.
+
+Wave R continued (second low-effort batch, +7 surfaces): per-ticker candlestick
+pattern recognition with 16 trend-context-aware formations from pure body/shadow/gap
+geometry (`data/candlestick.py`, `/api/candlestick/{symbol}`), a money-supply &
+bank-credit / liquidity monitor (M2 + velocity + bank credit + loans + deposits +
+SLOOS, polarity-aware so rising SLOOS tightening reads red) from cached FRED
+(`data/money_supply.py`, `/api/money-supply`), a per-ticker ESG & controversy
+dashboard from yfinance `.sustainability` with lower-risk-is-better banding
+(`data/esg_dashboard.py`, `/api/esg/{symbol}`), an EDGAR full-text filing search
+wrapping the live free efts.sec.gov JSON API with the project SEC user-agent +
+source-document links (`data/edgar_search.py`, `/api/edgar-search?q=`), an insider
+cluster-buy detector grouping Form-4 open-market buys (code P, >=2 buyers/30d) off the
+shipped Unusual Whales firehose with a role-weighted conviction score
+(`data/insider_clusters.py`, `/api/insider-clusters`), an FX seasonality tool
+(month-of-year avg return + hit-rate per pair, the FX analogue of the shipped equity
+seasonality, mirroring `data/seasonality.py`) (`data/fx_seasonality.py`,
+`/api/fx-seasonality/{pair}`), and a portfolio benchmark-relative scorecard adding
+Information Ratio / Treynor / Jensen's alpha / tracking error / up-down capture
+(Morningstar mean-based capture, ×252 cancels) defaulting to the first portfolio off
+the shipped equity-curve engine (`portfolio/capture_ratios.py`, `/api/capture-ratios`).
+One panel each, panels fetch directly, same graceful-degradation + sample-data policy.
+
+Wave R continued (third low-effort batch, +3 surfaces): a carbon & emissions markets
+board (EU ETS / California CCA / RGGI / KRBN / GRN) with an explicit honesty model -
+KRBN/GRN print the live ETF close, EUA/CCA take the live ETF move/sparkline but anchor
+the allowance level with a `method` field, RGGI has no liquid proxy so it stays honest
+sample (`data/carbon_markets.py`, `/api/carbon-markets`), per-ticker Renko & Kagi
+chart builders (ATR-sized renko bricks + reversal-threshold kagi yang/yin line, both
+deterministic from OHLC, sample path runs the same builders on a synthetic series)
+(`data/renko_kagi.py`, `/api/renko-kagi/{symbol}`), and an FX correlation matrix &
+rolling-regime heatmap across DXY + majors + EM crosses reusing the shipped
+`correlations/correlation_model` rolling-corr math with corr-to-DXY clustering and a
+risk-on/off read (`data/fx_correlation.py`, `/api/fx-correlation`). One panel each,
+panels fetch directly, same graceful-degradation + sample-data policy.
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen

@@ -37,6 +37,9 @@ export const NAV_SECTIONS = [
       { key: "net-liquidity", label: "Fed Net Liquidity" },
       { key: "taylor-rule", label: "Taylor Rule" },
       { key: "breakevens", label: "Breakevens & Real Yields" },
+      { key: "macro-scorecard", label: "Global Macro Scorecard" },
+      { key: "repo-funding", label: "Repo & Funding" },
+      { key: "money-supply", label: "Money & Credit" },
     ],
   },
   {
@@ -54,6 +57,7 @@ export const NAV_SECTIONS = [
       { key: "portfolio-whatif", label: "Pre-Trade What-If" },
       { key: "portfolio-component-var", label: "Component VaR" },
       { key: "portfolio-hedging", label: "Hedging & Overlay" },
+      { key: "capture-ratios", label: "Capture Ratios" },
     ],
   },
   {
@@ -67,7 +71,10 @@ export const NAV_SECTIONS = [
       { key: "crack-spreads", label: "Crack Spreads" },
       { key: "commodity-spreads", label: "Commodity Spreads" },
       { key: "energy", label: "Energy" },
+      { key: "natgas-storage", label: "Nat-Gas Storage" },
+      { key: "degree-days", label: "Degree Days (HDD/CDD)" },
       { key: "shipping", label: "Shipping" },
+      { key: "carbon-markets", label: "Carbon & Emissions" },
     ],
   },
   {
@@ -95,6 +102,12 @@ export const NAV_SECTIONS = [
       { key: "etf-flows", label: "ETF Net-Flow" },
       { key: "pairs", label: "Pairs / Rel Value" },
       { key: "dividend-tracker", label: "Dividends & Buybacks" },
+      { key: "rating-changes", label: "Rating Changes" },
+      { key: "dupont-roe", label: "DuPont ROE" },
+      { key: "candlestick", label: "Candlestick Patterns" },
+      { key: "esg", label: "ESG & Controversy" },
+      { key: "insider-clusters", label: "Insider Clusters" },
+      { key: "renko-kagi", label: "Renko & Kagi" },
     ],
   },
   {
@@ -115,6 +128,8 @@ export const NAV_SECTIONS = [
       { key: "credit-curves", label: "Credit & CDS" },
       { key: "oas-curves", label: "Credit Spreads (OAS)" },
       { key: "cds-pricer", label: "CDS Pricer" },
+      { key: "fx-seasonality", label: "FX Seasonality" },
+      { key: "fx-correlation", label: "FX Correlation" },
     ],
   },
   {
@@ -150,6 +165,7 @@ export const NAV_SECTIONS = [
       { key: "calendar", label: "Calendar" },
       { key: "econ-calendar", label: "Economic Calendar" },
       { key: "alerts", label: "Alerts" },
+      { key: "edgar-search", label: "EDGAR Search" },
     ],
   },
 ];
