@@ -129,6 +129,9 @@ from .data import (
     edgar_search as edgar_search_mod,
     insider_clusters as insider_clusters_mod,
     fx_seasonality as fx_seasonality_mod,
+    carbon_markets as carbon_markets_mod,
+    renko_kagi as renko_kagi_mod,
+    fx_correlation as fx_correlation_mod,
 )
 from .alerts import engine as alerts_mod
 from .db import engine as db_engine
@@ -2915,3 +2918,30 @@ def fx_seasonality(pair: str) -> dict:
 @app.get("/api/capture-ratios")
 def capture_ratios(portfolio_id: int | None = None) -> dict:
     return capture_ratios_mod.capture_ratios(portfolio_id)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Carbon & Emissions Markets
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/carbon-markets")
+def carbon_markets() -> dict:
+    return carbon_markets_mod.carbon_markets()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Renko & Kagi Charts
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/renko-kagi/{symbol}")
+def renko_kagi(symbol: str) -> dict:
+    return renko_kagi_mod.renko_kagi(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: FX Correlation Matrix & Rolling Regime (CORR)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/fx-correlation")
+def fx_correlation(window: int = 60) -> dict:
+    return fx_correlation_mod.fx_correlation(window)
