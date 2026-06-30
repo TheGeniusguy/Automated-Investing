@@ -74,6 +74,7 @@ export const NAV_SECTIONS = [
       { key: "natgas-storage", label: "Nat-Gas Storage" },
       { key: "degree-days", label: "Degree Days (HDD/CDD)" },
       { key: "shipping", label: "Shipping" },
+      { key: "carbon-markets", label: "Carbon & Emissions" },
     ],
   },
   {
@@ -106,6 +107,7 @@ export const NAV_SECTIONS = [
       { key: "candlestick", label: "Candlestick Patterns" },
       { key: "esg", label: "ESG & Controversy" },
       { key: "insider-clusters", label: "Insider Clusters" },
+      { key: "renko-kagi", label: "Renko & Kagi" },
     ],
   },
   {
@@ -127,6 +129,7 @@ export const NAV_SECTIONS = [
       { key: "oas-curves", label: "Credit Spreads (OAS)" },
       { key: "cds-pricer", label: "CDS Pricer" },
       { key: "fx-seasonality", label: "FX Seasonality" },
+      { key: "fx-correlation", label: "FX Correlation" },
     ],
   },
   {

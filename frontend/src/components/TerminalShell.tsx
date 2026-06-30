@@ -123,6 +123,9 @@ import { EdgarSearchPanel } from "./EdgarSearchPanel";
 import { InsiderClustersPanel } from "./InsiderClustersPanel";
 import { FxSeasonalityPanel } from "./FxSeasonalityPanel";
 import { CaptureRatiosPanel } from "./CaptureRatiosPanel";
+import { CarbonMarketsPanel } from "./CarbonMarketsPanel";
+import { RenkoKagiPanel } from "./RenkoKagiPanel";
+import { FxCorrelationPanel } from "./FxCorrelationPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -248,6 +251,9 @@ const LAYOUT: Layout[] = [
   { i: "insider-clusters",  x: 0, y: 3338, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "fx-seasonality",    x: 0, y: 3374, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "capture-ratios",    x: 0, y: 3410, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "carbon-markets",    x: 0, y: 3446, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "renko-kagi",        x: 0, y: 3482, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "fx-correlation",    x: 0, y: 3518, w: 12, h: 36, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -680,6 +686,15 @@ export function TerminalShell() {
               </div>
               <div key="capture-ratios" data-panel-key="capture-ratios">
                 <ErrorBoundary label="Capture Ratios"><CaptureRatiosPanel /></ErrorBoundary>
+              </div>
+              <div key="carbon-markets" data-panel-key="carbon-markets">
+                <ErrorBoundary label="Carbon & Emissions"><CarbonMarketsPanel /></ErrorBoundary>
+              </div>
+              <div key="renko-kagi" data-panel-key="renko-kagi">
+                <ErrorBoundary label="Renko & Kagi"><RenkoKagiPanel /></ErrorBoundary>
+              </div>
+              <div key="fx-correlation" data-panel-key="fx-correlation">
+                <ErrorBoundary label="FX Correlation"><FxCorrelationPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>
