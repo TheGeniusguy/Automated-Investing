@@ -123,6 +123,12 @@ from .data import (
     repo_funding as repo_funding_mod,
     rating_changes as rating_changes_mod,
     dupont_roe as dupont_roe_mod,
+    candlestick as candlestick_mod,
+    money_supply as money_supply_mod,
+    esg_dashboard as esg_dashboard_mod,
+    edgar_search as edgar_search_mod,
+    insider_clusters as insider_clusters_mod,
+    fx_seasonality as fx_seasonality_mod,
 )
 from .alerts import engine as alerts_mod
 from .db import engine as db_engine
@@ -145,6 +151,7 @@ from .portfolio import metrics_ext as metrics_ext_mod
 from .portfolio import attribution as attribution_mod
 from .portfolio import whatif as whatif_mod
 from .portfolio import component_var as component_var_mod
+from .portfolio import capture_ratios as capture_ratios_mod
 from .portfolio import hedging as hedging_mod
 from .paper import engine as paper_mod
 from .proforma import model as proforma_mod
@@ -2845,3 +2852,66 @@ def rating_changes(symbol: str) -> dict:
 @app.get("/api/dupont-roe/{symbol}")
 def dupont_roe(symbol: str) -> dict:
     return dupont_roe_mod.dupont_roe(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Candlestick Pattern Recognition (CNDL)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/candlestick/{symbol}")
+def candlestick(symbol: str) -> dict:
+    return candlestick_mod.candlestick(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Money Supply & Bank-Credit Monitor
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/money-supply")
+def money_supply() -> dict:
+    return money_supply_mod.money_supply()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: ESG & Controversy Dashboard (ESG)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/esg/{symbol}")
+def esg(symbol: str) -> dict:
+    return esg_dashboard_mod.esg_dashboard(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: EDGAR Full-Text Filing Search
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/edgar-search")
+def edgar_search(q: str = "going concern", forms: str | None = None) -> dict:
+    return edgar_search_mod.edgar_search(q, forms)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Insider Cluster-Buy Signal (INSI)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/insider-clusters")
+def insider_clusters() -> dict:
+    return insider_clusters_mod.insider_clusters()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: FX Seasonality (SEAG)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/fx-seasonality/{pair}")
+def fx_seasonality(pair: str) -> dict:
+    return fx_seasonality_mod.fx_seasonality(pair)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Benchmark-Relative Ratios & Up/Down Capture (PORT)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/capture-ratios")
+def capture_ratios(portfolio_id: int | None = None) -> dict:
+    return capture_ratios_mod.capture_ratios(portfolio_id)
