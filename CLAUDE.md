@@ -179,6 +179,24 @@ graceful-degradation + sample-data policy. This brings the total to 52 Bloomberg
 features across Waves C/D/E/F/G/H/I/J/K/L/M/N (60 new feature surfaces overall). The
 remaining ranked gap backlog continues at rank 28 in TODO.md section 12.
 
+**Bloomberg Wave O** (shipped, ranks 28-30 of the gap backlog; built + adversarially
+verified via an ultracode workflow with per-feature math-invariant + data-integrity
+skeptics and a self-repair stage): Brinson-Fachler performance attribution decomposing
+active return vs an SPY/sector-ETF benchmark into allocation / selection / interaction
+per GICS sector, reconciling exactly to active return (`portfolio/attribution.py`,
+`/api/portfolio-attribution`), pre-trade what-if analytics simulating a proposed
+buy/sell/rebalance and showing before -> after deltas in vol / VaR / CVaR / beta / HHI /
+tracking error from the same risk engine on both position sets
+(`portfolio/whatif.py`, `/api/portfolio-whatif`), and marginal & component VaR per
+holding attributing total VaR to each position via the Euler identity (components sum to
+total VaR), with the panel deriving its reconciliation % from the rendered rows so it
+can never display a false reconciliation (`portfolio/component_var.py`,
+`/api/portfolio-component-var`). All three reuse the shipped portfolio engine
+(positions/valuation/risk) and default to the first portfolio. One panel each, same
+graceful-degradation + sample-data policy. This brings the total to 55 Bloomberg parity
+features across Waves C/D/E/F/G/H/I/J/K/L/M/N/O (63 new feature surfaces overall). The
+remaining ranked gap backlog continues at rank 31 in TODO.md section 12.
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
