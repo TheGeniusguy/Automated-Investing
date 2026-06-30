@@ -235,6 +235,22 @@ total to 61 Bloomberg parity features across Waves C/D/E/F/G/H/I/J/K/L/M/N/O/P/Q
 feature surfaces overall). The remaining ranked gap backlog continues at rank 37 in
 TODO.md section 12.
 
+**Bloomberg Wave R** (shipped, low-effort batch from the section-13 inventory): a
+repo & money-market funding monitor tracking SOFR / EFFR / OBFR / IORB / ON-RRP rate
++ take-up volume + reserve balances with the key funding spreads (SOFR-EFFR,
+SOFR-IORB, EFFR-IORB) in bp and a SOFR-IORB-keyed stress read, all from cached FRED
+daily series via the shared `macro_data.fetch_series` path (`data/repo_funding.py`,
+`/api/repo-funding`), a per-ticker analyst rating-change / upgrade-downgrade feed
+from yfinance `upgrades_downgrades` with a 90-day net-rating momentum read +
+bull/hold/bear consensus (`data/rating_changes.py`, `/api/rating-changes/{symbol}`),
+and a per-ticker DuPont ROE decomposition computing the 3-step (net margin x asset
+turnover x equity multiplier) and 5-step (tax burden x interest burden x operating
+margin x turnover x multiplier) breakdowns across fiscal years with a multiplicative
+identity invariant (components tie to NI/Equity in both live and sample) plus a
+margin-/efficiency-/leverage-driven driver verdict (`data/dupont_roe.py`,
+`/api/dupont-roe/{symbol}`). One panel each, panels fetch directly, same
+graceful-degradation + sample-data policy.
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
