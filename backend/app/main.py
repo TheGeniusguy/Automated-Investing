@@ -120,6 +120,9 @@ from .data import (
     natgas_storage as natgas_storage_mod,
     degree_days as degree_days_mod,
     macro_scorecard as macro_scorecard_mod,
+    repo_funding as repo_funding_mod,
+    rating_changes as rating_changes_mod,
+    dupont_roe as dupont_roe_mod,
 )
 from .alerts import engine as alerts_mod
 from .db import engine as db_engine
@@ -2815,3 +2818,30 @@ def degree_days() -> dict:
 @app.get("/api/macro-scorecard")
 def macro_scorecard() -> dict:
     return macro_scorecard_mod.macro_scorecard()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Repo & Money-Market Funding Monitor (RRP)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/repo-funding")
+def repo_funding() -> dict:
+    return repo_funding_mod.repo_funding()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: Analyst Rating-Change / Upgrade-Downgrade Feed (RATD)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/rating-changes/{symbol}")
+def rating_changes(symbol: str) -> dict:
+    return rating_changes_mod.rating_changes(symbol)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave R: DuPont ROE Decomposition
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/dupont-roe/{symbol}")
+def dupont_roe(symbol: str) -> dict:
+    return dupont_roe_mod.dupont_roe(symbol)
