@@ -53,6 +53,7 @@ export const NAV_SECTIONS = [
       { key: "portfolio-attribution", label: "Performance Attribution" },
       { key: "portfolio-whatif", label: "Pre-Trade What-If" },
       { key: "portfolio-component-var", label: "Component VaR" },
+      { key: "portfolio-hedging", label: "Hedging & Overlay" },
     ],
   },
   {
@@ -107,6 +108,8 @@ export const NAV_SECTIONS = [
       { key: "forward-rates", label: "Forward-Rate Matrix" },
       { key: "carry-rolldown", label: "Carry & Rolldown" },
       { key: "sovereign-bonds", label: "Global Sovereign Bonds" },
+      { key: "swap-curve", label: "Swap Curve & Pricer" },
+      { key: "em-sovereign", label: "EM Sovereign Risk" },
       { key: "fx-analytics", label: "FX Analytics" },
       { key: "reer", label: "REER Fair Value" },
       { key: "credit-curves", label: "Credit & CDS" },

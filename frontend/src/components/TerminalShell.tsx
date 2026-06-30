@@ -107,6 +107,9 @@ import { HoldingsChangesPanel } from "./HoldingsChangesPanel";
 import { PortfolioAttributionPanel } from "./PortfolioAttributionPanel";
 import { PortfolioWhatifPanel } from "./PortfolioWhatifPanel";
 import { ComponentVarPanel } from "./ComponentVarPanel";
+import { SwapCurvePanel } from "./SwapCurvePanel";
+import { HedgingPanel } from "./HedgingPanel";
+import { EmSovereignPanel } from "./EmSovereignPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -216,6 +219,9 @@ const LAYOUT: Layout[] = [
   { i: "portfolio-attribution", x: 0, y: 2758, w: 12, h: 38, minW: 6, minH: 20 },
   { i: "portfolio-whatif",  x: 0, y: 2796, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "portfolio-component-var", x: 0, y: 2832, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "swap-curve",        x: 0, y: 2868, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "portfolio-hedging", x: 0, y: 2904, w: 12, h: 38, minW: 6, minH: 20 },
+  { i: "em-sovereign",      x: 0, y: 2942, w: 12, h: 36, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -600,6 +606,15 @@ export function TerminalShell() {
               </div>
               <div key="portfolio-component-var" data-panel-key="portfolio-component-var">
                 <ErrorBoundary label="Component VaR"><ComponentVarPanel /></ErrorBoundary>
+              </div>
+              <div key="swap-curve" data-panel-key="swap-curve">
+                <ErrorBoundary label="Swap Curve & Pricer"><SwapCurvePanel /></ErrorBoundary>
+              </div>
+              <div key="portfolio-hedging" data-panel-key="portfolio-hedging">
+                <ErrorBoundary label="Hedging & Overlay"><HedgingPanel /></ErrorBoundary>
+              </div>
+              <div key="em-sovereign" data-panel-key="em-sovereign">
+                <ErrorBoundary label="EM Sovereign Risk"><EmSovereignPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>
