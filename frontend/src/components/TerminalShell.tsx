@@ -104,6 +104,9 @@ import { UnusualOptionsPanel } from "./UnusualOptionsPanel";
 import { EtfFlowsPanel } from "./EtfFlowsPanel";
 import { DarkPoolPanel } from "./DarkPoolPanel";
 import { HoldingsChangesPanel } from "./HoldingsChangesPanel";
+import { PortfolioAttributionPanel } from "./PortfolioAttributionPanel";
+import { PortfolioWhatifPanel } from "./PortfolioWhatifPanel";
+import { ComponentVarPanel } from "./ComponentVarPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -210,6 +213,9 @@ const LAYOUT: Layout[] = [
   { i: "etf-flows",         x: 0, y: 2648, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "dark-pool",         x: 0, y: 2684, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "holdings-changes",  x: 0, y: 2720, w: 12, h: 38, minW: 6, minH: 20 },
+  { i: "portfolio-attribution", x: 0, y: 2758, w: 12, h: 38, minW: 6, minH: 20 },
+  { i: "portfolio-whatif",  x: 0, y: 2796, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "portfolio-component-var", x: 0, y: 2832, w: 12, h: 36, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -585,6 +591,15 @@ export function TerminalShell() {
               </div>
               <div key="holdings-changes" data-panel-key="holdings-changes">
                 <ErrorBoundary label="13F Change Tracking"><HoldingsChangesPanel /></ErrorBoundary>
+              </div>
+              <div key="portfolio-attribution" data-panel-key="portfolio-attribution">
+                <ErrorBoundary label="Performance Attribution"><PortfolioAttributionPanel /></ErrorBoundary>
+              </div>
+              <div key="portfolio-whatif" data-panel-key="portfolio-whatif">
+                <ErrorBoundary label="Pre-Trade What-If"><PortfolioWhatifPanel /></ErrorBoundary>
+              </div>
+              <div key="portfolio-component-var" data-panel-key="portfolio-component-var">
+                <ErrorBoundary label="Component VaR"><ComponentVarPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>

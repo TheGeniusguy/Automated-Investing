@@ -50,6 +50,9 @@ export const NAV_SECTIONS = [
       { key: "montecarlo", label: "Monte Carlo" },
       { key: "allocation-optimizer", label: "Allocation Optimizer" },
       { key: "portfolio-risk", label: "Portfolio Risk / VaR" },
+      { key: "portfolio-attribution", label: "Performance Attribution" },
+      { key: "portfolio-whatif", label: "Pre-Trade What-If" },
+      { key: "portfolio-component-var", label: "Component VaR" },
     ],
   },
   {

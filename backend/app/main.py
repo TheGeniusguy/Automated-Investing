@@ -134,6 +134,9 @@ from .portfolio import rebalancing as prebal
 from .portfolio import csv_import as pcsv
 from .portfolio import weighted as weighted_mod
 from .portfolio import metrics_ext as metrics_ext_mod
+from .portfolio import attribution as attribution_mod
+from .portfolio import whatif as whatif_mod
+from .portfolio import component_var as component_var_mod
 from .paper import engine as paper_mod
 from .proforma import model as proforma_mod
 from . import backtest as backtest_mod  # package re-exports run_backtest + list_strategies
@@ -2725,3 +2728,30 @@ def dark_pool() -> dict:
 @app.get("/api/holdings-changes")
 def holdings_changes() -> dict:
     return holdings_changes_mod.holdings_changes()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave O: Brinson-Fachler Performance Attribution (PORT)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/portfolio-attribution")
+def portfolio_attribution(portfolio_id: int | None = None) -> dict:
+    return attribution_mod.attribution(portfolio_id)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave O: Pre-Trade What-If Portfolio Analytics (PORT)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/portfolio-whatif")
+def portfolio_whatif(portfolio_id: int | None = None) -> dict:
+    return whatif_mod.whatif(portfolio_id)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave O: Marginal & Component VaR per Holding (PORT)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/portfolio-component-var")
+def portfolio_component_var(portfolio_id: int | None = None) -> dict:
+    return component_var_mod.component_var(portfolio_id)
