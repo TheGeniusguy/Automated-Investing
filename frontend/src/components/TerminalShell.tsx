@@ -116,6 +116,13 @@ import { MacroScorecardPanel } from "./MacroScorecardPanel";
 import { RepoFundingPanel } from "./RepoFundingPanel";
 import { RatingChangesPanel } from "./RatingChangesPanel";
 import { DupontRoePanel } from "./DupontRoePanel";
+import { CandlestickPanel } from "./CandlestickPanel";
+import { MoneySupplyPanel } from "./MoneySupplyPanel";
+import { EsgPanel } from "./EsgPanel";
+import { EdgarSearchPanel } from "./EdgarSearchPanel";
+import { InsiderClustersPanel } from "./InsiderClustersPanel";
+import { FxSeasonalityPanel } from "./FxSeasonalityPanel";
+import { CaptureRatiosPanel } from "./CaptureRatiosPanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -234,6 +241,13 @@ const LAYOUT: Layout[] = [
   { i: "repo-funding",      x: 0, y: 3086, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "rating-changes",    x: 0, y: 3122, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "dupont-roe",        x: 0, y: 3158, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "candlestick",       x: 0, y: 3194, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "money-supply",      x: 0, y: 3230, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "esg",               x: 0, y: 3266, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "edgar-search",      x: 0, y: 3302, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "insider-clusters",  x: 0, y: 3338, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "fx-seasonality",    x: 0, y: 3374, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "capture-ratios",    x: 0, y: 3410, w: 12, h: 36, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -645,6 +659,27 @@ export function TerminalShell() {
               </div>
               <div key="dupont-roe" data-panel-key="dupont-roe">
                 <ErrorBoundary label="DuPont ROE"><DupontRoePanel /></ErrorBoundary>
+              </div>
+              <div key="candlestick" data-panel-key="candlestick">
+                <ErrorBoundary label="Candlestick Patterns"><CandlestickPanel /></ErrorBoundary>
+              </div>
+              <div key="money-supply" data-panel-key="money-supply">
+                <ErrorBoundary label="Money & Credit"><MoneySupplyPanel /></ErrorBoundary>
+              </div>
+              <div key="esg" data-panel-key="esg">
+                <ErrorBoundary label="ESG & Controversy"><EsgPanel /></ErrorBoundary>
+              </div>
+              <div key="edgar-search" data-panel-key="edgar-search">
+                <ErrorBoundary label="EDGAR Search"><EdgarSearchPanel /></ErrorBoundary>
+              </div>
+              <div key="insider-clusters" data-panel-key="insider-clusters">
+                <ErrorBoundary label="Insider Clusters"><InsiderClustersPanel /></ErrorBoundary>
+              </div>
+              <div key="fx-seasonality" data-panel-key="fx-seasonality">
+                <ErrorBoundary label="FX Seasonality"><FxSeasonalityPanel /></ErrorBoundary>
+              </div>
+              <div key="capture-ratios" data-panel-key="capture-ratios">
+                <ErrorBoundary label="Capture Ratios"><CaptureRatiosPanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>
