@@ -533,11 +533,11 @@ waves of five down the list.
       _Why this rank:_ Actionable 'how do I hedge this' tool reusing the shipped options engine; high utility, moderate build.
 - [x] **33. EM Sovereign Risk & Reserves Dashboard (EMBI) `EMBI`** [HIGH / medium effort] - Per-country panel of FX reserves (and import-cover adequacy), hard-currency EMBI-style spread, 5y sovereign CDS proxy and external-debt ratios to rank EM crisis vulnerability.
       _Why this rank:_ Crisis-ranking heatmap is a strong narrative panel; broadens coverage beyond DM into EM.
-- [ ] **34. Natural-Gas Storage vs 5-Year Band** [med / low effort] - EIA weekly working-gas-in-storage with injection/withdrawal deltas plotted against the 5-year average and min/max seasonal envelope, plus surplus/deficit-to-normal.
+- [x] **34. Natural-Gas Storage vs 5-Year Band** [med / low effort] - EIA weekly working-gas-in-storage with injection/withdrawal deltas plotted against the 5-year average and min/max seasonal envelope, plus surplus/deficit-to-normal.
       _Why this rank:_ Headline gas-balance chart, free EIA data, low effort; the seasonal-band visual is instantly readable.
-- [ ] **35. Heating & Cooling Degree Days (HDD/CDD)** [HIGH / medium effort] - Population-weighted national HDD/CDD from NOAA/FRED with deviation-from-normal, the core weather-demand driver for natural gas and power; seasonally realistic sample fallback.
+- [x] **35. Heating & Cooling Degree Days (HDD/CDD)** [HIGH / medium effort] - Population-weighted national HDD/CDD from NOAA/FRED with deviation-from-normal, the core weather-demand driver for natural gas and power; seasonally realistic sample fallback.
       _Why this rank:_ Weather-driven energy demand is a unique angle few competitors show; pairs with the gas-storage panel.
-- [ ] **36. Country / Global Macro Scorecard (ECST) `ECST`** [HIGH / medium effort] - Cross-country G20/OECD heatmap of GDP growth, CPI, unemployment, policy rate, PMI and current-account balance, color-coded vs history, from FRED international and OECD CLI series with sample fallback.
+- [x] **36. Country / Global Macro Scorecard (ECST) `ECST`** [HIGH / medium effort] - Cross-country G20/OECD heatmap of GDP growth, CPI, unemployment, policy rate, PMI and current-account balance, color-coded vs history, from FRED international and OECD CLI series with sample fallback.
       _Why this rank:_ A full-world macro heatmap is a flagship 'terminal' visual; complements the rate and PMI boards.
 - [ ] **37. Custom Study / Formula Builder (CIXB) `CIXB`** [HIGH / high effort] - A formula language letting users compose synthetic series and custom indicators from price/volume/other tickers (e.g. close(SPY)/close(TLT)*100, ema(rsi(AAPL),5)), evaluated server-side and rendered as a study.
       _Why this rank:_ Power-user differentiator that mirrors Bloomberg's custom-index editor; higher effort but a standout capability.

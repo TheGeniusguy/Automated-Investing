@@ -215,6 +215,26 @@ graceful-degradation + sample-data policy. This brings the total to 58 Bloomberg
 features across Waves C/D/E/F/G/H/I/J/K/L/M/N/O/P (66 new feature surfaces overall). The
 remaining ranked gap backlog continues at rank 34 in TODO.md section 12.
 
+**Bloomberg Wave Q** (shipped, ranks 34-36 of the gap backlog; built + adversarially
+verified via an ultracode workflow with consistency + data-integrity skeptics and a
+self-repair stage): a natural-gas storage vs 5-year band tracker computing
+surplus/deficit-to-normal (current minus the prior-5-year average for the same
+week-of-year, with the min<=avg<=max seasonal envelope and injection/withdrawal deltas)
+(`data/natgas_storage.py`, `/api/natgas-storage`), population-weighted national heating &
+cooling degree days with deviation-from-normal where the national figure is the
+pop-weighted sum of regions and HDD/CDD are mutually damped via a seasonal dead-band so a
+region is never simultaneously large on both (`data/degree_days.py`, `/api/degree-days`),
+and a cross-country global macro scorecard heatmap of GDP / CPI / unemployment / policy
+rate / PMI / current-account color-coded vs history with a per-country composite that is
+the mean of its cell heats (`data/macro_scorecard.py`, `/api/macro-scorecard`). Integrity
+notes from the self-repair stage: the degree-days live path now rescales the unscaled
+climatology to the genuine FRED national anchor (no md5 noise tagged live), the nat-gas
+footer gates its EIA source claim on data_mode==="live", and sample paths stay honestly
+tagged. One panel each, same graceful-degradation + sample-data policy. This brings the
+total to 61 Bloomberg parity features across Waves C/D/E/F/G/H/I/J/K/L/M/N/O/P/Q (69 new
+feature surfaces overall). The remaining ranked gap backlog continues at rank 37 in
+TODO.md section 12.
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
