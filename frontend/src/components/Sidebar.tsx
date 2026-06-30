@@ -37,6 +37,7 @@ export const NAV_SECTIONS = [
       { key: "net-liquidity", label: "Fed Net Liquidity" },
       { key: "taylor-rule", label: "Taylor Rule" },
       { key: "breakevens", label: "Breakevens & Real Yields" },
+      { key: "macro-scorecard", label: "Global Macro Scorecard" },
     ],
   },
   {
@@ -67,6 +68,8 @@ export const NAV_SECTIONS = [
       { key: "crack-spreads", label: "Crack Spreads" },
       { key: "commodity-spreads", label: "Commodity Spreads" },
       { key: "energy", label: "Energy" },
+      { key: "natgas-storage", label: "Nat-Gas Storage" },
+      { key: "degree-days", label: "Degree Days (HDD/CDD)" },
       { key: "shipping", label: "Shipping" },
     ],
   },
