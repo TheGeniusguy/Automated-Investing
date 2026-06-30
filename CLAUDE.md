@@ -251,6 +251,27 @@ margin-/efficiency-/leverage-driven driver verdict (`data/dupont_roe.py`,
 `/api/dupont-roe/{symbol}`). One panel each, panels fetch directly, same
 graceful-degradation + sample-data policy.
 
+Wave R continued (second low-effort batch, +7 surfaces): per-ticker candlestick
+pattern recognition with 16 trend-context-aware formations from pure body/shadow/gap
+geometry (`data/candlestick.py`, `/api/candlestick/{symbol}`), a money-supply &
+bank-credit / liquidity monitor (M2 + velocity + bank credit + loans + deposits +
+SLOOS, polarity-aware so rising SLOOS tightening reads red) from cached FRED
+(`data/money_supply.py`, `/api/money-supply`), a per-ticker ESG & controversy
+dashboard from yfinance `.sustainability` with lower-risk-is-better banding
+(`data/esg_dashboard.py`, `/api/esg/{symbol}`), an EDGAR full-text filing search
+wrapping the live free efts.sec.gov JSON API with the project SEC user-agent +
+source-document links (`data/edgar_search.py`, `/api/edgar-search?q=`), an insider
+cluster-buy detector grouping Form-4 open-market buys (code P, >=2 buyers/30d) off the
+shipped Unusual Whales firehose with a role-weighted conviction score
+(`data/insider_clusters.py`, `/api/insider-clusters`), an FX seasonality tool
+(month-of-year avg return + hit-rate per pair, the FX analogue of the shipped equity
+seasonality, mirroring `data/seasonality.py`) (`data/fx_seasonality.py`,
+`/api/fx-seasonality/{pair}`), and a portfolio benchmark-relative scorecard adding
+Information Ratio / Treynor / Jensen's alpha / tracking error / up-down capture
+(Morningstar mean-based capture, ×252 cancels) defaulting to the first portfolio off
+the shipped equity-curve engine (`portfolio/capture_ratios.py`, `/api/capture-ratios`).
+One panel each, panels fetch directly, same graceful-degradation + sample-data policy.
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
