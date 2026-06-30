@@ -117,6 +117,9 @@ from .data import (
     holdings_changes as holdings_changes_mod,
     swap_curve as swap_curve_mod,
     em_sovereign as em_sovereign_mod,
+    natgas_storage as natgas_storage_mod,
+    degree_days as degree_days_mod,
+    macro_scorecard as macro_scorecard_mod,
 )
 from .alerts import engine as alerts_mod
 from .db import engine as db_engine
@@ -2785,3 +2788,30 @@ def portfolio_hedging(portfolio_id: int | None = None) -> dict:
 @app.get("/api/em-sovereign")
 def em_sovereign() -> dict:
     return em_sovereign_mod.em_sovereign()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave Q: Natural-Gas Storage vs 5-Year Band
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/natgas-storage")
+def natgas_storage() -> dict:
+    return natgas_storage_mod.natgas_storage()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave Q: Heating & Cooling Degree Days (HDD/CDD)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/degree-days")
+def degree_days() -> dict:
+    return degree_days_mod.degree_days()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave Q: Country / Global Macro Scorecard (ECST)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/macro-scorecard")
+def macro_scorecard() -> dict:
+    return macro_scorecard_mod.macro_scorecard()
