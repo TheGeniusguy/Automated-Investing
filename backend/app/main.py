@@ -115,6 +115,8 @@ from .data import (
     etf_flows as etf_flows_mod,
     dark_pool as dark_pool_mod,
     holdings_changes as holdings_changes_mod,
+    swap_curve as swap_curve_mod,
+    em_sovereign as em_sovereign_mod,
 )
 from .alerts import engine as alerts_mod
 from .db import engine as db_engine
@@ -137,6 +139,7 @@ from .portfolio import metrics_ext as metrics_ext_mod
 from .portfolio import attribution as attribution_mod
 from .portfolio import whatif as whatif_mod
 from .portfolio import component_var as component_var_mod
+from .portfolio import hedging as hedging_mod
 from .paper import engine as paper_mod
 from .proforma import model as proforma_mod
 from . import backtest as backtest_mod  # package re-exports run_backtest + list_strategies
@@ -2755,3 +2758,30 @@ def portfolio_whatif(portfolio_id: int | None = None) -> dict:
 @app.get("/api/portfolio-component-var")
 def portfolio_component_var(portfolio_id: int | None = None) -> dict:
     return component_var_mod.component_var(portfolio_id)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave P: IRS Swap Curve & Vanilla Swap Pricer (IRSB / SWPM)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/swap-curve")
+def swap_curve() -> dict:
+    return swap_curve_mod.swap_curve()
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave P: Hedging & Overlay Designer (HEDG)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/portfolio-hedging")
+def portfolio_hedging(portfolio_id: int | None = None) -> dict:
+    return hedging_mod.hedging(portfolio_id)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bloomberg Wave P: EM Sovereign Risk & Reserves Dashboard (EMBI)
+# ──────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/em-sovereign")
+def em_sovereign() -> dict:
+    return em_sovereign_mod.em_sovereign()
