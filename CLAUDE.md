@@ -272,6 +272,19 @@ Information Ratio / Treynor / Jensen's alpha / tracking error / up-down capture
 the shipped equity-curve engine (`portfolio/capture_ratios.py`, `/api/capture-ratios`).
 One panel each, panels fetch directly, same graceful-degradation + sample-data policy.
 
+Wave R continued (third low-effort batch, +3 surfaces): a carbon & emissions markets
+board (EU ETS / California CCA / RGGI / KRBN / GRN) with an explicit honesty model -
+KRBN/GRN print the live ETF close, EUA/CCA take the live ETF move/sparkline but anchor
+the allowance level with a `method` field, RGGI has no liquid proxy so it stays honest
+sample (`data/carbon_markets.py`, `/api/carbon-markets`), per-ticker Renko & Kagi
+chart builders (ATR-sized renko bricks + reversal-threshold kagi yang/yin line, both
+deterministic from OHLC, sample path runs the same builders on a synthetic series)
+(`data/renko_kagi.py`, `/api/renko-kagi/{symbol}`), and an FX correlation matrix &
+rolling-regime heatmap across DXY + majors + EM crosses reusing the shipped
+`correlations/correlation_model` rolling-corr math with corr-to-DXY clustering and a
+risk-on/off read (`data/fx_correlation.py`, `/api/fx-correlation`). One panel each,
+panels fetch directly, same graceful-degradation + sample-data policy.
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
