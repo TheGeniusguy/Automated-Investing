@@ -113,6 +113,9 @@ import { EmSovereignPanel } from "./EmSovereignPanel";
 import { NatGasStoragePanel } from "./NatGasStoragePanel";
 import { DegreeDaysPanel } from "./DegreeDaysPanel";
 import { MacroScorecardPanel } from "./MacroScorecardPanel";
+import { RepoFundingPanel } from "./RepoFundingPanel";
+import { RatingChangesPanel } from "./RatingChangesPanel";
+import { DupontRoePanel } from "./DupontRoePanel";
 
 // react-grid-layout uses 12-column x N-row grid; layout values are in grid units.
 const LAYOUT: Layout[] = [
@@ -228,6 +231,9 @@ const LAYOUT: Layout[] = [
   { i: "natgas-storage",    x: 0, y: 2978, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "degree-days",       x: 0, y: 3014, w: 12, h: 36, minW: 6, minH: 18 },
   { i: "macro-scorecard",   x: 0, y: 3050, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "repo-funding",      x: 0, y: 3086, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "rating-changes",    x: 0, y: 3122, w: 12, h: 36, minW: 6, minH: 18 },
+  { i: "dupont-roe",        x: 0, y: 3158, w: 12, h: 36, minW: 6, minH: 18 },
 ];
 
 const ROW_HEIGHT = 30;
@@ -630,6 +636,15 @@ export function TerminalShell() {
               </div>
               <div key="macro-scorecard" data-panel-key="macro-scorecard">
                 <ErrorBoundary label="Macro Scorecard"><MacroScorecardPanel /></ErrorBoundary>
+              </div>
+              <div key="repo-funding" data-panel-key="repo-funding">
+                <ErrorBoundary label="Repo & Funding"><RepoFundingPanel /></ErrorBoundary>
+              </div>
+              <div key="rating-changes" data-panel-key="rating-changes">
+                <ErrorBoundary label="Rating Changes"><RatingChangesPanel /></ErrorBoundary>
+              </div>
+              <div key="dupont-roe" data-panel-key="dupont-roe">
+                <ErrorBoundary label="DuPont ROE"><DupontRoePanel /></ErrorBoundary>
               </div>
             </GridLayout>
           </div>

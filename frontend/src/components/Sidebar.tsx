@@ -38,6 +38,7 @@ export const NAV_SECTIONS = [
       { key: "taylor-rule", label: "Taylor Rule" },
       { key: "breakevens", label: "Breakevens & Real Yields" },
       { key: "macro-scorecard", label: "Global Macro Scorecard" },
+      { key: "repo-funding", label: "Repo & Funding" },
     ],
   },
   {
@@ -98,6 +99,8 @@ export const NAV_SECTIONS = [
       { key: "etf-flows", label: "ETF Net-Flow" },
       { key: "pairs", label: "Pairs / Rel Value" },
       { key: "dividend-tracker", label: "Dividends & Buybacks" },
+      { key: "rating-changes", label: "Rating Changes" },
+      { key: "dupont-roe", label: "DuPont ROE" },
     ],
   },
   {
