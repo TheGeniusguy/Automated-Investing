@@ -197,6 +197,24 @@ graceful-degradation + sample-data policy. This brings the total to 55 Bloomberg
 features across Waves C/D/E/F/G/H/I/J/K/L/M/N/O (63 new feature surfaces overall). The
 remaining ranked gap backlog continues at rank 31 in TODO.md section 12.
 
+**Bloomberg Wave P** (shipped, ranks 31-33 of the gap backlog; built + adversarially
+verified via an ultracode workflow with math-invariant + data-integrity skeptics and a
+self-repair stage): IRS swap curve & vanilla swap pricer bootstrapping a SOFR/swap curve
+into decreasing discount factors and pricing a fixed-for-floating swap (par rate / PV~0
+at par / DV01) with swap-spreads-to-Treasury (`data/swap_curve.py`, `/api/swap-curve`),
+a hedging & overlay designer computing a min-variance beta hedge (residual beta ~0) plus
+a Black-Scholes protective put and a solved zero-cost collar
+(`portfolio/hedging.py`, `/api/portfolio-hedging`), and an EM sovereign risk & reserves
+dashboard ranking crisis vulnerability from a monotonic composite of reserves /
+import-cover / EMBI-style spread / external debt (`data/em_sovereign.py`,
+`/api/em-sovereign`). Integrity note: the EM hard-currency spread is deliberately curated
+in both live and sample modes (free FRED carries no EM USD credit spread; the local
+IRLTLT01 yield gap would mislabel it), and the hedging live path degrades to sample
+rather than ever emitting a fabricated VaR under a "live" tag. One panel each, same
+graceful-degradation + sample-data policy. This brings the total to 58 Bloomberg parity
+features across Waves C/D/E/F/G/H/I/J/K/L/M/N/O/P (66 new feature surfaces overall). The
+remaining ranked gap backlog continues at rank 34 in TODO.md section 12.
+
 ### Sample-data policy (deliberate)
 These surfaces are built for a marketing portfolio and must look fully populated.
 When a live key/feed is unavailable they return rich SAMPLE data with NO on-screen
